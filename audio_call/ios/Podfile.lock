@@ -1,0 +1,47 @@
+PODS:
+  - Flutter (1.0.0)
+  - flutter_voximplant (1.0.0):
+    - Flutter
+    - VoxImplantSDK (= 2.22.0)
+  - permission_handler (3.2.2):
+    - Flutter
+  - shared_preferences (0.0.1):
+    - Flutter
+  - VoxImplantSDK (2.22.0):
+    - VoxImplantSDK/Core (= 2.22.0)
+  - VoxImplantSDK/Core (2.22.0):
+    - VoxImplantWebRTC (= 74.0.1)
+  - VoxImplantWebRTC (74.0.1)
+
+DEPENDENCIES:
+  - Flutter (from `.symlinks/flutter/ios`)
+  - flutter_voximplant (from `.symlinks/plugins/flutter_voximplant/ios`)
+  - permission_handler (from `.symlinks/plugins/permission_handler/ios`)
+  - shared_preferences (from `.symlinks/plugins/shared_preferences/ios`)
+
+SPEC REPOS:
+  https://github.com/cocoapods/specs.git:
+    - VoxImplantSDK
+    - VoxImplantWebRTC
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: ".symlinks/flutter/ios"
+  flutter_voximplant:
+    :path: ".symlinks/plugins/flutter_voximplant/ios"
+  permission_handler:
+    :path: ".symlinks/plugins/permission_handler/ios"
+  shared_preferences:
+    :path: ".symlinks/plugins/shared_preferences/ios"
+
+SPEC CHECKSUMS:
+  Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
+  flutter_voximplant: 820922c2caa8658f1eae5d274df26c3197e9275f
+  permission_handler: d59f41439f5bc6c4d1005f3355e98f05ddc68ece
+  shared_preferences: 1feebfa37bb57264736e16865e7ffae7fc99b523
+  VoxImplantSDK: 35f1fec5c52609111db9c4a14083493627f3a1fa
+  VoxImplantWebRTC: 959b59c4a5d1338354792416ee677c5e47036321
+
+PODFILE CHECKSUM: 7fb83752f59ead6285236625b82473f90b1cb932
+
+COCOAPODS: 1.6.1
