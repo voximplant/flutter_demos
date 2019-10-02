@@ -70,7 +70,7 @@ class AuthService {
 
   Future<String> getUsername() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('username').replaceAll('.voximplant.com', '');
+    return prefs.getString('username')?.replaceAll('.voximplant.com', '');
   }
 
   Future<void> _saveAuthDetails(String username, LoginTokens loginTokens) async {
