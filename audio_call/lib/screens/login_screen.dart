@@ -3,6 +3,7 @@
 import 'package:audio_call/screens/main_screen.dart';
 import 'package:audio_call/services/auth_service.dart';
 import 'package:audio_call/theme/voximplant_theme.dart';
+import 'package:audio_call/utils/app_state_helper.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -13,7 +14,7 @@ class LoginScreen extends StatefulWidget {
   }
 }
 
-class LoginScreenState extends State<LoginScreen> {
+class LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
   final TextEditingController _loginController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final AuthService _authService = AuthService();
@@ -22,6 +23,8 @@ class LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
+    AppStateHelper().appState = AppState.Foreground;
+    WidgetsBinding.instance.addObserver(this);
     _authService.getUsername()
         .then((value) {
           _loginController.text = value;
@@ -30,9 +33,19 @@ class LoginScreenState extends State<LoginScreen> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _loginController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      AppStateHelper().appState = AppState.Foreground;
+    } else {
+      AppStateHelper().appState = AppState.Background;
+    }
   }
 
   Future<void> _loginWithPassword(String user, String password) async {

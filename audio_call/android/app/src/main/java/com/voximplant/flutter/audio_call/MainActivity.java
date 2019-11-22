@@ -1,4 +1,4 @@
-package com.example.audio_call;
+package com.voximplant.flutter.audio_call;
 
 import android.os.Bundle;
 import io.flutter.app.FlutterActivity;

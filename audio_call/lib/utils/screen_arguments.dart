@@ -4,7 +4,11 @@
 import 'package:flutter_voximplant/flutter_voximplant.dart';
 
 class CallArguments {
-  final Call call;
+  Call call;
+  String displayName;
+  String callId;
 
-  CallArguments(this.call);
+  CallArguments.withCall(this.call);
+  CallArguments.withDisplayName(this.displayName);
+  CallArguments.withCallId(this.callId);
 }

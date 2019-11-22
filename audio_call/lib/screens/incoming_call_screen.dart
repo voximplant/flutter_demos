@@ -9,20 +9,19 @@ import 'package:audio_call/services/navigation_service.dart';
 import 'package:audio_call/theme/voximplant_theme.dart';
 import 'package:audio_call/utils/screen_arguments.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_voximplant/flutter_voximplant.dart';
 import 'package:get_it/get_it.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class IncomingCallScreen extends StatelessWidget {
   static const routeName = '/incomingCall';
-  final Call call;
+  final CallService _callService = CallService();
+  final String displayName;
 
-  IncomingCallScreen({Key key, @required this.call}) : super(key: key) {
-    call.onCallDisconnected = _onCallDisconnected;
+  IncomingCallScreen({Key key, @required this.displayName}) : super(key: key) {
+    _callService.bind(onCallDisconnected: _onCallDisconnected);
   }
 
   _onCallDisconnected(Map<String, String> headers, bool answeredElsewhere) {
-    CallService().notifyCallIsEnded(call.callId);
     GetIt locator = GetIt.instance;
     locator<NavigationService>().navigateTo(MainScreen.routeName);
   }
@@ -39,14 +38,14 @@ class IncomingCallScreen extends StatelessWidget {
         }
       }
     }
-    await call.answer();
+    await _callService.answer();
     Navigator.pushReplacementNamed(context,
         CallScreen.routeName,
-        arguments: CallArguments(call));
+        arguments: CallArguments.withCallId(_callService.callId));
   }
 
   _declineCall(BuildContext context) async {
-    await call.decline();
+    await _callService.decline();
     Navigator.pushReplacementNamed(context, MainScreen.routeName);
   }
 
@@ -67,7 +66,7 @@ class IncomingCallScreen extends StatelessWidget {
             Padding(
               padding: EdgeInsets.only(top: 30),
               child: Text(
-                '${call.endpoints.first.displayName}',
+                displayName,
                 style: TextStyle(
                   fontSize: 20,
                 ),

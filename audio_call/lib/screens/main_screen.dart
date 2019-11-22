@@ -7,15 +7,15 @@ import 'package:audio_call/screens/login_screen.dart';
 import 'package:audio_call/services/auth_service.dart';
 import 'package:audio_call/services/call_service.dart';
 import 'package:audio_call/services/navigation_service.dart';
+import 'package:audio_call/utils/app_state_helper.dart';
 import 'package:audio_call/utils/screen_arguments.dart';
 import 'package:flutter/material.dart';
 
 import 'package:audio_call/theme/voximplant_theme.dart';
-import 'package:flutter_voximplant/flutter_voximplant.dart';
 import 'package:get_it/get_it.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-class MainScreen extends StatelessWidget {
+class MainScreen extends StatelessWidget with WidgetsBindingObserver {
   static const routeName = '/mainScreen';
 
   final AuthService _authService = AuthService();
@@ -26,17 +26,28 @@ class MainScreen extends StatelessWidget {
   MainScreen({Key key}) : super(key: key) {
     _authService.onConnectionClosed = _onConnectionClosed;
     _displayName = _authService.displayName;
+    WidgetsBinding.instance.addObserver(this);
+  }
 
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      AppStateHelper().appState = AppState.Foreground;
+    } else {
+      AppStateHelper().appState = AppState.Background;
+    }
   }
 
   void _onConnectionClosed() {
     print('MainScreen: onConnectionClosed');
+    WidgetsBinding.instance.removeObserver(this);
     GetIt locator = GetIt.instance;
     locator<NavigationService>().navigateTo(LoginScreen.routeName);
   }
 
   Future<void> _logout(BuildContext context) async {
     await _authService.logout();
+    WidgetsBinding.instance.removeObserver(this);
     Navigator.pushReplacementNamed(context, LoginScreen.routeName);
   }
 
@@ -53,11 +64,12 @@ class MainScreen extends StatelessWidget {
         }
       }
     }
-    Call call = await _callService.makeAudioCall(number);
+    String callId = await _callService.makeAudioCall(number);
+    WidgetsBinding.instance.removeObserver(this);
     Navigator.pushReplacementNamed(
         context,
         CallScreen.routeName,
-        arguments: CallArguments(call));
+        arguments: CallArguments.withCallId(callId));
   }
 
   @override

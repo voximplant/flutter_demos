@@ -19,11 +19,19 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_voximplant: 1.0.0
+  flutter_voximplant: 1.1.0
   shared_preferences: 0.5.3+4
   crypto: 2.1.2
   get_it: 3.0.0
+  uuid: 2.0.2
   permission_handler: '^3.2.0'
+  flutter_voip_push_notification: 0.0.3
+  firebase_messaging: 6.0.1
+  flutter_local_notifications: 0.8.4+3
+  flutter_call_kit:
+    git:
+      url: https://github.com/peerwaya/flutter_call_kit.git
+      ref: master
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

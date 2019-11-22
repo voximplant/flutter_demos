@@ -50,23 +50,53 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.1.2"
+  firebase_messaging:
+    dependency: "direct main"
+    description:
+      name: firebase_messaging
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "6.0.1"
   flutter:
     dependency: "direct main"
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_call_kit:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: master
+      resolved-ref: "80b7fae2d50f97b53087e4dd92324dc6a9de73d6"
+      url: "https://github.com/peerwaya/flutter_call_kit.git"
+    source: git
+    version: "0.0.3"
+  flutter_local_notifications:
+    dependency: "direct main"
+    description:
+      name: flutter_local_notifications
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.8.4+3"
   flutter_test:
     dependency: "direct dev"
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_voip_push_notification:
+    dependency: "direct main"
+    description:
+      name: flutter_voip_push_notification
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.3"
   flutter_voximplant:
     dependency: "direct main"
     description:
       name: flutter_voximplant
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.0"
+    version: "1.1.0"
   get_it:
     dependency: "direct main"
     description:
@@ -108,7 +138,14 @@ packages:
       name: permission_handler
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.2.2"
+    version: "3.3.0"
+  platform:
+    dependency: transitive
+    description:
+      name: platform
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.2.1"
   quiver:
     dependency: transitive
     description:
@@ -177,6 +214,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.1.6"
+  uuid:
+    dependency: "direct main"
+    description:
+      name: uuid
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.2"
   vector_math:
     dependency: transitive
     description:

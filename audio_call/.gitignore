@@ -39,7 +39,6 @@
 **/android/**/GeneratedPluginRegistrant.java
 
 # iOS/XCode related
-**/.DS_Store
 **/ios/**/*.mode1v3
 **/ios/**/*.mode2v3
 **/ios/**/*.moved-aside
@@ -73,3 +72,5 @@
 !**/ios/**/default.pbxuser
 !**/ios/**/default.perspectivev3
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
+
+**/android/app/google-services.json
