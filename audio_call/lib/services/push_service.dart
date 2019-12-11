@@ -1,7 +1,7 @@
 /// Copyright (c) 2011-2019, Zingaya, Inc. All rights reserved.
 
-import 'dart:convert';
 import 'dart:io';
+import 'dart:convert';
 import 'package:audio_call/utils/app_state_helper.dart';
 import 'package:audio_call/utils/notifications_android.dart';
 import 'package:flutter_voip_push_notification/flutter_voip_push_notification.dart';
@@ -99,8 +99,9 @@ class PushServiceAndroid extends PushService {
     print('PushServiceAndroid: notificationMessageHandler($message)');
 
     if (AppStateHelper().appState == AppState.NotLaunched) {
-      Map<String, dynamic> payload = message.containsKey('data') ?
-      Map<String, dynamic>.from(message['data']) : null;
+      Map<String, dynamic> payload = message.containsKey('data')
+          ? Map<String, dynamic>.from(message['data'])
+          : null;
 
       if (payload != null) {
         Map<String, dynamic> callDetails = jsonDecode(payload['voximplant']);

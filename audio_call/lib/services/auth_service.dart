@@ -1,7 +1,10 @@
 /// Copyright (c) 2011-2019, Zingaya, Inc. All rights reserved.
 
+import 'dart:io';
+import 'dart:convert';
 
 import 'package:audio_call/services/call_service.dart';
+import 'package:crypto/crypto.dart';
 import 'package:flutter_voximplant/flutter_voximplant.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -15,6 +18,7 @@ class AuthService {
   ConnectionClosed onConnectionClosed;
 
   String _voipToken;
+
   set pushToken(String newToken) {
     if (newToken == null || newToken == "") {
       print('AuthService: token is cleared');
@@ -72,7 +76,7 @@ class AuthService {
     String user = username ?? prefs.getString('username');
 
     AuthResult authResult =
-    await _client.loginWithAccessToken(user, loginTokens.accessToken);
+        await _client.loginWithAccessToken(user, loginTokens.accessToken);
     await _saveAuthDetails(user, authResult.loginTokens);
     _displayName = authResult.displayName;
     return _displayName;
