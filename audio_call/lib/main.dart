@@ -23,10 +23,8 @@ GetIt getIt = GetIt.instance;
 
 void main() {
   setupLocator();
-
-  PushService();
-
   runApp(MyApp());
+  PushService();
 }
 
 void setupLocator() {
@@ -42,6 +40,7 @@ class MyApp extends StatelessWidget {
 
   //android only
   navigateToIncomingCallIfNeeded() async {
+    WidgetsFlutterBinding.ensureInitialized();
     bool navigate = await NotificationsAndroid.didNotificationLaunchApp();
     if (navigate) {
       NotificationsAndroid.cancelNotification();
@@ -61,7 +60,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     return MaterialApp(
       title: 'Audio call',
       theme: ThemeData(
