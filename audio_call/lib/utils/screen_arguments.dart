@@ -1,10 +1,10 @@
-/// Copyright (c) 2011-2019, Zingaya, Inc. All rights reserved.
+/// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
 
 
 import 'package:flutter_voximplant/flutter_voximplant.dart';
 
 class CallArguments {
-  Call call;
+  VICall call;
   String displayName;
   String callId;
 

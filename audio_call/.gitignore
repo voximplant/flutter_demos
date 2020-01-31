@@ -24,6 +24,7 @@
 **/doc/api/
 .dart_tool/
 .flutter-plugins
+.flutter-plugins-dependencies
 .packages
 .pub-cache/
 .pub/
@@ -37,6 +38,7 @@
 **/android/gradlew.bat
 **/android/local.properties
 **/android/**/GeneratedPluginRegistrant.java
+**/android/gradle/
 
 # iOS/XCode related
 **/ios/**/*.mode1v3
@@ -65,6 +67,8 @@
 **/ios/Runner/GeneratedPluginRegistrant.*
 **/ios/Flutter/flutter_export_environment.sh
 **/ios/Runner.xcworkspace/xcshareddata/**
+
+**/ios/Flutter/Flutter.podspec
 
 # Exceptions to above rules.
 !**/ios/**/default.mode1v3

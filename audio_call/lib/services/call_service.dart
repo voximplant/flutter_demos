@@ -1,4 +1,4 @@
-/// Copyright (c) 2011-2019, Zingaya, Inc. All rights reserved.
+/// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
 
 import 'dart:io';
 import 'package:audio_call/services/call_service_android.dart';
@@ -9,35 +9,32 @@ import 'callkit_service.dart';
 typedef void CallMuted(bool muted);
 typedef void CallPutOnHold(bool onHold);
 
-
-
 class CallService {
   static CallService _singleton;
 
-
   bool navigateToIncomingCallScreen = false;
 
-  Client _client;
-  set client(Client client) {
+  VIClient _client;
+  set client(VIClient client) {
     print('CallService: setClient');
     _client = client;
     configure();
     _client.onIncomingCall = onIncomingCall;
   }
 
-  Call call;
+  VICall call;
   String get callId => call?.callId;
 
-  CallDisconnected onCallDisconnectedEvent;
-  CallFailed onCallFailedEvent;
-  CallConnected onCallConnectedEvent;
-  CallRinging onCallRingingEvent;
-  CallAudioStarted onCallAudioStartedEvent;
-  SIPInfoReceived onSIPInfoReceivedEvent;
-  MessageReceived onMessageReceivedEvent;
-  ICECompleted onICECompletedEvent;
-  ICETimeout onICETimeoutEvent;
-  EndpointAdded onEndpointAddedEvent;
+  VICallDisconnected onCallDisconnectedEvent;
+  VICallFailed onCallFailedEvent;
+  VICallConnected onCallConnectedEvent;
+  VICallRinging onCallRingingEvent;
+  VICallAudioStarted onCallAudioStartedEvent;
+  VISIPInfoReceived onSIPInfoReceivedEvent;
+  VIMessageReceived onMessageReceivedEvent;
+  VIICECompleted onICECompletedEvent;
+  VIICETimeout onICETimeoutEvent;
+  VIEndpointAdded onEndpointAddedEvent;
 
   CallMuted onCallMutedEvent;
   CallPutOnHold onCallPutOnHoldEvent;
@@ -68,13 +65,14 @@ class CallService {
   Future<void> configure() async {}
 
   Future<String> makeAudioCall(String number) async {
-    Call call = await _client.call(number);
+    VICall call = await _client.call(number);
     registerCall(call);
     print('CallService: created call: ${call.callId}');
     return call.callId;
   }
 
-  onIncomingCall(Call call, Map<String, String> headers) async {
+  onIncomingCall(VIClient client, VICall call, bool video,
+      Map<String, String> headers) async {
     print('CallService: onIncomingCall(${call.callId})');
     if (this.call != null) {
       await call.decline();
@@ -84,7 +82,7 @@ class CallService {
   }
 
 //#region Call events
-  registerCall(Call call) {
+  registerCall(VICall call) {
     this.call = call;
     this.call.onCallDisconnected = onCallDisconnected;
     this.call.onCallFailed = onCallFailed;
@@ -99,16 +97,16 @@ class CallService {
   }
 
   void bind({
-    CallDisconnected onCallDisconnected,
-    CallFailed onCallFailed,
-    CallConnected onCallConnected,
-    CallRinging onCallRinging,
-    CallAudioStarted onCallAudioStarted,
-    SIPInfoReceived onSIPInfoReceived,
-    MessageReceived onMessageReceived,
-    ICECompleted onICECompleted,
-    ICETimeout onICETimeout,
-    EndpointAdded onEndpointAdded,
+    VICallDisconnected onCallDisconnected,
+    VICallFailed onCallFailed,
+    VICallConnected onCallConnected,
+    VICallRinging onCallRinging,
+    VICallAudioStarted onCallAudioStarted,
+    VISIPInfoReceived onSIPInfoReceived,
+    VIMessageReceived onMessageReceived,
+    VIICECompleted onICECompleted,
+    VIICETimeout onICETimeout,
+    VIEndpointAdded onEndpointAdded,
     CallMuted onCallMuted,
     CallPutOnHold onCallPutOnHold,
   }) {
@@ -126,77 +124,80 @@ class CallService {
     onCallPutOnHoldEvent = onCallPutOnHold;
   }
 
-  onCallDisconnected(Map<String, String> headers, bool answeredElsewhere) {
+  onCallDisconnected(
+      VICall call, Map<String, String> headers, bool answeredElsewhere) {
     print('CallService: onCallDisconnected($headers, $answeredElsewhere)');
-    call = null;
+    this.call = null;
     if (onCallDisconnectedEvent != null) {
-      onCallDisconnectedEvent(headers, answeredElsewhere);
+      onCallDisconnectedEvent(call, headers, answeredElsewhere);
     }
   }
 
-  onCallFailed(int code, String description, Map<String, String> headers) {
+  onCallFailed(
+      VICall call, int code, String description, Map<String, String> headers) {
     print('CallService: onCallFailed($code, $description, $headers)');
-    call = null;
+    this.call = null;
     if (onCallFailedEvent != null) {
-      onCallFailedEvent(code, description, headers);
+      onCallFailedEvent(call, code, description, headers);
     }
   }
 
-  onCallConnected(Map<String, String> headers) {
+  onCallConnected(VICall call, Map<String, String> headers) {
     print('CallService: onCallConnected($headers)');
     if (onCallConnectedEvent != null) {
-      onCallConnectedEvent(headers);
+      onCallConnectedEvent(call, headers);
     }
   }
 
-  onCallRinging(Map<String, String> headers) {
+  onCallRinging(VICall call, Map<String, String> headers) {
     print('CallService: onCallRinging($headers)');
     if (onCallRingingEvent != null) {
-      onCallRingingEvent(headers);
+      onCallRingingEvent(call, headers);
     }
   }
 
-  onCallAudioStarted() {
+  onCallAudioStarted(VICall call) {
     print('CallService: onCallAudioStarted()');
     if (onCallAudioStartedEvent != null) {
-      onCallAudioStartedEvent();
+      onCallAudioStartedEvent(call);
     }
   }
 
-  onSIPInfoReceived(String type, String content, Map<String, String> headers) {
+  onSIPInfoReceived(
+      VICall call, String type, String content, Map<String, String> headers) {
     print('CallService: onSIPInfoReceived($type, $content, $headers)');
     if (onSIPInfoReceivedEvent != null) {
-      onSIPInfoReceivedEvent(type, content, headers);
+      onSIPInfoReceivedEvent(call, type, content, headers);
     }
   }
 
-  onMessageReceived(String message) {
+  onMessageReceived(VICall call, String message) {
     print('CallScreen: onMessageReceived($message)');
     if (onMessageReceivedEvent != null) {
-      onMessageReceivedEvent(message);
+      onMessageReceivedEvent(call, message);
     }
   }
 
-  onICETimeout() {
+  onICETimeout(VICall call) {
     print('CallService: onICETimeout()');
     if (onICETimeoutEvent != null) {
-      onICETimeoutEvent();
+      onICETimeoutEvent(call);
     }
   }
 
-  onICECompleted() {
+  onICECompleted(VICall call) {
     print('CallService: onICECompleted()');
     if (onICECompletedEvent != null) {
-      onICECompletedEvent();
+      onICECompletedEvent(call);
     }
   }
 
-  onEndpointAdded(Endpoint endpoint) {
+  onEndpointAdded(VICall call, VIEndpoint endpoint) {
     print('CallService: onEndpointAdded($endpoint)');
     endpoint.onEndpointUpdated = onEndpointUpdated;
   }
 
-  onEndpointUpdated(Endpoint endpoint) {
+  onEndpointUpdated(VIEndpoint endpoint) {
     print('CallService: onEndpointUpdated($endpoint)');
   }
 
@@ -224,4 +225,3 @@ class CallService {
   }
 //#endregion
 }
-

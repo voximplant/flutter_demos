@@ -1,4 +1,4 @@
-/// Copyright (c) 2011-2019, Zingaya, Inc. All rights reserved.
+/// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
 
 import 'dart:io';
 import 'dart:convert';
@@ -11,7 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 typedef void ConnectionClosed();
 
 class AuthService {
-  Client _client;
+  VIClient _client;
   String _displayName;
 
   String get displayName => _displayName;
@@ -41,7 +41,7 @@ class AuthService {
     CallService().client = _client;
     _client.clientStateStream.listen((state) {
       print('AuthService: client state is changed: $state');
-      if (state == ClientState.Disconnected && onConnectionClosed != null) {
+      if (state == VIClientState.Disconnected && onConnectionClosed != null) {
         onConnectionClosed();
       }
     });
@@ -49,14 +49,14 @@ class AuthService {
 
   Future<String> loginWithPassword(String username, String password) async {
     print('AuthService: loginWithPassword');
-    ClientState clientState = await _client.getClientState();
-    if (clientState == ClientState.LoggedIn) {
+    VIClientState clientState = await _client.getClientState();
+    if (clientState == VIClientState.LoggedIn) {
       return _displayName;
     }
-    if (clientState == ClientState.Disconnected) {
+    if (clientState == VIClientState.Disconnected) {
       await _client.connect();
     }
-    AuthResult authResult = await _client.login(username, password);
+    VIAuthResult authResult = await _client.login(username, password);
     await _saveAuthDetails(username, authResult.loginTokens);
     _displayName = authResult.displayName;
     return _displayName;
@@ -64,18 +64,18 @@ class AuthService {
 
   Future<String> loginWithAccessToken([String username]) async {
     print('AuthService: loginWithAccessToken');
-    ClientState clientState = await _client.getClientState();
-    if (clientState == ClientState.LoggedIn) {
+    VIClientState clientState = await _client.getClientState();
+    if (clientState == VIClientState.LoggedIn) {
       return _displayName;
     }
-    if (clientState == ClientState.Disconnected) {
+    if (clientState == VIClientState.Disconnected) {
       await _client.connect();
     }
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    LoginTokens loginTokens = _getAuthDetails(prefs);
+    VILoginTokens loginTokens = _getAuthDetails(prefs);
     String user = username ?? prefs.getString('username');
 
-    AuthResult authResult =
+    VIAuthResult authResult =
         await _client.loginWithAccessToken(user, loginTokens.accessToken);
     await _saveAuthDetails(user, authResult.loginTokens);
     _displayName = authResult.displayName;
@@ -92,7 +92,7 @@ class AuthService {
   }
 
   Future<void> _saveAuthDetails(String username,
-      LoginTokens loginTokens) async {
+      VILoginTokens loginTokens) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString('username', username);
     prefs.setString('accessToken', loginTokens.accessToken);
@@ -101,8 +101,8 @@ class AuthService {
     prefs.setInt('refreshExpire', loginTokens.refreshExpire);
   }
 
-  LoginTokens _getAuthDetails(SharedPreferences prefs) {
-    LoginTokens loginTokens = LoginTokens();
+  VILoginTokens _getAuthDetails(SharedPreferences prefs) {
+    VILoginTokens loginTokens = VILoginTokens();
     loginTokens.accessToken = prefs.getString('accessToken');
     loginTokens.accessExpire = prefs.getInt('accessExpire');
     loginTokens.refreshExpire = prefs.getInt('refreshExpire');

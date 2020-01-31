@@ -1,4 +1,4 @@
-/// Copyright (c) 2011-2019, Zingaya, Inc. All rights reserved.
+/// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
 
 import 'dart:io';
 
@@ -11,6 +11,7 @@ import 'package:audio_call/utils/screen_arguments.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_voximplant/flutter_voximplant.dart';
 
 class IncomingCallScreen extends StatelessWidget {
   static const routeName = '/incomingCall';
@@ -21,7 +22,7 @@ class IncomingCallScreen extends StatelessWidget {
     _callService.bind(onCallDisconnected: _onCallDisconnected);
   }
 
-  _onCallDisconnected(Map<String, String> headers, bool answeredElsewhere) {
+  _onCallDisconnected(VICall call, Map<String, String> headers, bool answeredElsewhere) {
     GetIt locator = GetIt.instance;
     locator<NavigationService>().navigateTo(MainScreen.routeName);
   }

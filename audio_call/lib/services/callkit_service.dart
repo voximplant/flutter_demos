@@ -1,4 +1,4 @@
-/// Copyright (c) 2011-2019, Zingaya, Inc. All rights reserved.
+/// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
 
 import 'package:audio_call/screens/call_screen.dart';
 import 'package:audio_call/utils/screen_arguments.dart';
@@ -16,7 +16,8 @@ class CallServiceIOS extends CallService {
   final Uuid _uuid = Uuid();
 
   final FlutterCallKit _callKit = FlutterCallKit();
-  final AudioDeviceManager _audioDeviceManager = Voximplant().getAudioDeviceManager();
+  final VIAudioDeviceManager _audioDeviceManager =
+      Voximplant().getAudioDeviceManager();
 
   CallServiceIOS() : super.ctr();
 
@@ -42,7 +43,8 @@ class CallServiceIOS extends CallService {
   }
 
   @override
-  onIncomingCall(Call call, Map<String, String> headers) async {
+  onIncomingCall(VIClient client, VICall call, bool video,
+      Map<String, String> headers) async {
     if (this.call != null) {
       await call.decline();
       return;
@@ -51,7 +53,8 @@ class CallServiceIOS extends CallService {
     print('onIncomingCall($call)');
     if (_callKitUUID == null) {
       _callKitUUID = call.callKitUUID;
-      _callKit.displayIncomingCall(call.callKitUUID,
+      _callKit.displayIncomingCall(
+          call.callKitUUID,
           call.endpoints?.first?.displayName,
           call.endpoints?.first?.displayName,
           handleType: HandleType.generic);
@@ -83,39 +86,41 @@ class CallServiceIOS extends CallService {
   }
 
   @override
-  onCallConnected(Map<String, String> headers) {
-    super.onCallConnected(headers);
+  onCallConnected(VICall call, Map<String, String> headers) {
+    super.onCallConnected(call, headers);
     print('CallServiceIOS: onCallConnected($headers)');
 
-    _callKit.updateDisplay(_callKitUUID, call.callId,
-        call.endpoints.first?.userName ?? 'Unknown',
+    _callKit.updateDisplay(
+        _callKitUUID, call.callId, call.endpoints.first?.userName ?? 'Unknown',
         handleType: HandleType.generic);
   }
 
   @override
-  onCallDisconnected(Map<String, String> headers, bool answeredElsewhere) {
+  onCallDisconnected(
+      VICall call, Map<String, String> headers, bool answeredElsewhere) {
     print('CallServiceIOS: onCallDisconnected($headers)');
     _audioDeviceManager.callKitReleaseAudioSession();
     _callKit.reportEndCallWithUUID(_callKitUUID, EndReason.remoteEnded);
     _callKitUUID = null;
-    super.onCallDisconnected(headers, answeredElsewhere);
+    super.onCallDisconnected(call, headers, answeredElsewhere);
   }
 
   @override
-  onCallFailed(int code, String description, Map<String, String> headers) {
+  onCallFailed(
+      VICall call, int code, String description, Map<String, String> headers) {
     print('CallServiceIOS: onCallFailed($description)');
     _audioDeviceManager.callKitReleaseAudioSession();
     _callKit.endCall(_callKitUUID);
     _callKitUUID = null;
-    super.onCallFailed(code, description, headers);
+    super.onCallFailed(call, code, description, headers);
   }
 
   @override
-  onEndpointUpdated(Endpoint endpoint) {
+  onEndpointUpdated(VIEndpoint endpoint) {
     super.onEndpointUpdated(endpoint);
     print('CallServiceIOS: onEndpointUpdated($endpoint)');
-    _callKit.updateDisplay(_callKitUUID, call.callId,
-        call.endpoints.first?.userName ?? 'Unknown',
+    _callKit.updateDisplay(
+        _callKitUUID, call.callId, call.endpoints.first?.userName ?? 'Unknown',
         handleType: HandleType.generic);
   }
 
@@ -128,7 +133,9 @@ class CallServiceIOS extends CallService {
     if (this.call == null && _callKitUUID == null) {
       _callKitUUID = uuid;
     }
-    if (call != null && _callKitUUID != null && call.callKitUUID != _callKitUUID) {
+    if (call != null &&
+        _callKitUUID != null &&
+        call.callKitUUID != _callKitUUID) {
       await _callKit.endCall(uuid);
     }
   }
@@ -144,7 +151,8 @@ class CallServiceIOS extends CallService {
   }
 
   Future<void> _didReceiveStartCallAction(String uuid, String handle) async {
-    print('CallServiceIOS: didReceiveStartCallAction(uuid: $uuid, handle: $handle)');
+    print(
+        'CallServiceIOS: didReceiveStartCallAction(uuid: $uuid, handle: $handle)');
     await _audioDeviceManager.callKitConfigureAudioSession();
   }
 
@@ -155,7 +163,8 @@ class CallServiceIOS extends CallService {
 
   Future<void> _didPerformSetMutedCallAction(bool mute, String uuid) async {
     // Called when the system or user mutes a call
-    print('CallServiceIOS: didPerformSetMutedCallAction(mute: $mute, uuid: $uuid)');
+    print(
+        'CallServiceIOS: didPerformSetMutedCallAction(mute: $mute, uuid: $uuid)');
     await super.sendAudio(!mute);
     if (onCallMutedEvent != null) {
       onCallMutedEvent(mute);

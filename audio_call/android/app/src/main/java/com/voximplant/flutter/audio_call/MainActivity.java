@@ -1,13 +1,13 @@
 package com.voximplant.flutter.audio_call;
 
-import android.os.Bundle;
-import io.flutter.app.FlutterActivity;
-import io.flutter.plugins.GeneratedPluginRegistrant;
+import androidx.annotation.NonNull;
+import io.flutter.embedding.android.FlutterActivity;
+import io.flutter.embedding.engine.FlutterEngine;
+import io.flutter.plugins.firebasemessaging.FirebaseMessagingPlugin;
 
 public class MainActivity extends FlutterActivity {
   @Override
-  protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    GeneratedPluginRegistrant.registerWith(this);
+  public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
+    flutterEngine.getPlugins().add(new FirebaseMessagingPlugin());
   }
 }

@@ -19,14 +19,14 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_voximplant: 1.2.0
+  flutter_voximplant: 2.0.0
   shared_preferences: 0.5.3+4
   crypto: 2.1.3
   get_it: 3.0.0
   uuid: 2.0.2
   permission_handler: '^3.2.0'
   flutter_voip_push_notification: 0.0.3
-  firebase_messaging: 6.0.1
+  firebase_messaging: 6.0.9
   flutter_local_notifications: 0.8.4+3
   flutter_call_kit:
     git:

@@ -1,0 +1,59 @@
+PODS:
+  - Flutter (1.0.0)
+  - flutter_voximplant (2.0.0):
+    - Flutter
+    - VoxImplantSDK (= 2.26.0)
+  - permission_handler (3.2.0):
+    - Flutter
+  - shared_preferences (0.0.1):
+    - Flutter
+  - shared_preferences_macos (0.0.1):
+    - Flutter
+  - shared_preferences_web (0.0.1):
+    - Flutter
+  - VoxImplantSDK (2.26.0):
+    - VoxImplantSDK/Core (= 2.26.0)
+  - VoxImplantSDK/Core (2.26.0):
+    - VoxImplantWebRTC (= 78.0.0)
+  - VoxImplantWebRTC (78.0.0)
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - flutter_voximplant (from `.symlinks/plugins/flutter_voximplant/ios`)
+  - permission_handler (from `.symlinks/plugins/permission_handler/ios`)
+  - shared_preferences (from `.symlinks/plugins/shared_preferences/ios`)
+  - shared_preferences_macos (from `.symlinks/plugins/shared_preferences_macos/ios`)
+  - shared_preferences_web (from `.symlinks/plugins/shared_preferences_web/ios`)
+
+SPEC REPOS:
+  trunk:
+    - VoxImplantSDK
+    - VoxImplantWebRTC
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  flutter_voximplant:
+    :path: ".symlinks/plugins/flutter_voximplant/ios"
+  permission_handler:
+    :path: ".symlinks/plugins/permission_handler/ios"
+  shared_preferences:
+    :path: ".symlinks/plugins/shared_preferences/ios"
+  shared_preferences_macos:
+    :path: ".symlinks/plugins/shared_preferences_macos/ios"
+  shared_preferences_web:
+    :path: ".symlinks/plugins/shared_preferences_web/ios"
+
+SPEC CHECKSUMS:
+  Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
+  flutter_voximplant: 5d2223da5d47ff2ee5f43c84a60c8fc4f5a01ffa
+  permission_handler: d4838243e7d0f4b18911a6422d81e7e6b71ad545
+  shared_preferences: 430726339841afefe5142b9c1f50cb6bd7793e01
+  shared_preferences_macos: f3f29b71ccbb56bf40c9dd6396c9acf15e214087
+  shared_preferences_web: 141cce0c3ed1a1c5bf2a0e44f52d31eeb66e5ea9
+  VoxImplantSDK: c53bd6ed2634a43a33ae0d517cc90c7ae4b0bed4
+  VoxImplantWebRTC: a4bd73d41b9f8f3a60de032337b661bab8ead6f9
+
+PODFILE CHECKSUM: 3dbe063e9c90a5d7c9e4e76e70a821b9e2c1d271
+
+COCOAPODS: 1.8.3

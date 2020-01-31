@@ -1,4 +1,4 @@
-/// Copyright (c) 2011-2019, Zingaya, Inc. All rights reserved.
+/// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
 
 import 'package:audio_call/screens/main_screen.dart';
 import 'package:audio_call/services/call_service.dart';
@@ -19,13 +19,13 @@ class CallScreen extends StatefulWidget {
 }
 
 class CallScreenState extends State<CallScreen> {
-  String _endpointName;
+  String _endpointName = 'Unknown';
   String _callStatus = 'Connecting...';
   bool _isAudioMuted = false;
   bool _isOnHold = false;
   String _callId;
   IconData _audioDeviceIcon = Icons.hearing;
-  AudioDeviceManager _audioDeviceManager;
+  VIAudioDeviceManager _audioDeviceManager;
   final CallService _callService = CallService();
 
   CallScreenState(this._callId) {
@@ -38,47 +38,46 @@ class CallScreenState extends State<CallScreen> {
       onCallRinging: _onCallRinging,
       onCallAudioStarted: _onCallAudioStarted,
       onEndpointAdded: _onEndpointAdded,
-
       onCallMuted: _onCallMuted,
       onCallPutOnHold: _onCallPutOnHold,
     );
-    _endpointName = _callService.getEndpointNameForCall(_callId) ?? 'Unknown';
 
     print('CallScreen: received callId: $_callId');
   }
 
-  _onAudioDeviceChange(AudioDevice audioDevice) {
+  _onAudioDeviceChange(
+      VIAudioDeviceManager audioDeviceManager, VIAudioDevice audioDevice) {
     setState(() {
       switch (audioDevice) {
-        case AudioDevice.Bluetooth:
+        case VIAudioDevice.Bluetooth:
           _audioDeviceIcon = Icons.bluetooth_audio;
           break;
-        case AudioDevice.Earpiece:
+        case VIAudioDevice.Earpiece:
           _audioDeviceIcon = Icons.hearing;
           break;
-        case AudioDevice.Speaker:
+        case VIAudioDevice.Speaker:
           _audioDeviceIcon = Icons.volume_up;
           break;
-        case AudioDevice.WiredHeadset:
+        case VIAudioDevice.WiredHeadset:
           _audioDeviceIcon = Icons.headset;
           break;
-        case AudioDevice.None:
+        case VIAudioDevice.None:
           break;
       }
     });
   }
 
-  _onCallDisconnected(Map<String, String> headers, bool answeredElsewhere) {
+  _onCallDisconnected(VICall call, Map<String, String> headers, bool answeredElsewhere) {
     print('CallScreen: onCallDisconnected');
     Navigator.pushReplacementNamed(context, MainScreen.routeName);
   }
 
-  _onCallFailed(int code, String description, Map<String, String> headers) {
+  _onCallFailed(VICall call, int code, String description, Map<String, String> headers) {
     print('CallScreen: onCallFailed');
     Navigator.pushReplacementNamed(context, MainScreen.routeName);
   }
 
-  _onCallConnected(Map<String, String> headers) {
+  _onCallConnected(VICall call, Map<String, String> headers) {
     print('CallScreen: onCallConnected');
     setState(() {
       _callStatus = 'Call in progress';
@@ -86,18 +85,18 @@ class CallScreenState extends State<CallScreen> {
     });
   }
 
-  _onCallRinging(Map<String, String> headers) {
+  _onCallRinging(VICall call, Map<String, String> headers) {
     print('CallScreen: onCallRinging');
     setState(() {
       _callStatus = 'Ringing...';
     });
   }
 
-  _onCallAudioStarted() {
+  _onCallAudioStarted(VICall call) {
     print('CallScreen: onCallAudioStarted');
   }
 
-  _onEndpointAdded(Endpoint endpoint) {
+  _onEndpointAdded(VICall call, VIEndpoint endpoint) {
     print('CallScreen: onEndpointAdded');
     endpoint.onEndpointUpdated = _onEndpointUpdated;
     setState(() {
@@ -105,7 +104,7 @@ class CallScreenState extends State<CallScreen> {
     });
   }
 
-  _onEndpointUpdated(Endpoint endpoint) {
+  _onEndpointUpdated(VIEndpoint endpoint) {
     print('CallScreen: onEndpointUpdated');
     setState(() {
       _endpointName = endpoint.userName;
@@ -124,8 +123,7 @@ class CallScreenState extends State<CallScreen> {
       setState(() {
         _isAudioMuted = !_isAudioMuted;
       });
-    } catch (e) {
-    }
+    } catch (e) {}
   }
 
   _onCallPutOnHold(bool onHold) {
@@ -140,16 +138,15 @@ class CallScreenState extends State<CallScreen> {
       setState(() {
         _isOnHold = !_isOnHold;
       });
-    } catch (e) {
-    }
+    } catch (e) {}
   }
 
-  _selectAudioDevice(AudioDevice device) async {
+  _selectAudioDevice(VIAudioDevice device) async {
     await _audioDeviceManager.selectAudioDevice(device);
   }
 
   _showAvailableAudioDevices() async {
-    List<AudioDevice> availableAudioDevices =
+    List<VIAudioDevice> availableAudioDevices =
         await _audioDeviceManager.getAudioDevices();
     return showDialog<void>(
         context: context,

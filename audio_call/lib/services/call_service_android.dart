@@ -1,4 +1,4 @@
-/// Copyright (c) 2011-2019, Zingaya, Inc. All rights reserved.
+/// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
 
 import 'package:audio_call/screens/incoming_call_screen.dart';
 import 'package:audio_call/services/call_service.dart';
@@ -14,12 +14,14 @@ class CallServiceAndroid extends CallService {
   CallServiceAndroid() : super.ctr();
 
   @override
-  onIncomingCall(Call call, Map<String, String> headers) async {
+  onIncomingCall(VIClient client, VICall call, bool video,
+      Map<String, String> headers) async {
     print('CallServiceAndroid: onIncomingCall(${call.callId})');
-    super.onIncomingCall(call, headers);
+    super.onIncomingCall(client, call, video, headers);
 
     if (AppStateHelper().appState == AppState.Foreground) {
-      print('CallServiceAndroid: onIncomingCall: navifate to Incoming call screen');
+      print(
+          'CallServiceAndroid: onIncomingCall: navifate to Incoming call screen');
       GetIt locator = GetIt.instance;
       locator<NavigationService>().navigateTo(IncomingCallScreen.routeName,
           arguments: CallArguments.withDisplayName(
