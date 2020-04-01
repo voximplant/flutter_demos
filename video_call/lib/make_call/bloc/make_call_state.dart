@@ -36,7 +36,9 @@ class LoggedOut extends MakeCallState {
 
 class IncomingCall extends MakeCallState {
   final String caller;
-  const IncomingCall({@required this.caller}) : super(null);
+
+  const IncomingCall({@required this.caller, @required String displayName})
+      : super(displayName);
 }
 
 class ReconnectSuccess extends MakeCallState {

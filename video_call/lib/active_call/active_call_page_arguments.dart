@@ -1,11 +1,12 @@
 /// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
 
+import 'package:flutter/cupertino.dart';
+
 class ActiveCallPageArguments {
-  String callTo;
+  String endpoint;
   bool isIncoming;
 
-  ActiveCallPageArguments({
-    this.isIncoming,
-    this.callTo
-  });
+  ActiveCallPageArguments(
+      {@required this.endpoint,
+      @required this.isIncoming});
 }

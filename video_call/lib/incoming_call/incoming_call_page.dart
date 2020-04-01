@@ -5,43 +5,46 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:video_call/active_call/active_call.dart';
 import 'package:video_call/incoming_call/incoming_call.dart';
-import 'package:video_call/routes.dart';
+import 'package:video_call/services/navigation_helper.dart';
 import 'package:video_call/theme/voximplant_theme.dart';
 import 'package:video_call/widgets/widgets.dart';
 
 import 'bloc/incoming_call_bloc.dart';
 
 class IncomingCallPage extends StatefulWidget {
+  static const routeName = '/incomingCall';
+
+  final String _endpoint;
+
+  IncomingCallPage(IncomingCallPageArguments arguments)
+      : _endpoint = arguments.endpoint;
+
   @override
-  State<StatefulWidget> createState() {
-    return _IncomingCallPageState();
-  }
+  State<StatefulWidget> createState() => _IncomingCallPageState(_endpoint);
 }
 
 class _IncomingCallPageState extends State<IncomingCallPage> {
-  void _answerCall() {
-    BlocProvider.of<IncomingCallBloc>(context).add(CheckPermissions());
-  }
+  final String _endpoint;
 
-  void _declineCall() {
-    BlocProvider.of<IncomingCallBloc>(context).add(DeclineCall());
-  }
+  _IncomingCallPageState(this._endpoint);
 
   @override
   Widget build(BuildContext context) {
-    final IncomingCallPageArguments _arguments =
-        ModalRoute.of(context).settings.arguments;
+    IncomingCallBloc _getBloc() => BlocProvider.of<IncomingCallBloc>(context);
+
+    void _answerCall() => _getBloc().add(IncomingCallEvent.checkPermissions);
+
+    void _declineCall() => _getBloc().add(IncomingCallEvent.declineCall);
 
     return BlocListener<IncomingCallBloc, IncomingCallState>(
       listener: (context, state) {
-        if (state is CallHasEnded) {
+        if (state == IncomingCallState.callCancelled) {
           Navigator.of(context).pushReplacementNamed(AppRoutes.makeCall);
-        }
-        if (state is PermissionCheckPass) {
-          Navigator.of(context).pushReplacementNamed(
-            AppRoutes.activeCall,
-            arguments: ActiveCallPageArguments(isIncoming: true),
-          );
+        } else if (state == IncomingCallState.permissionsGranted) {
+          Navigator.of(context).pushReplacementNamed(AppRoutes.activeCall,
+              arguments: ActiveCallPageArguments(
+                  isIncoming: true,
+                  endpoint: _endpoint));
         }
       },
       child: BlocBuilder<IncomingCallBloc, IncomingCallState>(
@@ -59,7 +62,7 @@ class _IncomingCallPageState extends State<IncomingCallPage> {
                     verticalPadding: 20,
                   ),
                   Widgets.textWithPadding(
-                    text: '${_arguments.caller}',
+                    text: _endpoint,
                     textColor: VoximplantColors.white,
                     fontSize: 25,
                   ),

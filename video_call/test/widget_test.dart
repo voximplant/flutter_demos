@@ -7,18 +7,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_voximplant/flutter_voximplant.dart';
-
 import 'package:video_call/main.dart';
-import 'package:video_call/services/auth_service.dart';
-import 'package:video_call/services/call_service.dart';
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    VIClient client = Voximplant().getClient();
-    await tester.pumpWidget(App(
-        authService: AuthService(client), callService: CallService(client)));
+    await tester.pumpWidget(App());
 
     // Verify that our counter starts at 0.
     expect(find.text('0'), findsOneWidget);

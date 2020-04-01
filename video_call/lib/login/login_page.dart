@@ -5,6 +5,8 @@ import 'package:video_call/login/login.dart';
 import 'package:video_call/theme/voximplant_theme.dart';
 
 class LoginPage extends StatelessWidget {
+  static const routeName = '/login';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

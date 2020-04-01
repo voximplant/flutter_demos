@@ -9,7 +9,7 @@ abstract class LoginEvent extends Equatable {
   List<Object> get props => [];
 }
 
-class LoadLastUser extends LoginEvent {}
+class LoadLastUser extends LoginEvent { }
 
 class LoginWithPassword extends LoginEvent {
   final String username;
@@ -24,3 +24,5 @@ class LoginWithPassword extends LoginEvent {
   String toString() => 'LoginWithPassword: '
       'username: $username, password: *****';
 }
+
+class Dispose extends LoginEvent { }

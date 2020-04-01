@@ -1,10 +1,12 @@
 /// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:video_call/active_call/active_call.dart';
 import 'package:video_call/incoming_call/incoming_call.dart';
-import 'package:video_call/routes.dart';
+import 'package:video_call/services/navigation_helper.dart';
 import 'package:video_call/widgets/widgets.dart';
 
 import 'bloc/make_call_bloc.dart';
@@ -12,32 +14,60 @@ import 'bloc/make_call_event.dart';
 import 'bloc/make_call_state.dart';
 
 class MakeCallPage extends StatefulWidget {
+  static const routeName = '/makeCall';
+
   MakeCallPage({Key key}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() {
-    return _MakeCallPageState();
-  }
+  State<StatefulWidget> createState() => _MakeCallPageState();
 }
 
-class _MakeCallPageState extends State<MakeCallPage> {
+class _MakeCallPageState extends State<MakeCallPage> with WidgetsBindingObserver {
   final _callToController = TextEditingController();
 
   @override
   void dispose() {
     _callToController.dispose();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   @override
-  Widget build(BuildContext context) {
-    void _makeVideoCall() {
-      BlocProvider.of<MakeCallBloc>(context).add(CheckPermissionsForCall());
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  bool _isInactive = false;
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    if (state == AppLifecycleState.paused && Platform.isIOS) {
+      _isInactive = true;
     }
 
-    void _logout() {
-      BlocProvider.of<MakeCallBloc>(context).add(LogOut());
+    if (state == AppLifecycleState.resumed && Platform.isIOS) {
+      if (_isInactive) {
+        BlocProvider.of<MakeCallBloc>(context).add(Reconnect());
+        _isInactive = false;
+      }
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    MakeCallBloc _getBloc() => BlocProvider.of<MakeCallBloc>(context);
+
+    void _makeVideoCall() {
+      if (_callToController.text == '') {
+        return;
+      }
+      _getBloc().add(CheckPermissionsForCall());
+    }
+
+    void _logout() => _getBloc().add(LogOut());
 
     void _showPermissionCheckError() {
       showDialog(
@@ -64,7 +94,9 @@ class _MakeCallPageState extends State<MakeCallPage> {
       listener: (context, state) {
         if (state is LoggedOut) {
           if (state.networkIssues) {
-            BlocProvider.of<MakeCallBloc>(context).add(Reconnect());
+            if (!_isInactive) {
+              _getBloc().add(Reconnect());
+            }
           } else {
             Navigator.of(context).pushReplacementNamed(AppRoutes.login);
           }
@@ -73,16 +105,17 @@ class _MakeCallPageState extends State<MakeCallPage> {
           Navigator.of(context).pushReplacementNamed(
             AppRoutes.activeCall,
             arguments: ActiveCallPageArguments(
-                isIncoming: false, callTo: _callToController.text),
+                isIncoming: false,
+                endpoint: _callToController.text),
           );
         }
-        if (state is PermissionCheckFailed) {
+        if (state is PermissionCheckFail) {
           _showPermissionCheckError();
         }
         if (state is IncomingCall) {
           Navigator.of(context).pushReplacementNamed(
             AppRoutes.incomingCall,
-            arguments: IncomingCallPageArguments(caller: state.caller),
+            arguments: IncomingCallPageArguments(endpoint: state.caller),
           );
         }
         if (state is ReconnectFailed) {

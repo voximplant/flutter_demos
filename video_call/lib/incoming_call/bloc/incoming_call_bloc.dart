@@ -6,41 +6,40 @@ import 'dart:io';
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:video_call/services/auth_service.dart';
-import 'package:video_call/services/call_service.dart';
-import 'package:video_call/services/call_state.dart';
-
+import 'package:video_call/services/call/call_event.dart';
+import 'package:video_call/services/call/call_service.dart';
 import 'incoming_call_event.dart';
 import 'incoming_call_state.dart';
 
 class IncomingCallBloc extends Bloc<IncomingCallEvent, IncomingCallState> {
-  final AuthService authService;
-  final CallService callService;
+  final CallService _callService;
 
-  String _callId;
   StreamSubscription _callStateSubscription;
 
-  IncomingCallBloc({@required this.authService, this.callService});
+  IncomingCallBloc() : _callService = CallService();
 
   @override
-  IncomingCallState get initialState => IncomingCallInitial();
+  IncomingCallState get initialState => IncomingCallState.callIncoming;
 
   @override
   Stream<IncomingCallState> mapEventToState(IncomingCallEvent event) async* {
-    if (event is Load) {
-      _callId = callService.activeCallId;
-      _callStateSubscription = callService
-          .subscribeToCallStateChanges(_callId)
-          .listen(onCallStateChanged);
-    }
-    if (event is CheckPermissions) {
-      yield* _checkPermissions();
-    }
-    if (event is DeclineCall) {
-      await callService.declineCall(_callId);
-    }
-    if (event is IncomingCallDisconnected) {
-      yield CallHasEnded();
+    switch (event) {
+      case IncomingCallEvent.readyToSubscribe:
+        _callStateSubscription = _callService
+            .subscribeToCallEvents()
+            .listen(onCallEvent);
+        break;
+      case IncomingCallEvent.checkPermissions:
+        bool granted = await _checkPermissions();
+        if (granted) { yield IncomingCallState.permissionsGranted; }
+        break;
+      case IncomingCallEvent.declineCall:
+        await _callService.decline();
+        yield IncomingCallState.callCancelled;
+        break;
+      case IncomingCallEvent.callDisconnected:
+        yield IncomingCallState.callCancelled;
+        break;
     }
   }
 
@@ -52,7 +51,7 @@ class IncomingCallBloc extends Bloc<IncomingCallEvent, IncomingCallState> {
     return super.close();
   }
 
-  Stream<IncomingCallState> _checkPermissions() async* {
+  Future<bool> _checkPermissions() async {
     if (Platform.isAndroid) {
       PermissionStatus recordAudio = await PermissionHandler()
           .checkPermissionStatus(PermissionGroup.microphone);
@@ -66,28 +65,28 @@ class IncomingCallBloc extends Bloc<IncomingCallEvent, IncomingCallState> {
         requestPermissions.add(PermissionGroup.camera);
       }
       if (requestPermissions.isEmpty) {
-        yield PermissionCheckPass();
+        return true;
       } else {
         Map<PermissionGroup, PermissionStatus> result =
             await PermissionHandler().requestPermissions(requestPermissions);
         if (result[PermissionGroup.microphone] != PermissionStatus.granted ||
             result[PermissionGroup.camera] != PermissionStatus.granted) {
-          yield PermissionCheckFailed();
+          return false;
         } else {
-          yield PermissionCheckPass();
+          return true;
         }
       }
     } else if (Platform.isIOS) {
-      yield PermissionCheckPass();
+      return true;
     } else {
       //not supported platforms
-      yield PermissionCheckFailed();
+      return false;
     }
   }
 
-  void onCallStateChanged(CallState state) {
-    if (state is CallStateDisconnected) {
-      add(IncomingCallDisconnected());
+  void onCallEvent(CallEvent event) {
+    if (event is OnDisconnectedCallEvent || event is OnFailedCallEvent) {
+      add(IncomingCallEvent.callDisconnected);
     }
   }
 }

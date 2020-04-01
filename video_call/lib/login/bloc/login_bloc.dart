@@ -1,3 +1,5 @@
+import 'dart:io';
+
 /// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
 
 import 'package:bloc/bloc.dart';
@@ -6,11 +8,13 @@ import 'package:video_call/login/login.dart';
 import 'package:video_call/services/auth_service.dart';
 
 import 'package:flutter_voximplant/flutter_voximplant.dart';
+import 'package:video_call/services/call/callkit_service.dart';
+import 'package:video_call/services/notification_service.dart';
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
-  final AuthService authService;
+  final AuthService _authService;
 
-  LoginBloc({@required this.authService});
+  LoginBloc() : _authService = AuthService();
 
   @override
   LoginState get initialState => LoginInitial();
@@ -18,13 +22,17 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   @override
   Stream<LoginState> mapEventToState(LoginEvent event) async* {
     if (event is LoadLastUser) {
-      String lastUser = await authService.getUsername();
+      if (await NotificationService().didNotificationLaunchApp()) {
+        print('Launched from notification, skipping autologin');
+        return;
+      }
+      String lastUser = await _authService.getUsername();
       yield LoginLastUserLoaded(lastUser: lastUser);
-      bool canUseAccessToken = await authService.canUseAccessToken();
+      bool canUseAccessToken = await _authService.canUseAccessToken();
       if (canUseAccessToken) {
         yield LoginInProgress();
         try {
-          await authService.loginWithAccessToken();
+          await _authService.loginWithAccessToken();
           yield LoginSuccess();
         } on VIException catch (e) {
           yield LoginFailure(errorCode: e.code, errorDescription: e.message);
@@ -34,7 +42,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     if (event is LoginWithPassword) {
       yield LoginInProgress();
       try {
-        await authService.loginWithPassword(
+        await _authService.loginWithPassword(
             event.username + '.voximplant.com', event.password);
         yield LoginSuccess();
       } on VIException catch (e) {

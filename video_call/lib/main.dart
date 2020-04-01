@@ -1,17 +1,23 @@
 /// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_voximplant/flutter_voximplant.dart';
 import 'package:video_call/active_call/active_call.dart';
+import 'package:video_call/call_failed/call_failed.dart';
 import 'package:video_call/incoming_call/incoming_call.dart';
 import 'package:video_call/login/login.dart';
 import 'package:video_call/make_call/make_call.dart';
-import 'package:video_call/routes.dart';
+import 'package:video_call/services/navigation_helper.dart';
 import 'package:video_call/services/auth_service.dart';
-import 'package:video_call/services/call_service.dart';
+import 'package:video_call/services/call/call_service.dart';
+import 'package:video_call/services/call/callkit_service.dart';
+import 'package:video_call/services/notification_service.dart';
+import 'package:video_call/services/push/push_service_ios.dart';
+import 'package:video_call/services/push/push_service_android.dart';
 import 'package:video_call/theme/voximplant_theme.dart';
-
 import 'call_failed/call_failed_page.dart';
 
 class SimpleBlocDelegate extends BlocDelegate {
@@ -38,22 +44,23 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
   BlocSupervisor.delegate = SimpleBlocDelegate();
 
-  VIClientConfig clientConfig = VIClientConfig();
-  VIClient client = Voximplant().getClient(clientConfig);
-  final AuthService authService = AuthService(client);
-  final CallService callService = CallService(client);
+  AuthService();
+  CallService();
+  Platform.isIOS ? PushServiceIOS() : PushServiceAndroid();
+  /// callKit for ios
+  if (Platform.isIOS) {
+    CallKitService();
+  }
+  /// local notifications for android
+  if (Platform.isAndroid) {
+    NotificationService();
+  }
 
-  runApp(
-    App(authService: authService, callService: callService),
-  );
+  runApp(App());
 }
 
 class App extends StatelessWidget {
-  final AuthService authService;
-  final CallService callService;
-
-  App({Key key, @required this.authService, @required this.callService})
-      : super(key: key);
+  App({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -63,37 +70,51 @@ class App extends StatelessWidget {
           primaryColorDark: VoximplantColors.primaryDark,
           accentColor: VoximplantColors.accent,
         ),
+        navigatorKey: NavigationHelper.navigatorKey,
         initialRoute: AppRoutes.login,
-        routes: {
-          AppRoutes.login: (context) {
-            return BlocProvider<LoginBloc>(
-              create: (context) => LoginBloc(authService: authService),
-              child: LoginPage(),
+        onGenerateRoute: (routeSettings) {
+          if (routeSettings.name == AppRoutes.login) {
+            return PageRouteBuilder(
+              pageBuilder: (_, a1, a2) => BlocProvider<LoginBloc>(
+                create: (context) => LoginBloc(),
+                child: LoginPage(),
+              ),
             );
-          },
-          AppRoutes.makeCall: (context) {
-            return BlocProvider<MakeCallBloc>(
-              create: (context) => MakeCallBloc(
-                  authService: authService, callService: callService),
-              child: MakeCallPage(),
+          } else if (routeSettings.name == AppRoutes.makeCall) {
+            return PageRouteBuilder(
+              pageBuilder: (_, a1, a2) => BlocProvider<MakeCallBloc>(
+                create: (context) => MakeCallBloc(),
+                child: MakeCallPage(),
+              ),
             );
-          },
-          AppRoutes.activeCall: (context) {
-            return BlocProvider<ActiveCallBloc>(
-              create: (context) => ActiveCallBloc(
-                  authService: authService, callService: callService),
-              child: ActiveCallPage(),
+
+          } else if (routeSettings.name == AppRoutes.activeCall) {
+            return PageRouteBuilder(
+              pageBuilder: (_, a1, a2) => BlocProvider<ActiveCallBloc>(
+                create: (context) => ActiveCallBloc(),
+                  child: ActiveCallPage(
+                      arguments:
+                          routeSettings.arguments as ActiveCallPageArguments)),
             );
-          },
-          AppRoutes.incomingCall: (context) {
-            return BlocProvider<IncomingCallBloc>(
-              create: (context) => IncomingCallBloc(
-                  authService: authService, callService: callService)
-                ..add(Load()),
-              child: IncomingCallPage(),
+
+          } else if (routeSettings.name == AppRoutes.incomingCall) {
+            return PageRouteBuilder(
+              pageBuilder: (_, a1, a2) => BlocProvider<IncomingCallBloc>(
+                create: (context) =>
+                    IncomingCallBloc()..add(IncomingCallEvent.readyToSubscribe),
+                child: IncomingCallPage(
+                    routeSettings.arguments as IncomingCallPageArguments),
+              ),
             );
-          },
-          AppRoutes.callFailed: (context) => CallFailedPage(),
+
+          } else if (routeSettings.name == AppRoutes.callFailed) {
+            return MaterialPageRoute(
+              builder: (context) => CallFailedPage(
+                  routeSettings.arguments as CallFailedPageArguments),
+            );
+          }
+
+          return null;
         });
   }
 }

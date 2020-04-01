@@ -3,15 +3,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:video_call/login/login.dart';
-import 'package:video_call/routes.dart';
+import 'package:video_call/services/navigation_helper.dart';
 import 'package:video_call/theme/voximplant_theme.dart';
 import 'package:video_call/widgets/widgets.dart';
 
 class LoginForm extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() {
-    return _LoginFormState();
-  }
+  State<StatefulWidget> createState() => _LoginFormState();
 }
 
 class _LoginFormState extends State<LoginForm> {
@@ -37,21 +35,15 @@ class _LoginFormState extends State<LoginForm> {
 
   @override
   Widget build(BuildContext context) {
-    void _login() {
-      BlocProvider.of<LoginBloc>(context).add(LoginWithPassword(
-          username: _usernameController.text,
-          password: _passwordController.text));
-    }
+    void _login() => BlocProvider.of<LoginBloc>(context).add(LoginWithPassword(
+        username: _usernameController.text,
+        password: _passwordController.text));
 
     void _handleLoginFailed(String errorCode, String errorDescription) {
       if (errorCode == 'ERROR_INVALID_USERNAME') {
-        setState(() {
-          _isUsernameValid = false;
-        });
+        setState(() => _isUsernameValid = false);
       } else if (errorCode == 'ERROR_INVALID_PASSWORD') {
-        setState(() {
-          _isPasswordValid = false;
-        });
+        setState(() => _isPasswordValid = false);
       } else {
         Scaffold.of(context).showSnackBar(SnackBar(
           content: Text('$errorDescription'),

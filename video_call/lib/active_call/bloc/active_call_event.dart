@@ -1,66 +1,46 @@
 /// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
 
 import 'package:meta/meta.dart';
-import 'package:equatable/equatable.dart';
-import 'package:video_call/services/call_state.dart';
+import 'package:video_call/services/call/call_event.dart';
 
-abstract class ActiveCallEvent extends Equatable {
-  const ActiveCallEvent();
+abstract class ActiveCallEvent { }
 
-  @override
-  List<Object> get props => [];
+class CallChangedEvent implements ActiveCallEvent {
+  final CallEvent callEvent;
+
+  CallChangedEvent({@required this.callEvent});
 }
 
-class StartOutgoingCall extends ActiveCallEvent {
-  final String callTo;
+class SendVideoPressedEvent implements ActiveCallEvent {
+  final bool send;
 
-  StartOutgoingCall({@required this.callTo});
-
-  @override
-  List<Object> get props => [callTo];
-
-  @override
-  String toString() => 'StartOutgoingCall: callTo: $callTo';
+  SendVideoPressedEvent({@required this.send});
 }
 
-class AnswerIncomingCall extends ActiveCallEvent {}
+class SwitchCameraPressedEvent implements ActiveCallEvent { }
 
-class EndCall extends ActiveCallEvent {}
+class HoldPressedEvent implements ActiveCallEvent {
+  final bool hold;
 
-class UpdateCallState extends ActiveCallEvent {
-  final CallState callState;
-
-  UpdateCallState({@required this.callState});
-
-  @override
-  List<Object> get props => [callState];
-
-  @override
-  String toString() => 'UpdateCallState: callState: $callState';
+  HoldPressedEvent({@required this.hold});
 }
 
-class HoldCall extends ActiveCallEvent {
-  final bool doHold;
+class MutePressedEvent implements ActiveCallEvent {
+  final bool mute;
 
-  HoldCall({@required this.doHold});
-
-  @override
-  List<Object> get props => [doHold];
-
-  @override
-  String toString() => 'HoldCall: doHold: $doHold';
+  MutePressedEvent({@required this.mute});
 }
 
-class SendVideo extends ActiveCallEvent {
-  final bool doSend;
+class HangupPressedEvent implements ActiveCallEvent { }
 
-  SendVideo({@required this.doSend});
+class AnswerCallEvent implements ActiveCallEvent {
+  final String username;
 
-  @override
-  List<Object> get props => [doSend];
-
-  @override
-  String toString() => 'SendVideo: doSend: $doSend';
+  AnswerCallEvent(this.username);
 }
 
-class SwitchCamera extends ActiveCallEvent {}
+class StartOutgoingCallEvent implements ActiveCallEvent {
+  final String username;
+
+  StartOutgoingCallEvent(this.username);
+}

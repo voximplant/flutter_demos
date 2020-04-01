@@ -1,18 +1,24 @@
 /// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
 
 import 'package:flutter/material.dart';
-import 'package:video_call/routes.dart';
+import 'package:video_call/services/navigation_helper.dart';
 import 'package:video_call/theme/voximplant_theme.dart';
 import 'package:video_call/widgets/widgets.dart';
 
 import 'call_failed_page_arguments.dart';
 
 class CallFailedPage extends StatelessWidget {
+  static const routeName = '/callFailed';
+
+  final String _failureReason;
+  final String _endpoint;
+
+  CallFailedPage(CallFailedPageArguments arguments)
+      : _failureReason = arguments.failureReason,
+        _endpoint = arguments.endpoint;
+
   @override
   Widget build(BuildContext context) {
-    final CallFailedPageArguments _arguments =
-        ModalRoute.of(context).settings.arguments;
-
     return Scaffold(
       backgroundColor: VoximplantColors.primaryDark,
       body: SafeArea(
@@ -29,13 +35,13 @@ class CallFailedPage extends StatelessWidget {
                       fontSize: 40,
                     ),
                     Widgets.textWithPadding(
-                      text: '${_arguments.endpoint}',
+                      text: _endpoint,
                       textColor: VoximplantColors.white,
                       fontSize: 30,
                       verticalPadding: 30,
                     ),
                     Widgets.textWithPadding(
-                      text: '${_arguments.failureReason}',
+                      text: _failureReason,
                       textColor: VoximplantColors.white,
                       fontSize: 25,
                     ),

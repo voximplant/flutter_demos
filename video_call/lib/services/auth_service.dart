@@ -2,6 +2,7 @@
 
 import 'package:flutter_voximplant/flutter_voximplant.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:video_call/main.dart';
 
 typedef void Disconnected();
 
@@ -12,14 +13,31 @@ class AuthService {
   String get displayName => _displayName;
   Disconnected onDisconnected;
 
-  AuthService(VIClient client) {
-    _client = client;
+  String _voipToken;
+  Future<void> setVoipToken(String token) async {
+    if (token == null || token == '') {
+      print('AuthService: token is cleared');
+      await _client.unregisterFromPushNotifications(_voipToken);
+    } else {
+      print('AuthService: token is set');
+      await _client.registerForPushNotifications(token);
+    }
+    _voipToken = token;
+  }
+
+  VIClientState clientState;
+
+  factory AuthService() => _cache ?? AuthService._();
+  static AuthService _cache;
+  AuthService._() : _client = Voximplant().getClient(VIClientConfig()) {
     _client.clientStateStream.listen((state) {
+      clientState = state;
       print('AuthService: client state is changed: $state');
       if (state == VIClientState.Disconnected && onDisconnected != null) {
         onDisconnected();
       }
     });
+    _cache = this;
   }
 
   Future<String> loginWithPassword(String username, String password) async {
@@ -38,14 +56,15 @@ class AuthService {
   }
 
   Future<String> loginWithAccessToken([String username]) async {
-    print('AuthService: loginWithAccessToken');
     VIClientState clientState = await _client.getClientState();
     if (clientState == VIClientState.LoggedIn) {
       return _displayName;
-    }
-    if (clientState == VIClientState.Disconnected) {
+    } else if (clientState == VIClientState.Connecting) {
+      return null;
+    } else if (clientState == VIClientState.Disconnected) {
       await _client.connect();
     }
+    print('AuthService: loginWithAccessToken');
     SharedPreferences prefs = await SharedPreferences.getInstance();
     VILoginTokens loginTokens = _getAuthDetails(prefs);
     String user = username ?? prefs.getString('username');
@@ -92,4 +111,10 @@ class AuthService {
 
     return loginTokens;
   }
+
+  Future<void> pushNotificationReceived(Map<String, dynamic> payload) async {
+    await _client.handlePushNotification(payload);
+  }
 }
+
+Map<String, dynamic> notificationHandler;
