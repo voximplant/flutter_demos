@@ -40,6 +40,8 @@ class SimpleBlocDelegate extends BlocDelegate {
   }
 }
 
+VIClientConfig get defaultConfig => VIClientConfig();
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   BlocSupervisor.delegate = SimpleBlocDelegate();
@@ -76,10 +78,11 @@ class App extends StatelessWidget {
           if (routeSettings.name == AppRoutes.login) {
             return PageRouteBuilder(
               pageBuilder: (_, a1, a2) => BlocProvider<LoginBloc>(
-                create: (context) => LoginBloc(),
+                create: (context) => LoginBloc()..add(LoadLastUser()),
                 child: LoginPage(),
               ),
             );
+
           } else if (routeSettings.name == AppRoutes.makeCall) {
             return PageRouteBuilder(
               pageBuilder: (_, a1, a2) => BlocProvider<MakeCallBloc>(
@@ -89,20 +92,23 @@ class App extends StatelessWidget {
             );
 
           } else if (routeSettings.name == AppRoutes.activeCall) {
+            ActiveCallPageArguments arguments = routeSettings.arguments;
             return PageRouteBuilder(
               pageBuilder: (_, a1, a2) => BlocProvider<ActiveCallBloc>(
-                create: (context) => ActiveCallBloc(),
-                  child: ActiveCallPage(
-                      arguments:
-                          routeSettings.arguments as ActiveCallPageArguments)),
+                create: (context) => ActiveCallBloc()
+                  ..add(ReadyToInteractCallEvent(
+                      isIncoming: arguments.isIncoming,
+                      endpoint: arguments.endpoint)),
+                child: ActiveCallPage(),
+              ),
             );
 
           } else if (routeSettings.name == AppRoutes.incomingCall) {
             return PageRouteBuilder(
-              pageBuilder: (_, a1, a2) => BlocProvider<IncomingCallBloc>(
+              pageBuilder: (context, a1, a2) => BlocProvider<IncomingCallBloc>(
                 create: (context) =>
                     IncomingCallBloc()..add(IncomingCallEvent.readyToSubscribe),
-                child: IncomingCallPage(
+                child: IncomingCallPage(arguments:
                     routeSettings.arguments as IncomingCallPageArguments),
               ),
             );
@@ -113,7 +119,6 @@ class App extends StatelessWidget {
                   routeSettings.arguments as CallFailedPageArguments),
             );
           }
-
           return null;
         });
   }

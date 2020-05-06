@@ -16,7 +16,7 @@ class IncomingCallPage extends StatefulWidget {
 
   final String _endpoint;
 
-  IncomingCallPage(IncomingCallPageArguments arguments)
+  IncomingCallPage({@required IncomingCallPageArguments arguments})
       : _endpoint = arguments.endpoint;
 
   @override
@@ -26,15 +26,20 @@ class IncomingCallPage extends StatefulWidget {
 class _IncomingCallPageState extends State<IncomingCallPage> {
   final String _endpoint;
 
+  IncomingCallBloc _bloc;
+
+  @override
+  void initState() {
+  super.initState();
+      _bloc = BlocProvider.of<IncomingCallBloc>(context);
+  }
   _IncomingCallPageState(this._endpoint);
 
   @override
   Widget build(BuildContext context) {
-    IncomingCallBloc _getBloc() => BlocProvider.of<IncomingCallBloc>(context);
+    void _answerCall() => _bloc.add(IncomingCallEvent.checkPermissions);
 
-    void _answerCall() => _getBloc().add(IncomingCallEvent.checkPermissions);
-
-    void _declineCall() => _getBloc().add(IncomingCallEvent.declineCall);
+    void _declineCall() => _bloc.add(IncomingCallEvent.declineCall);
 
     return BlocListener<IncomingCallBloc, IncomingCallState>(
       listener: (context, state) {

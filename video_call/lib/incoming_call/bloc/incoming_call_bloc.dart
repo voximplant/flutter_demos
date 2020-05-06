@@ -1,22 +1,18 @@
 /// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
 
 import 'dart:async';
-import 'dart:io';
 
 import 'package:bloc/bloc.dart';
-import 'package:meta/meta.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:video_call/services/call/call_event.dart';
 import 'package:video_call/services/call/call_service.dart';
+import 'package:video_call/services/permissions_helper.dart';
 import 'incoming_call_event.dart';
 import 'incoming_call_state.dart';
 
 class IncomingCallBloc extends Bloc<IncomingCallEvent, IncomingCallState> {
-  final CallService _callService;
+  final CallService _callService = CallService();
 
   StreamSubscription _callStateSubscription;
-
-  IncomingCallBloc() : _callService = CallService();
 
   @override
   IncomingCallState get initialState => IncomingCallState.callIncoming;
@@ -30,7 +26,7 @@ class IncomingCallBloc extends Bloc<IncomingCallEvent, IncomingCallState> {
             .listen(onCallEvent);
         break;
       case IncomingCallEvent.checkPermissions:
-        bool granted = await _checkPermissions();
+        bool granted = await checkPermissions();
         if (granted) { yield IncomingCallState.permissionsGranted; }
         break;
       case IncomingCallEvent.declineCall:
@@ -49,39 +45,6 @@ class IncomingCallBloc extends Bloc<IncomingCallEvent, IncomingCallState> {
       _callStateSubscription.cancel();
     }
     return super.close();
-  }
-
-  Future<bool> _checkPermissions() async {
-    if (Platform.isAndroid) {
-      PermissionStatus recordAudio = await PermissionHandler()
-          .checkPermissionStatus(PermissionGroup.microphone);
-      PermissionStatus camera = await PermissionHandler()
-          .checkPermissionStatus(PermissionGroup.camera);
-      List<PermissionGroup> requestPermissions = List();
-      if (recordAudio != PermissionStatus.granted) {
-        requestPermissions.add(PermissionGroup.microphone);
-      }
-      if (camera != PermissionStatus.granted) {
-        requestPermissions.add(PermissionGroup.camera);
-      }
-      if (requestPermissions.isEmpty) {
-        return true;
-      } else {
-        Map<PermissionGroup, PermissionStatus> result =
-            await PermissionHandler().requestPermissions(requestPermissions);
-        if (result[PermissionGroup.microphone] != PermissionStatus.granted ||
-            result[PermissionGroup.camera] != PermissionStatus.granted) {
-          return false;
-        } else {
-          return true;
-        }
-      }
-    } else if (Platform.isIOS) {
-      return true;
-    } else {
-      //not supported platforms
-      return false;
-    }
   }
 
   void onCallEvent(CallEvent event) {

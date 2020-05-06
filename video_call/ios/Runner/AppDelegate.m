@@ -3,14 +3,20 @@
 #import <FlutterCallkitPlugin.h>
 #import <VoximplantPlugin.h>
 #import "FlutterVoipPushNotificationPlugin.h"
+#import <PermissionHandlerPlugin.h>
+#import <FLTSharedPreferencesPlugin.h>
 #import <CallKit/CallKit.h>
 
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-  [GeneratedPluginRegistrant registerWithRegistry:self];
-    
-  return [super application:application didFinishLaunchingWithOptions:launchOptions];
+    // Registering plugins manually, because on iOS FLTFirebaseMessagingPlugin and FlutterLocalNotificationsPlugin are not used and should not be registered
+    [FlutterCallkitPlugin registerWithRegistrar:[self registrarForPlugin:@"FlutterCallkitPlugin"]];
+    [FlutterVoipPushNotificationPlugin registerWithRegistrar:[self registrarForPlugin:@"FlutterVoipPushNotificationPlugin"]];
+    [VoximplantPlugin registerWithRegistrar:[self registrarForPlugin:@"VoximplantPlugin"]];
+    [PermissionHandlerPlugin registerWithRegistrar:[self registrarForPlugin:@"PermissionHandlerPlugin"]];
+    [FLTSharedPreferencesPlugin registerWithRegistrar:[self registrarForPlugin:@"FLTSharedPreferencesPlugin"]];
+    return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }
 
 #pragma mark APNs and CallKit
@@ -38,30 +44,36 @@
         return;
     }
     
-    if (UIApplication.sharedApplication.applicationState != UIApplicationStateActive) {
-        NSUUID *callUUID = [VoximplantPlugin uuidForPushNotification:payload];
-        
-        CXCallUpdate *callUpdate = [CXCallUpdate new];
-        callUpdate.localizedCallerName = payload[@"voximplant"][@"display_name"];
-        callUpdate.remoteHandle = [[CXHandle alloc] initWithType:CXHandleTypeGeneric
-                                                           value:payload[@"voximplant"][@"userid"]];
-        callUpdate.supportsHolding = true;
-        callUpdate.supportsGrouping = false;
-        callUpdate.supportsUngrouping = false;
-        callUpdate.supportsDTMF = false;
-        callUpdate.hasVideo = payload[@"voximplant"][@"video"];
-        
-        CXProviderConfiguration *configuration = [[CXProviderConfiguration alloc] initWithLocalizedName:@"VideoCall"];
-        if (@available(iOS 11.0, *)) {
-            configuration.includesCallsInRecents = true;
-        }
-        configuration.supportsVideo = payload[@"voximplant"][@"video"];
-    
-        [FlutterCallkitPlugin reportNewIncomingCallWithUUID:callUUID
-                                                 callUpdate:callUpdate
-                                      providerConfiguration:configuration
-                                   pushProcessingCompletion:completion];
+    if (UIApplication.sharedApplication.applicationState == UIApplicationStateActive) {
+        return;
     }
+    
+    NSUUID *callUUID = [VoximplantPlugin uuidForPushNotification:payload];
+    if ([FlutterCallkitPlugin hasCallWithUUID:callUUID]) {
+        return;
+    }
+    
+    CXCallUpdate *callUpdate = [CXCallUpdate new];
+    callUpdate.localizedCallerName = payload[@"voximplant"][@"display_name"];
+    callUpdate.remoteHandle = [[CXHandle alloc] initWithType:CXHandleTypeGeneric
+                                                       value:payload[@"voximplant"][@"userid"]];
+    callUpdate.supportsHolding = true;
+    callUpdate.supportsGrouping = false;
+    callUpdate.supportsUngrouping = false;
+    callUpdate.supportsDTMF = false;
+    callUpdate.hasVideo = payload[@"voximplant"][@"video"];
+    
+    CXProviderConfiguration *configuration = [[CXProviderConfiguration alloc] initWithLocalizedName:@"VideoCall"];
+    if (@available(iOS 11.0, *)) {
+        configuration.includesCallsInRecents = true;
+    }
+    configuration.supportsVideo = payload[@"voximplant"][@"video"];
+    
+    [FlutterCallkitPlugin reportNewIncomingCallWithUUID:callUUID
+                                             callUpdate:callUpdate
+                                  providerConfiguration:configuration
+                               pushProcessingCompletion:completion];
+    
 }
 
 

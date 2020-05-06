@@ -15,13 +15,12 @@ class CheckPermissionsForCall extends MakeCallEvent {}
 class LogOut extends MakeCallEvent {}
 
 class ReceivedIncomingCall extends MakeCallEvent {
-  final String callId;
-  final String caller;
+  final String displayName;
 
-  ReceivedIncomingCall({@required this.callId, @required this.caller});
+  ReceivedIncomingCall({@required this.displayName});
 
   @override
-  List<Object> get props => [callId, caller];
+  List<Object> get props => [displayName];
 }
 
 class ConnectionClosed extends MakeCallEvent {}

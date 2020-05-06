@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "584821718275",
+    "firebase_url": "https://videocall-flutter.firebaseio.com",
+    "project_id": "videocall-flutter",
+    "storage_bucket": "videocall-flutter.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:584821718275:android:23a5629549f6706bf7bd36",
+        "android_client_info": {
+          "package_name": "com.voximplant.flutter.videocall"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "584821718275-957huq93mr02bp7hs7vsm7omjnu3hnpe.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBVTQTxoOhg24IWHR2joW3Q6CmB4TaQAXg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "584821718275-957huq93mr02bp7hs7vsm7omjnu3hnpe.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

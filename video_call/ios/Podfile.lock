@@ -52,7 +52,7 @@ PODS:
     - GoogleUtilities/UserDefaults (~> 6.5)
     - Protobuf (>= 3.9.2, ~> 3.9)
   - Flutter (1.0.0)
-  - flutter_callkit_voximplant (1.0.0):
+  - flutter_callkit_voximplant (1.1.0):
     - Flutter
   - flutter_local_notifications (0.0.1):
     - Flutter
@@ -177,7 +177,7 @@ SPEC CHECKSUMS:
   FirebaseInstanceID: 7ee0d6777013bb952f377b41965bf132b6a075be
   FirebaseMessaging: 4ec33842d36b3319e062e51fb8b35a74f726950d
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
-  flutter_callkit_voximplant: 848d9d4e35a2ec38d88843420f081848234aa7d1
+  flutter_callkit_voximplant: 5f0154d8aa11bc0a1e15b8c707f37ea78bd23c64
   flutter_local_notifications: 9e4738ce2471c5af910d961a6b7eadcf57c50186
   flutter_voip_push_notification: f28f3ce1c6b835a3fa9e833f37f33dc1291ab888
   flutter_voximplant: dee899eaaafbefe7716077f80d0332f5d79463fb

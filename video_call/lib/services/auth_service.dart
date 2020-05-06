@@ -14,13 +14,10 @@ class AuthService {
   Disconnected onDisconnected;
 
   String _voipToken;
-  Future<void> setVoipToken(String token) async {
+  set voipToken(token) {
     if (token == null || token == '') {
       print('AuthService: token is cleared');
-      await _client.unregisterFromPushNotifications(_voipToken);
-    } else {
-      print('AuthService: token is set');
-      await _client.registerForPushNotifications(token);
+      _client.unregisterFromPushNotifications(_voipToken);
     }
     _voipToken = token;
   }
@@ -29,10 +26,11 @@ class AuthService {
 
   factory AuthService() => _cache ?? AuthService._();
   static AuthService _cache;
-  AuthService._() : _client = Voximplant().getClient(VIClientConfig()) {
+  AuthService._() : _client = Voximplant().getClient(defaultConfig) {
     _client.clientStateStream.listen((state) {
       clientState = state;
       print('AuthService: client state is changed: $state');
+
       if (state == VIClientState.Disconnected && onDisconnected != null) {
         onDisconnected();
       }
@@ -50,6 +48,9 @@ class AuthService {
       await _client.connect();
     }
     VIAuthResult authResult = await _client.login(username, password);
+    if (_voipToken != null) {
+      await _client.registerForPushNotifications(_voipToken);
+    }
     await _saveAuthDetails(username, authResult.loginTokens);
     _displayName = authResult.displayName;
     return _displayName;
@@ -59,7 +60,8 @@ class AuthService {
     VIClientState clientState = await _client.getClientState();
     if (clientState == VIClientState.LoggedIn) {
       return _displayName;
-    } else if (clientState == VIClientState.Connecting) {
+    } else if (clientState == VIClientState.Connecting
+        || clientState == VIClientState.LoggingIn) {
       return null;
     } else if (clientState == VIClientState.Disconnected) {
       await _client.connect();
@@ -71,6 +73,9 @@ class AuthService {
 
     VIAuthResult authResult =
       await _client.loginWithAccessToken(user, loginTokens.accessToken);
+    if (_voipToken != null) {
+      await _client.registerForPushNotifications(_voipToken);
+    }
     await _saveAuthDetails(user, authResult.loginTokens);
     _displayName = authResult.displayName;
     return _displayName;
@@ -116,5 +121,3 @@ class AuthService {
     await _client.handlePushNotification(payload);
   }
 }
-
-Map<String, dynamic> notificationHandler;

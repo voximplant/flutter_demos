@@ -4,29 +4,29 @@ import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
 abstract class MakeCallState extends Equatable {
-  final String displayName;
+  final String myDisplayName;
 
-  const MakeCallState(this.displayName);
+  const MakeCallState(this.myDisplayName);
 
   @override
-  List<Object> get props => [displayName];
+  List<Object> get props => [myDisplayName];
 }
 
 class MakeCallInitial extends MakeCallState {
-  const MakeCallInitial({@required String displayName}) : super(displayName);
+  const MakeCallInitial({@required String myDisplayName}) : super(myDisplayName);
 
   @override
-  String toString() => 'OutgoingCallInitial: displayName: $displayName';
+  String toString() => 'OutgoingCallInitial: displayName: $myDisplayName';
 }
 
 class PermissionCheckFail extends MakeCallState {
-  const PermissionCheckFail({@required String displayName})
-      : super(displayName);
+  const PermissionCheckFail({@required String myDisplayName})
+      : super(myDisplayName);
 }
 
 class PermissionCheckSuccess extends MakeCallState {
-  const PermissionCheckSuccess({@required String displayName})
-      : super(displayName);
+  const PermissionCheckSuccess({@required String myDisplayName})
+      : super(myDisplayName);
 }
 
 class LoggedOut extends MakeCallState {
@@ -37,12 +37,12 @@ class LoggedOut extends MakeCallState {
 class IncomingCall extends MakeCallState {
   final String caller;
 
-  const IncomingCall({@required this.caller, @required String displayName})
-      : super(displayName);
+  const IncomingCall({@required this.caller, @required String myDisplayName})
+      : super(myDisplayName);
 }
 
 class ReconnectSuccess extends MakeCallState {
-  const ReconnectSuccess({@required String displayName}) : super(displayName);
+  const ReconnectSuccess({@required String myDisplayName}) : super(myDisplayName);
 }
 
 class ReconnectFailed extends MakeCallState {

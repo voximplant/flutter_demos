@@ -16,26 +16,28 @@ import 'bloc/make_call_state.dart';
 class MakeCallPage extends StatefulWidget {
   static const routeName = '/makeCall';
 
-  MakeCallPage({Key key}) : super(key: key);
-
   @override
   State<StatefulWidget> createState() => _MakeCallPageState();
 }
 
-class _MakeCallPageState extends State<MakeCallPage> with WidgetsBindingObserver {
+class _MakeCallPageState extends State<MakeCallPage>
+    with WidgetsBindingObserver {
+  MakeCallBloc _bloc;
+
   final _callToController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _bloc = BlocProvider.of<MakeCallBloc>(context);
+    WidgetsBinding.instance.addObserver(this);
+  }
 
   @override
   void dispose() {
     _callToController.dispose();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
   }
 
   bool _isInactive = false;
@@ -50,7 +52,7 @@ class _MakeCallPageState extends State<MakeCallPage> with WidgetsBindingObserver
 
     if (state == AppLifecycleState.resumed && Platform.isIOS) {
       if (_isInactive) {
-        BlocProvider.of<MakeCallBloc>(context).add(Reconnect());
+        _bloc.add(Reconnect());
         _isInactive = false;
       }
     }
@@ -58,16 +60,14 @@ class _MakeCallPageState extends State<MakeCallPage> with WidgetsBindingObserver
 
   @override
   Widget build(BuildContext context) {
-    MakeCallBloc _getBloc() => BlocProvider.of<MakeCallBloc>(context);
-
     void _makeVideoCall() {
       if (_callToController.text == '') {
         return;
       }
-      _getBloc().add(CheckPermissionsForCall());
+      _bloc.add(CheckPermissionsForCall());
     }
 
-    void _logout() => _getBloc().add(LogOut());
+    void _logout() => _bloc.add(LogOut());
 
     void _showPermissionCheckError() {
       showDialog(
@@ -95,7 +95,7 @@ class _MakeCallPageState extends State<MakeCallPage> with WidgetsBindingObserver
         if (state is LoggedOut) {
           if (state.networkIssues) {
             if (!_isInactive) {
-              _getBloc().add(Reconnect());
+              _bloc.add(Reconnect());
             }
           } else {
             Navigator.of(context).pushReplacementNamed(AppRoutes.login);
@@ -160,7 +160,7 @@ class _MakeCallPageState extends State<MakeCallPage> with WidgetsBindingObserver
                     child: Padding(
                       padding: EdgeInsets.only(bottom: 20),
                       child: Text(
-                        'Logged in as ${state.displayName}',
+                        'Logged in as ${state.myDisplayName}',
                       ),
                     ),
                   ),

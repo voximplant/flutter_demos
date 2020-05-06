@@ -5,12 +5,12 @@ import 'package:video_call/active_call/active_call.dart';
 import 'package:video_call/call_failed/call_failed_page.dart';
 import 'package:video_call/incoming_call/incoming_call.dart';
 import 'package:video_call/incoming_call/incoming_call_page.dart';
-import 'package:video_call/login/login_page.dart';
+import 'package:video_call/login/login.dart';
 import 'package:video_call/make_call/make_call_page.dart';
 
 class NavigationHelper {
   static final GlobalKey<NavigatorState> navigatorKey =
-      new GlobalKey<NavigatorState>();
+      GlobalKey<NavigatorState>();
 
   static Future<void> pushToIncomingCall({@required String caller}) =>
       navigatorKey.currentState.pushReplacementNamed(

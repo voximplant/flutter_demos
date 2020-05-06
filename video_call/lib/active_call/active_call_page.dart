@@ -16,46 +16,27 @@ import 'package:video_call/widgets/widgets.dart';
 class ActiveCallPage extends StatefulWidget {
   static const routeName = '/activeCall';
 
-  final bool _isIncoming;
-  final String _endpoint;
-
   @override
-  State<StatefulWidget> createState() =>
-      _ActiveCallPageState(_isIncoming, _endpoint);
-
-  ActiveCallPage({@required ActiveCallPageArguments arguments})
-      : _isIncoming = arguments.isIncoming,
-        _endpoint = arguments.endpoint;
+  State<StatefulWidget> createState() => _ActiveCallPageState();
 }
 
 class _ActiveCallPageState extends State<ActiveCallPage> {
+  ActiveCallBloc _bloc;
+
   VIVideoViewController _localVideoViewController = VIVideoViewController();
   VIVideoViewController _remoteVideoViewController = VIVideoViewController();
+
   double _localVideoAspectRatio = 1.0;
   double _remoteVideoAspectRatio = 1.0;
 
-  final bool _isIncoming;
-  final String _endpoint;
-
-  _ActiveCallPageState(bool isIncoming, String endpoint)
-      : _isIncoming = isIncoming,
-        _endpoint = endpoint;
+  _ActiveCallPageState();
 
   @override
   void initState() {
     super.initState();
+    _bloc = BlocProvider.of<ActiveCallBloc>(context);
     _localVideoViewController.addListener(_localVideoHasChanged);
     _remoteVideoViewController.addListener(_remoteVideoHasChanged);
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _isIncoming
-        ? BlocProvider.of<ActiveCallBloc>(context)
-            .add(AnswerCallEvent(_endpoint))
-        : BlocProvider.of<ActiveCallBloc>(context)
-            .add(StartOutgoingCallEvent(_endpoint));
   }
 
   @override
@@ -75,18 +56,16 @@ class _ActiveCallPageState extends State<ActiveCallPage> {
 
   @override
   Widget build(BuildContext context) {
-    ActiveCallBloc _getBlock() => BlocProvider.of<ActiveCallBloc>(context);
+    void _hangup() => _bloc.add(HangupPressedEvent());
 
-    void _hangup() => _getBlock().add(HangupPressedEvent());
+    void _hold(bool hold) => _bloc.add(HoldPressedEvent(hold: hold));
 
-    void _hold(bool hold) => _getBlock().add(HoldPressedEvent(hold: hold));
-
-    void _mute(bool mute) => _getBlock().add(MutePressedEvent(mute: mute));
+    void _mute(bool mute) => _bloc.add(MutePressedEvent(mute: mute));
 
     void _sendVideo(bool send) =>
-        _getBlock().add(SendVideoPressedEvent(send: send));
+        _bloc.add(SendVideoPressedEvent(send: send));
 
-    void _switchCamera() => _getBlock().add(SwitchCameraPressedEvent());
+    void _switchCamera() => _bloc.add(SwitchCameraPressedEvent());
 
     return BlocListener<ActiveCallBloc, ActiveCallState>(
       listener: (context, state) {

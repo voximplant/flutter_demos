@@ -22,6 +22,16 @@ class ActiveCallState implements Equatable {
       [description, localVideoStreamID, remoteVideoStreamID, isOnHold, isMuted];
 }
 
+class ReadyActiveCallState extends ActiveCallState {
+  ReadyActiveCallState()
+      : super(
+            description: '',
+            localVideoStreamID: null,
+            remoteVideoStreamID: null,
+            isOnHold: false,
+            isMuted: false);
+}
+
 class CallEndedActiveCallState extends ActiveCallState {
   @override
   List<Object> get props => [description, failed, displayName];

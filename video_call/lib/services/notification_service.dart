@@ -2,9 +2,9 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:video_call/services/auth_service.dart';
 import 'package:video_call/services/navigation_helper.dart';
 
+// Used in android only
 class NotificationService {
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
   FlutterLocalNotificationsPlugin();
@@ -42,6 +42,10 @@ class NotificationService {
         payload: payload);
   }
 
+  Future<void> cancelNotification() async {
+    await flutterLocalNotificationsPlugin.cancelAll();
+  }
+
   Future<bool> didNotificationLaunchApp() async {
     var details = await flutterLocalNotificationsPlugin
         .getNotificationAppLaunchDetails();
@@ -50,11 +54,9 @@ class NotificationService {
     return details.didNotificationLaunchApp;
   }
 
-
   Future<void> onSelectNotification(String payload) async {
     print('NotificationService onSelect $payload');
 
-    await AuthService().loginWithAccessToken();
     NavigationHelper.pushToIncomingCall(caller: payload);
   }
 }

@@ -38,7 +38,7 @@ class PushServiceIOS {
 
   Future<void> _onToken(String token) async {
     print("onToken: " + token);
-    await AuthService().setVoipToken(token);
+    AuthService().voipToken = token;
   }
 
   Future<void> _configure() async {

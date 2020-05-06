@@ -1,14 +1,13 @@
 /// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:meta/meta.dart';
 import 'package:flutter_voximplant/flutter_voximplant.dart';
 import 'package:video_call/main.dart';
 import 'package:video_call/services/call/call_event.dart';
-
-typedef void OnIncomingCall(
-    String callId, String caller, String displayName, bool withVideo);
+import 'package:video_call/services/notification_service.dart';
 
 class CallService {
   final VIClient _client;
@@ -20,28 +19,16 @@ class CallService {
   String get callKitUUID => _activeCall?.callKitUUID;
   set callKitUUID(String uuid) => _activeCall?.callKitUUID = uuid;
 
+  String get localVideoStreamId => _activeCall.localVideoStream.streamId;
+  String remoteVideoStreamId;
+
+  Function onIncomingCall;
+
   StreamController<CallEvent> _activeStreamController;
-
-  OnIncomingCall onIncomingCall;
-  Function answerOnceReady;
-
-  String get localVideoStreamID => _localVideoStreamID;
-  set _setLocalVideoStreamID(String id) {
-    _localVideoStreamID = id;
-    _activeStreamController?.add(OnChangedLocalVideoCallEvent(id));
-  }
-  String _localVideoStreamID;
-
-  String get remoteVideoStreamID => _remoteVideoStreamID;
-  set _setRemoteVideoStreamID(String id) {
-    _remoteVideoStreamID = id;
-    _activeStreamController?.add(OnChangedRemoteVideoCallEvent(id));
-  }
-  String _remoteVideoStreamID;
 
   factory CallService() => _cache ?? CallService._();
   static CallService _cache;
-  CallService._() : _client = Voximplant().getClient(VIClientConfig()) {
+  CallService._() : _client = Voximplant().getClient(defaultConfig) {
     _client.onIncomingCall = _onIncomingCall;
     _client.onPushDidExpire = _pushDidExpire;
     _cache = this;
@@ -93,7 +80,7 @@ class CallService {
       throw 'Tried to mute having no active call';
     }
     await _activeCall.sendAudio(!mute);
-    _activeStreamController.add(OnMuteCallEvent(mute));
+    _activeStreamController?.add(OnMuteCallEvent(muted: mute));
   }
 
   Future<void> holdCall({@required bool hold}) async {
@@ -101,7 +88,7 @@ class CallService {
       throw 'Tried to hold having no active call';
     }
     await _activeCall.hold(hold);
-    _activeStreamController.add(OnHoldCallEvent(hold));
+    _activeStreamController?.add(OnHoldCallEvent(hold: hold));
   }
 
   Future<void> sendVideo({@required bool send}) async {
@@ -113,27 +100,20 @@ class CallService {
 
   Future<void> _onIncomingCall(VIClient client, VICall call, bool video,
       Map<String, String> headers) async {
-    if (hasActiveCall) {
-      callKitUUID == call.callKitUUID
-          ? _activeCall = call
-          : await call.reject();
+    if (hasActiveCall && _activeCall.callId != call.callId) {
+      await call.reject();
       return;
     }
 
     _activeCall = call;
     _listenToActiveCallEvents();
-
-    if (answerOnceReady != null) {
-      answerOnceReady();
-      answerOnceReady = null;
-      return;
-    }
-
+    _activeStreamController?.add(OnIncomingCallEvent(
+        username: _activeCall?.endpoints?.first?.userName,
+        displayName: _activeCall?.endpoints?.first?.displayName,
+        video: video));
     if (onIncomingCall != null) {
-      onIncomingCall(_activeCall?.callId,
-          _activeCall?.endpoints?.first?.userName,
-          _activeCall?.endpoints?.first?.displayName,
-          video);
+      onIncomingCall();
+      onIncomingCall = null;
     }
   }
 
@@ -155,7 +135,8 @@ class CallService {
   }
 
   void _pushDidExpire(VIClient client, String callKitUUID) {
-    _activeStreamController?.add(OnDisconnectedCallEvent(false));
+    _activeStreamController
+        ?.add(OnDisconnectedCallEvent(answeredElsewhere: false));
   }
 
   void _onCallDisconnected(
@@ -163,7 +144,11 @@ class CallService {
     if (call.callId == _activeCall.callId) {
       _activeCall = null;
       print('CallService: onCallDisconnected($headers, $answeredElsewhere)');
-      _activeStreamController?.add(OnDisconnectedCallEvent(answeredElsewhere));
+      if (Platform.isAndroid) {
+        NotificationService().cancelNotification();
+      }
+      _activeStreamController
+          ?.add(OnDisconnectedCallEvent(answeredElsewhere: answeredElsewhere));
     }
   }
 
@@ -172,16 +157,17 @@ class CallService {
     if (call.callId == _activeCall?.callId) {
       _activeCall = null;
       print('CallService: onCallFailed($code, $description, $headers)');
-      _activeStreamController?.add(OnFailedCallEvent(description));
+      _activeStreamController?.add(OnFailedCallEvent(reason: description));
     }
   }
 
   void _onCallConnected(VICall call, Map<String, String> headers) async {
     if (call.callId == _activeCall?.callId) {
+    _activeCall = call;
       print('CallService: onCallConnected($headers)');
       _activeStreamController?.add(OnConnectedCallEvent(
-        call.endpoints?.first?.userName,
-        call.endpoints?.first?.displayName,
+        username: _activeCall.endpoints?.first?.userName,
+        displayName: _activeCall.endpoints?.first?.displayName,
       ));
     }
   }
@@ -195,6 +181,7 @@ class CallService {
 
   void _onEndpointAdded(VICall call, VIEndpoint endpoint) {
     if (call.callId == _activeCall.callId) {
+      _activeCall = call;
       print('CallService: onEndpointAdded($endpoint)');
       _listenToEndpointEvents();
     }
@@ -202,27 +189,34 @@ class CallService {
 
   void _onLocalVideoStreamAdded(VICall call, VIVideoStream videoStream) {
     if (call.callId == _activeCall.callId) {
+      _activeCall = call;
       print('CallService: onLocalVideoStreamAdded: ${videoStream.streamId}');
-      _setLocalVideoStreamID = videoStream.streamId;
+      _activeStreamController
+          ?.add(OnChangedLocalVideoCallEvent(streamId: videoStream.streamId));
     }
   }
 
   void _onLocalVideoStreamRemoved(VICall call, VIVideoStream videoStream) {
     if (call.callId == _activeCall.callId) {
+      _activeCall = call;
       print('CallService: onLocalVideoStreamRemoved: ${videoStream.streamId}');
-      _setLocalVideoStreamID = null;
+      _activeStreamController
+          ?.add(OnChangedLocalVideoCallEvent(streamId: null));
     }
   }
 
   void _onRemoteVideoStreamAdded(
       VIEndpoint endpoint, VIVideoStream videoStream) {
     print('CallService: onRemoteVideoStreamAdded: ${videoStream.streamId}');
-    _setRemoteVideoStreamID = videoStream.streamId;
+    remoteVideoStreamId = videoStream.streamId;
+    _activeStreamController
+        ?.add(OnChangedRemoteVideoCallEvent(streamId: videoStream.streamId));
   }
 
   void _onRemoteVideoStreamRemoved(
       VIEndpoint endpoint, VIVideoStream videoStream) {
     print('CallService: onRemoteVideoStreamRemoved: ${videoStream.streamId}');
-    _setRemoteVideoStreamID = null;
+    remoteVideoStreamId = null;
+    _activeStreamController?.add(OnChangedRemoteVideoCallEvent(streamId: null));
   }
 }

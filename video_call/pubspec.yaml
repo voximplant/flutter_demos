@@ -11,7 +11,7 @@ description: A new Flutter project.
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.1.0+3
+version: 1.1.1
 
 environment:
   sdk: ">=2.6.0 <3.0.0"
@@ -20,14 +20,14 @@ dependencies:
   uuid: 2.0.4
   flutter:
     sdk: flutter
-  bloc: 3.0.0
-  flutter_bloc: 3.1.0
+  bloc: 4.0.0
+  flutter_bloc: 4.0.0
   equatable: 1.0.2
   flutter_voximplant: 2.1.2
   firebase_messaging: 6.0.13
   flutter_voip_push_notification: 0.0.3
-  flutter_local_notifications: 1.0.0
-  flutter_callkit_voximplant: 1.0.0
+  flutter_local_notifications: 1.4.3
+  flutter_callkit_voximplant: 1.1.0+1
   shared_preferences: 0.5.6
   permission_handler: 3.2.0
 

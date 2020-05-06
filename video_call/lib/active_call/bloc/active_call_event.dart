@@ -5,6 +5,14 @@ import 'package:video_call/services/call/call_event.dart';
 
 abstract class ActiveCallEvent { }
 
+class ReadyToInteractCallEvent implements ActiveCallEvent {
+  final bool isIncoming;
+  final String endpoint;
+
+  ReadyToInteractCallEvent(
+      {@required this.isIncoming, @required this.endpoint});
+}
+
 class CallChangedEvent implements ActiveCallEvent {
   final CallEvent callEvent;
 
@@ -32,15 +40,3 @@ class MutePressedEvent implements ActiveCallEvent {
 }
 
 class HangupPressedEvent implements ActiveCallEvent { }
-
-class AnswerCallEvent implements ActiveCallEvent {
-  final String username;
-
-  AnswerCallEvent(this.username);
-}
-
-class StartOutgoingCallEvent implements ActiveCallEvent {
-  final String username;
-
-  StartOutgoingCallEvent(this.username);
-}
