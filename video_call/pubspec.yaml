@@ -23,7 +23,7 @@ dependencies:
   bloc: 4.0.0
   flutter_bloc: 4.0.0
   equatable: 1.0.2
-  flutter_voximplant: 2.1.2
+  flutter_voximplant: 2.2.0
   firebase_messaging: 6.0.13
   flutter_voip_push_notification: 0.0.3
   flutter_local_notifications: 1.4.3
