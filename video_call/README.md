@@ -30,6 +30,7 @@ You'll need the following:
 
 #### VoxEngine scenario example
 ```js
+require(Modules.PushService);
 VoxEngine.addEventListener(AppEvents.CallAlerting, (e) => {
 const newCall = VoxEngine.callUserDirect(
   e.call, 
