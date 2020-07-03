@@ -3,7 +3,7 @@
 This demo demonstrates basic audio call functionality of the Voximplant Flutter SDK. The application supports audio calls between this mobile applications that use any Voximplant SDK.
 
 This demo application doesn't handle push notifications, so it doesn't receive incoming calls if the application is in the background or killed.
-Features
+## Features
 
 The application is able to:
 
@@ -27,6 +27,7 @@ You'll need the following:
 
 #### VoxEngine scenario example
 ```js
+require(Modules.PushService);
 VoxEngine.addEventListener(AppEvents.CallAlerting, (e) => {
 const newCall = VoxEngine.callUserDirect(
   e.call, 
@@ -36,6 +37,7 @@ const newCall = VoxEngine.callUserDirect(
   null
 );
 VoxEngine.easyProcess(e.call, newCall, ()=>{}, true);
+});
 });
 ```
 
