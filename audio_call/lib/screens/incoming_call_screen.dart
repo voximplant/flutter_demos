@@ -9,9 +9,9 @@ import 'package:audio_call/services/navigation_service.dart';
 import 'package:audio_call/theme/voximplant_theme.dart';
 import 'package:audio_call/utils/screen_arguments.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_voximplant/flutter_voximplant.dart';
 import 'package:get_it/get_it.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:flutter_voximplant/flutter_voximplant.dart';
 
 class IncomingCallScreen extends StatelessWidget {
   static const routeName = '/incomingCall';
@@ -22,26 +22,24 @@ class IncomingCallScreen extends StatelessWidget {
     _callService.bind(onCallDisconnected: _onCallDisconnected);
   }
 
-  _onCallDisconnected(VICall call, Map<String, String> headers, bool answeredElsewhere) {
+  _onCallDisconnected(
+      VICall call, Map<String, String> headers, bool answeredElsewhere) {
     GetIt locator = GetIt.instance;
     locator<NavigationService>().navigateTo(MainScreen.routeName);
   }
 
   _answerCall(BuildContext context) async {
     if (Platform.isAndroid) {
-      PermissionStatus permission = await PermissionHandler()
-          .checkPermissionStatus(PermissionGroup.microphone);
+      PermissionStatus permission = await Permission.microphone.status;
       if (permission != PermissionStatus.granted) {
-        Map<PermissionGroup, PermissionStatus> result = await PermissionHandler()
-            .requestPermissions([PermissionGroup.microphone]);
-        if (result[PermissionGroup.microphone] != PermissionStatus.granted) {
+        PermissionStatus result = await Permission.microphone.request();
+        if (result != PermissionStatus.granted) {
           return;
         }
       }
     }
     await _callService.answer();
-    Navigator.pushReplacementNamed(context,
-        CallScreen.routeName,
+    Navigator.pushReplacementNamed(context, CallScreen.routeName,
         arguments: CallArguments.withCallId(_callService.callId));
   }
 
@@ -84,17 +82,17 @@ class IncomingCallScreen extends StatelessWidget {
                       decoration: ShapeDecoration(
                         color: VoximplantColors.white,
                         shape: CircleBorder(
-                            side: BorderSide(width: 2, color: VoximplantColors.button, style: BorderStyle.solid)
-                        ),
+                            side: BorderSide(
+                                width: 2,
+                                color: VoximplantColors.button,
+                                style: BorderStyle.solid)),
                       ),
                       child: IconButton(
                         onPressed: () {
                           _answerCall(context);
                         },
                         iconSize: 40,
-                        icon: Icon(Icons.call,
-                            color: VoximplantColors.button
-                        ),
+                        icon: Icon(Icons.call, color: VoximplantColors.button),
                         tooltip: 'Answer',
                       ),
                     ),
@@ -105,17 +103,17 @@ class IncomingCallScreen extends StatelessWidget {
                       decoration: ShapeDecoration(
                         color: VoximplantColors.white,
                         shape: CircleBorder(
-                            side: BorderSide(width: 2, color: VoximplantColors.red, style: BorderStyle.solid)
-                        ),
+                            side: BorderSide(
+                                width: 2,
+                                color: VoximplantColors.red,
+                                style: BorderStyle.solid)),
                       ),
                       child: IconButton(
                         onPressed: () {
                           _declineCall(context);
                         },
                         iconSize: 40,
-                        icon: Icon(Icons.call_end,
-                            color: VoximplantColors.red
-                        ),
+                        icon: Icon(Icons.call_end, color: VoximplantColors.red),
                         tooltip: 'Decline',
                       ),
                     ),
@@ -128,5 +126,4 @@ class IncomingCallScreen extends StatelessWidget {
       ),
     );
   }
-
 }

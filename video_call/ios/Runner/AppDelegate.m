@@ -45,14 +45,20 @@
     }
     
     if (UIApplication.sharedApplication.applicationState == UIApplicationStateActive) {
+        if (completion) {
+            completion();
+        }
         return;
     }
-    
+
     NSUUID *callUUID = [VoximplantPlugin uuidForPushNotification:payload];
     if ([FlutterCallkitPlugin hasCallWithUUID:callUUID]) {
+        if (completion) {
+            completion();
+        }
         return;
     }
-    
+
     CXCallUpdate *callUpdate = [CXCallUpdate new];
     callUpdate.localizedCallerName = payload[@"voximplant"][@"display_name"];
     callUpdate.remoteHandle = [[CXHandle alloc] initWithType:CXHandleTypeGeneric
@@ -62,18 +68,17 @@
     callUpdate.supportsUngrouping = false;
     callUpdate.supportsDTMF = false;
     callUpdate.hasVideo = payload[@"voximplant"][@"video"];
-    
+
     CXProviderConfiguration *configuration = [[CXProviderConfiguration alloc] initWithLocalizedName:@"VideoCall"];
     if (@available(iOS 11.0, *)) {
         configuration.includesCallsInRecents = true;
     }
     configuration.supportsVideo = payload[@"voximplant"][@"video"];
-    
+
     [FlutterCallkitPlugin reportNewIncomingCallWithUUID:callUUID
                                              callUpdate:callUpdate
                                   providerConfiguration:configuration
                                pushProcessingCompletion:completion];
-    
 }
 
 

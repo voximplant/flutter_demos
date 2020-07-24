@@ -15,7 +15,7 @@ import 'package:video_call/services/call/callkit_service.dart';
 class ActiveCallBloc extends Bloc<ActiveCallEvent, ActiveCallState> {
   final CallService _callService = CallService();
   final CallKitService _callKitService =
-      Platform.isIOS ? CallKitService() : null;
+  Platform.isIOS ? CallKitService() : null;
 
   StreamSubscription _callStateSubscription;
 
@@ -27,6 +27,14 @@ class ActiveCallBloc extends Bloc<ActiveCallEvent, ActiveCallState> {
   bool _latestIsMuted = false;
   String _displayName;
 
+  ActiveCallBloc()
+      : super(ActiveCallState(
+      description: 'Connecting',
+      localVideoStreamID: null,
+      remoteVideoStreamID: null,
+      isOnHold: false,
+      isMuted: false));
+
   @override
   Future<void> close() {
     if (_callStateSubscription != null) {
@@ -34,14 +42,6 @@ class ActiveCallBloc extends Bloc<ActiveCallEvent, ActiveCallState> {
     }
     return super.close();
   }
-
-  @override
-  ActiveCallState get initialState => ActiveCallState(
-      description: 'Connecting',
-      localVideoStreamID: null,
-      remoteVideoStreamID: null,
-      isOnHold: false,
-      isMuted: false);
 
   @override
   void onTransition(Transition<ActiveCallEvent, ActiveCallState> transition) {

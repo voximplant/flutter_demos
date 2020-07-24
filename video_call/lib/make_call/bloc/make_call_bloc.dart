@@ -1,5 +1,5 @@
 /// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
-///
+
 import 'dart:async';
 import 'dart:io';
 
@@ -14,16 +14,15 @@ import 'package:video_call/services/call/callkit_service.dart';
 import 'package:video_call/services/permissions_helper.dart';
 
 class MakeCallBloc extends Bloc<MakeCallEvent, MakeCallState> {
-  final AuthService _authService;
-  final CallService _callService;
-  final CallKitService _callKitService;
+  final AuthService _authService = AuthService();
+  final CallService _callService = CallService();
+  final CallKitService _callKitService =
+  Platform.isIOS ? CallKitService() : null;
 
   StreamSubscription _callStateSubscription;
 
   MakeCallBloc()
-      : _authService = AuthService(),
-        _callService = CallService(),
-        _callKitService = Platform.isIOS ? CallKitService() : null {
+      : super(MakeCallInitial(myDisplayName: AuthService().displayName)) {
     _authService.onDisconnected = onConnectionClosed;
     _callStateSubscription =
         _callService.subscribeToCallEvents().listen(onCallEvent);
@@ -36,10 +35,6 @@ class MakeCallBloc extends Bloc<MakeCallEvent, MakeCallState> {
     }
     return super.close();
   }
-
-  @override
-  MakeCallState get initialState =>
-      MakeCallInitial(myDisplayName: _authService.displayName);
 
   void onConnectionClosed() => add(ConnectionClosed());
 
@@ -55,8 +50,8 @@ class MakeCallBloc extends Bloc<MakeCallEvent, MakeCallState> {
       yield LoggedOut(networkIssues: false);
     }
     if (event is ReceivedIncomingCall) {
-      yield IncomingCall(caller: event.displayName,
-          myDisplayName: _authService.displayName);
+      yield IncomingCall(
+          caller: event.displayName, myDisplayName: _authService.displayName);
     }
     if (event is ConnectionClosed) {
       yield LoggedOut(networkIssues: true);
@@ -64,7 +59,9 @@ class MakeCallBloc extends Bloc<MakeCallEvent, MakeCallState> {
     if (event is Reconnect) {
       try {
         String displayName = await _authService.loginWithAccessToken();
-        if (displayName == null) { return; }
+        if (displayName == null) {
+          return;
+        }
         yield ReconnectSuccess(myDisplayName: displayName);
       } on VIException {
         _authService.onDisconnected = null;
@@ -80,9 +77,9 @@ class MakeCallBloc extends Bloc<MakeCallEvent, MakeCallState> {
     } else if (event is OnIncomingCallEvent) {
       Platform.isIOS
           ? await _callKitService.createIncomingCall(_callService.callKitUUID,
-              event.username, event.displayName, event.video)
+          event.username, event.displayName, event.video)
           : add(ReceivedIncomingCall(
-              displayName: event.displayName ?? event.username));
+          displayName: event.displayName ?? event.username));
     }
   }
 }

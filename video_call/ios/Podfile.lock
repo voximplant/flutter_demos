@@ -58,9 +58,9 @@ PODS:
     - Flutter
   - flutter_voip_push_notification (0.0.1):
     - Flutter
-  - flutter_voximplant (2.2.0):
+  - flutter_voximplant (2.3.0):
     - Flutter
-    - VoxImplantSDK (= 2.31.0)
+    - VoxImplantSDK (= 2.33.0)
   - GoogleAppMeasurement (6.4.0):
     - GoogleUtilities/AppDelegateSwizzler (~> 6.0)
     - GoogleUtilities/MethodSwizzler (~> 6.0)
@@ -94,21 +94,25 @@ PODS:
     - nanopb/encode (= 0.3.9011)
   - nanopb/decode (0.3.9011)
   - nanopb/encode (0.3.9011)
-  - permission_handler (3.2.0):
+  - path_provider_linux (0.0.1):
+    - Flutter
+  - "permission_handler (5.0.1+1)":
     - Flutter
   - PromisesObjC (1.2.8)
   - Protobuf (3.11.4)
   - shared_preferences (0.0.1):
     - Flutter
+  - shared_preferences_linux (0.0.1):
+    - Flutter
   - shared_preferences_macos (0.0.1):
     - Flutter
   - shared_preferences_web (0.0.1):
     - Flutter
-  - VoxImplantSDK (2.31.0):
-    - VoxImplantSDK/Core (= 2.31.0)
-  - VoxImplantSDK/Core (2.31.0):
-    - VoxImplantWebRTC (= 78.2.1)
-  - VoxImplantWebRTC (78.2.1)
+  - VoxImplantSDK (2.33.0):
+    - VoxImplantSDK/Core (= 2.33.0)
+  - VoxImplantSDK/Core (2.33.0):
+    - VoxImplantWebRTC (= 78.4.0)
+  - VoxImplantWebRTC (78.4.0)
 
 DEPENDENCIES:
   - firebase_messaging (from `.symlinks/plugins/firebase_messaging/ios`)
@@ -117,8 +121,10 @@ DEPENDENCIES:
   - flutter_local_notifications (from `.symlinks/plugins/flutter_local_notifications/ios`)
   - flutter_voip_push_notification (from `.symlinks/plugins/flutter_voip_push_notification/ios`)
   - flutter_voximplant (from `.symlinks/plugins/flutter_voximplant/ios`)
+  - path_provider_linux (from `.symlinks/plugins/path_provider_linux/ios`)
   - permission_handler (from `.symlinks/plugins/permission_handler/ios`)
   - shared_preferences (from `.symlinks/plugins/shared_preferences/ios`)
+  - shared_preferences_linux (from `.symlinks/plugins/shared_preferences_linux/ios`)
   - shared_preferences_macos (from `.symlinks/plugins/shared_preferences_macos/ios`)
   - shared_preferences_web (from `.symlinks/plugins/shared_preferences_web/ios`)
 
@@ -156,10 +162,14 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_voip_push_notification/ios"
   flutter_voximplant:
     :path: ".symlinks/plugins/flutter_voximplant/ios"
+  path_provider_linux:
+    :path: ".symlinks/plugins/path_provider_linux/ios"
   permission_handler:
     :path: ".symlinks/plugins/permission_handler/ios"
   shared_preferences:
     :path: ".symlinks/plugins/shared_preferences/ios"
+  shared_preferences_linux:
+    :path: ".symlinks/plugins/shared_preferences_linux/ios"
   shared_preferences_macos:
     :path: ".symlinks/plugins/shared_preferences_macos/ios"
   shared_preferences_web:
@@ -167,7 +177,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Firebase: f378c80340dd41c0ad0914af740c021eb282a04b
-  firebase_messaging: cffb57ce40958c6204f03fb0c81713e4cd1e240c
+  firebase_messaging: 21344b3b3a7d9d325d63a70e3750c0c798fe1e03
   FirebaseAnalytics: a1a0b3327ceb5cd5b4bacffdb293f6c909aa087d
   FirebaseAnalyticsInterop: 3f86269c38ae41f47afeb43ebf32a001f58fcdae
   FirebaseCore: 9f495d3afacb7b558711e6218ebb14b1c51b5802
@@ -180,21 +190,23 @@ SPEC CHECKSUMS:
   flutter_callkit_voximplant: 5f0154d8aa11bc0a1e15b8c707f37ea78bd23c64
   flutter_local_notifications: 9e4738ce2471c5af910d961a6b7eadcf57c50186
   flutter_voip_push_notification: f28f3ce1c6b835a3fa9e833f37f33dc1291ab888
-  flutter_voximplant: 23dda09bca9a16bdb150d9b590a4f75e55910baf
+  flutter_voximplant: 4eabb0242aec32b137f3d4c2661133addd0f2130
   GoogleAppMeasurement: 6e68a94d0eaeb1d73ef6b0ed4f7334e29d63ae29
   GoogleDataTransport: b29a21d813e906014ca16c00897827e40e4a24ab
   GoogleDataTransportCCTSupport: 6f15a89b0ca35d6fa523e1f752ef818588885988
   GoogleUtilities: ad0f3b691c67909d03a3327cc205222ab8f42e0e
   nanopb: 18003b5e52dab79db540fe93fe9579f399bd1ccd
-  permission_handler: d4838243e7d0f4b18911a6422d81e7e6b71ad545
+  path_provider_linux: 4d630dc393e1f20364f3e3b4a2ff41d9674a84e4
+  permission_handler: eac8e15b4a1a3fba55b761d19f3f4e6b005d15b6
   PromisesObjC: c119f3cd559f50b7ae681fa59dc1acd19173b7e6
   Protobuf: 176220c526ad8bd09ab1fb40a978eac3fef665f7
-  shared_preferences: 430726339841afefe5142b9c1f50cb6bd7793e01
+  shared_preferences: af6bfa751691cdc24be3045c43ec037377ada40d
+  shared_preferences_linux: afefbfe8d921e207f01ede8b60373d9e3b566b78
   shared_preferences_macos: f3f29b71ccbb56bf40c9dd6396c9acf15e214087
   shared_preferences_web: 141cce0c3ed1a1c5bf2a0e44f52d31eeb66e5ea9
-  VoxImplantSDK: c206cd51c682417ecf77492a008ca85abe8a4884
-  VoxImplantWebRTC: afb58193e6884149aa7c5051bcfd0ac56b10cc52
+  VoxImplantSDK: 4ab9acf9ee13dda8b3391c8943fef22a1b70aa80
+  VoxImplantWebRTC: ad3d5f239d3959c44dc10c44da977216076b772d
 
 PODFILE CHECKSUM: 3dbe063e9c90a5d7c9e4e76e70a821b9e2c1d271
 
-COCOAPODS: 1.9.1
+COCOAPODS: 1.9.3

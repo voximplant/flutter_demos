@@ -6,6 +6,7 @@ import 'package:bloc/bloc.dart';
 import 'package:video_call/services/call/call_event.dart';
 import 'package:video_call/services/call/call_service.dart';
 import 'package:video_call/services/permissions_helper.dart';
+
 import 'incoming_call_event.dart';
 import 'incoming_call_state.dart';
 
@@ -14,8 +15,7 @@ class IncomingCallBloc extends Bloc<IncomingCallEvent, IncomingCallState> {
 
   StreamSubscription _callStateSubscription;
 
-  @override
-  IncomingCallState get initialState => IncomingCallState.callIncoming;
+  IncomingCallBloc() : super(IncomingCallState.callIncoming);
 
   @override
   Stream<IncomingCallState> mapEventToState(IncomingCallEvent event) async* {

@@ -39,6 +39,7 @@ class MainScreen extends StatelessWidget with WidgetsBindingObserver {
   }
 
   void _onConnectionClosed() {
+    //TODO(yulia): show alert dialog
     print('MainScreen: onConnectionClosed');
     WidgetsBinding.instance.removeObserver(this);
     GetIt locator = GetIt.instance;
@@ -53,13 +54,10 @@ class MainScreen extends StatelessWidget with WidgetsBindingObserver {
 
   Future<void> _makeAudioCall(BuildContext context, String number) async {
     if (Platform.isAndroid) {
-      PermissionStatus permission = await PermissionHandler()
-          .checkPermissionStatus(PermissionGroup.microphone);
+      PermissionStatus permission = await Permission.microphone.status;
       if (permission != PermissionStatus.granted) {
-        Map<PermissionGroup,
-            PermissionStatus> result = await PermissionHandler()
-            .requestPermissions([PermissionGroup.microphone]);
-        if (result[PermissionGroup.microphone] != PermissionStatus.granted) {
+        PermissionStatus result = await Permission.microphone.request();
+        if (result != PermissionStatus.granted) {
           return;
         }
       }
@@ -71,6 +69,9 @@ class MainScreen extends StatelessWidget with WidgetsBindingObserver {
         CallScreen.routeName,
         arguments: CallArguments.withCallId(callId));
   }
+
+  @override
+
 
   @override
   Widget build(BuildContext context) {
@@ -104,7 +105,7 @@ class MainScreen extends StatelessWidget with WidgetsBindingObserver {
               child: Text(
                 'Logged in as $_displayName',
                 style: TextStyle(
-                  fontSize: 20
+                    fontSize: 20
                 ),
               ),
             ),

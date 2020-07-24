@@ -10,17 +10,18 @@ import 'package:video_call/call_failed/call_failed.dart';
 import 'package:video_call/incoming_call/incoming_call.dart';
 import 'package:video_call/login/login.dart';
 import 'package:video_call/make_call/make_call.dart';
-import 'package:video_call/services/navigation_helper.dart';
 import 'package:video_call/services/auth_service.dart';
 import 'package:video_call/services/call/call_service.dart';
 import 'package:video_call/services/call/callkit_service.dart';
+import 'package:video_call/services/navigation_helper.dart';
 import 'package:video_call/services/notification_service.dart';
-import 'package:video_call/services/push/push_service_ios.dart';
 import 'package:video_call/services/push/push_service_android.dart';
+import 'package:video_call/services/push/push_service_ios.dart';
 import 'package:video_call/theme/voximplant_theme.dart';
+
 import 'call_failed/call_failed_page.dart';
 
-class SimpleBlocDelegate extends BlocDelegate {
+class SimpleBlocDelegate extends BlocObserver {
   @override
   void onEvent(Bloc bloc, Object event) {
     super.onEvent(bloc, event);
@@ -34,8 +35,8 @@ class SimpleBlocDelegate extends BlocDelegate {
   }
 
   @override
-  void onError(Bloc bloc, Object error, StackTrace stacktrace) {
-    super.onError(bloc, error, stacktrace);
+  void onError(Cubit cubit, Object error, StackTrace stackTrace) {
+    super.onError(cubit, error, stackTrace);
     print(error);
   }
 }
@@ -44,15 +45,17 @@ VIClientConfig get defaultConfig => VIClientConfig();
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  BlocSupervisor.delegate = SimpleBlocDelegate();
+  Bloc.observer = SimpleBlocDelegate();
 
   AuthService();
   CallService();
   Platform.isIOS ? PushServiceIOS() : PushServiceAndroid();
+
   /// callKit for ios
   if (Platform.isIOS) {
     CallKitService();
   }
+
   /// local notifications for android
   if (Platform.isAndroid) {
     NotificationService();
@@ -82,7 +85,6 @@ class App extends StatelessWidget {
                 child: LoginPage(),
               ),
             );
-
           } else if (routeSettings.name == AppRoutes.makeCall) {
             return PageRouteBuilder(
               pageBuilder: (_, a1, a2) => BlocProvider<MakeCallBloc>(
@@ -90,7 +92,6 @@ class App extends StatelessWidget {
                 child: MakeCallPage(),
               ),
             );
-
           } else if (routeSettings.name == AppRoutes.activeCall) {
             ActiveCallPageArguments arguments = routeSettings.arguments;
             return PageRouteBuilder(
@@ -102,17 +103,16 @@ class App extends StatelessWidget {
                 child: ActiveCallPage(),
               ),
             );
-
           } else if (routeSettings.name == AppRoutes.incomingCall) {
             return PageRouteBuilder(
               pageBuilder: (context, a1, a2) => BlocProvider<IncomingCallBloc>(
                 create: (context) =>
-                    IncomingCallBloc()..add(IncomingCallEvent.readyToSubscribe),
-                child: IncomingCallPage(arguments:
+                IncomingCallBloc()..add(IncomingCallEvent.readyToSubscribe),
+                child: IncomingCallPage(
+                    arguments:
                     routeSettings.arguments as IncomingCallPageArguments),
               ),
             );
-
           } else if (routeSettings.name == AppRoutes.callFailed) {
             return MaterialPageRoute(
               builder: (context) => CallFailedPage(

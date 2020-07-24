@@ -39,7 +39,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    void _login() =>_bloc.add(LoginWithPassword(
+    void _login() => _bloc.add(LoginWithPassword(
         username: _usernameController.text,
         password: _passwordController.text));
 
@@ -58,41 +58,43 @@ class _LoginPageState extends State<LoginPage> {
 
     Widget _loginForm() {
       return Center(
-          child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Widgets.textWithPadding(
-                    text: 'Video call',
-                    fontSize: 30,
-                    textColor: VoximplantColors.white,
-                    verticalPadding: 30,
-                  ),
-                  Widgets.textFormField(
-                      controller: _usernameController,
-                      darkBackground: true,
-                      labelText: 'user@app.account',
-                      suffixText: '.voximplant.com',
-                      inputType: TextInputType.emailAddress,
-                      validator: (_) {
-                        return _isUsernameValid ? null : 'Invalid username';
-                      }),
-                  Widgets.textFormField(
-                      controller: _passwordController,
-                      darkBackground: true,
-                      labelText: 'password',
-                      obscureText: true,
-                      validator: (_) {
-                        return _isPasswordValid ? null : 'Invalid password';
-                      }),
-                  Widgets.maxWidthRaisedButton(
-                    text: 'Log in',
-                    onPressed: _login,
-                  ),
-                ],
-              )));
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Widgets.textWithPadding(
+                text: 'Video call',
+                fontSize: 30,
+                textColor: VoximplantColors.white,
+                verticalPadding: 30,
+              ),
+              Widgets.textFormField(
+                  controller: _usernameController,
+                  darkBackground: true,
+                  labelText: 'user@app.account',
+                  suffixText: '.voximplant.com',
+                  inputType: TextInputType.emailAddress,
+                  validator: (_) {
+                    return _isUsernameValid ? null : 'Invalid username';
+                  }),
+              Widgets.textFormField(
+                  controller: _passwordController,
+                  darkBackground: true,
+                  labelText: 'password',
+                  obscureText: true,
+                  validator: (_) {
+                    return _isPasswordValid ? null : 'Invalid password';
+                  }),
+              Widgets.maxWidthRaisedButton(
+                text: 'Log in',
+                onPressed: _login,
+              ),
+            ],
+          ),
+        ),
+      );
     }
 
     Widget _loginInProgress() {
