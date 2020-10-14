@@ -119,14 +119,13 @@ class _ActiveCallPageState extends State<ActiveCallPage> {
                             alignment: Alignment.topLeft,
                             child: Padding(
                               padding: EdgeInsets.only(left: 20, top: 20),
-                              child: Platform.isAndroid ?
+                              child:
                                 Widgets.iconButton(
                                   icon: Icons.switch_camera,
                                   color: VoximplantColors.button,
                                   tooltip: 'Switch camera',
                                   onPressed: _switchCamera,
-                                ) :
-                                  Container()
+                                )
                             ),
                           ),
                           Align(
