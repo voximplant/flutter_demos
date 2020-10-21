@@ -9,4 +9,5 @@ class VoximplantColors {
   static const Color button = const Color(0xff662eff);
   static const Color white = const Color(0xffffffff);
   static const Color red = const Color(0xfff54b5e);
+  static const Color grey = const Color(0xff212121);
 }

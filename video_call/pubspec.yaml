@@ -11,23 +11,22 @@ description: A new Flutter project.
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.1.1+1
+version: 1.1.2
 
 environment:
   sdk: ">=2.6.0 <3.0.0"
 
 dependencies:
-  uuid: 2.0.4
   flutter:
     sdk: flutter
-  flutter_bloc: 6.0.1
-  equatable: 1.0.2
-  flutter_voximplant: 2.4.0
-  firebase_messaging: 6.0.16
+  flutter_bloc: 6.0.6
+  equatable: 1.2.5
+  firebase_messaging: 7.0.3
+  flutter_voximplant: 2.4.1
+  flutter_callkit_voximplant: 1.1.0+3
   flutter_voip_push_notification: 0.0.3
-  flutter_local_notifications: 1.4.3
-  flutter_callkit_voximplant: 1.1.0+1
-  shared_preferences: 0.5.8
+  flutter_local_notifications: 2.0.1+1
+  shared_preferences: 0.5.12+2
   permission_handler: 5.0.1+1
 
   # The following adds the Cupertino Icons font to your application.

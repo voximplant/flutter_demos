@@ -1,54 +1,45 @@
 /// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
-
-import 'dart:io';
-import 'dart:convert';
-
-import 'package:audio_call/services/call_service.dart';
-import 'package:crypto/crypto.dart';
+import 'package:audio_call/main.dart';
+import 'package:audio_call/utils/log.dart';
 import 'package:flutter_voximplant/flutter_voximplant.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-typedef void ConnectionClosed();
+typedef void Disconnected();
 
 class AuthService {
   VIClient _client;
   String _displayName;
 
   String get displayName => _displayName;
-  ConnectionClosed onConnectionClosed;
+  Disconnected onDisconnected;
 
   String _voipToken;
-
-  set pushToken(String newToken) {
-    if (newToken == null || newToken == "") {
-      print('AuthService: token is cleared');
+  set voipToken(token) {
+    if (token == null || token == '') {
+      _log('voip token cleared');
       _client.unregisterFromPushNotifications(_voipToken);
-    } else {
-      print('AuthService: token is set');
-      _client.registerForPushNotifications(newToken);
     }
-    _voipToken = newToken;
+    _voipToken = token;
   }
 
-  static final AuthService _singleton = AuthService._();
+  VIClientState clientState;
 
-  factory AuthService() {
-    return _singleton;
-  }
-
-  AuthService._() {
-    _client = Voximplant().getClient();
-    CallService().client = _client;
+  factory AuthService() => _cache ?? AuthService._();
+  static AuthService _cache;
+  AuthService._() : _client = Voximplant().getClient(defaultConfig) {
+    _log('initialize');
     _client.clientStateStream.listen((state) {
-      print('AuthService: client state is changed: $state');
-      if (state == VIClientState.Disconnected && onConnectionClosed != null) {
-        onConnectionClosed();
+      clientState = state;
+      _log('client state is changed to: $state');
+      if (state == VIClientState.Disconnected && onDisconnected != null) {
+        onDisconnected();
       }
     });
+    _cache = this;
   }
 
   Future<String> loginWithPassword(String username, String password) async {
-    print('AuthService: loginWithPassword');
+    _log('loginWithPassword');
     VIClientState clientState = await _client.getClientState();
     if (clientState == VIClientState.LoggedIn) {
       return _displayName;
@@ -57,33 +48,44 @@ class AuthService {
       await _client.connect();
     }
     VIAuthResult authResult = await _client.login(username, password);
+    if (_voipToken != null) {
+      await _client.registerForPushNotifications(_voipToken);
+    }
     await _saveAuthDetails(username, authResult.loginTokens);
     _displayName = authResult.displayName;
     return _displayName;
   }
 
   Future<String> loginWithAccessToken([String username]) async {
-    print('AuthService: loginWithAccessToken');
     VIClientState clientState = await _client.getClientState();
     if (clientState == VIClientState.LoggedIn) {
       return _displayName;
-    }
-    if (clientState == VIClientState.Disconnected) {
+    } else if (clientState == VIClientState.Connecting ||
+        clientState == VIClientState.LoggingIn) {
+      return null;
+    } else if (clientState == VIClientState.Disconnected) {
       await _client.connect();
     }
+    _log('loginWithAccessToken');
     SharedPreferences prefs = await SharedPreferences.getInstance();
     VILoginTokens loginTokens = _getAuthDetails(prefs);
     String user = username ?? prefs.getString('username');
 
     VIAuthResult authResult =
         await _client.loginWithAccessToken(user, loginTokens.accessToken);
+    if (_voipToken != null) {
+      await _client.registerForPushNotifications(_voipToken);
+    }
     await _saveAuthDetails(user, authResult.loginTokens);
     _displayName = authResult.displayName;
     return _displayName;
   }
 
   Future<void> logout() async {
-    return await _client.disconnect();
+    _log('logout');
+    await _client.disconnect();
+    VILoginTokens loginTokens = VILoginTokens();
+    _saveAuthDetails(null, loginTokens);
   }
 
   Future<String> getUsername() async {
@@ -91,8 +93,13 @@ class AuthService {
     return prefs.getString('username')?.replaceAll('.voximplant.com', '');
   }
 
-  Future<void> _saveAuthDetails(String username,
-      VILoginTokens loginTokens) async {
+  Future<bool> canUseAccessToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('accessToken') != null;
+  }
+
+  Future<void> _saveAuthDetails(
+      String username, VILoginTokens loginTokens) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString('username', username);
     prefs.setString('accessToken', loginTokens.accessToken);
@@ -112,7 +119,11 @@ class AuthService {
   }
 
   Future<void> pushNotificationReceived(Map<String, dynamic> payload) async {
-    await loginWithAccessToken();
+    _log('pushNotificationReceived');
     await _client.handlePushNotification(payload);
+  }
+
+  void _log<T>(T message) {
+    log('AuthService($hashCode): ${message.toString()}');
   }
 }

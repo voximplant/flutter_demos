@@ -1,100 +1,118 @@
 /// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
-
-import 'dart:convert';
 import 'dart:io';
 
-import 'package:audio_call/screens/call_screen.dart';
-import 'package:audio_call/screens/incoming_call_screen.dart';
-import 'package:audio_call/screens/login_screen.dart';
-import 'package:audio_call/screens/main_screen.dart';
+import 'package:audio_call/screens/active_call/active_call.dart';
+import 'package:audio_call/screens/call_failed/call_failed.dart';
+import 'package:audio_call/screens/incoming_call/incoming_call.dart';
+import 'package:audio_call/screens/login/login.dart';
+import 'package:audio_call/screens/main/main.dart';
 import 'package:audio_call/services/auth_service.dart';
+import 'package:audio_call/services/call/call_service.dart';
+import 'package:audio_call/services/call/callkit_service.dart';
+import 'package:audio_call/services/push/push_service_android.dart';
+import 'package:audio_call/services/push/push_service_ios.dart';
 import 'package:audio_call/theme/voximplant_theme.dart';
-import 'package:audio_call/utils/notifications_android.dart';
-import 'package:audio_call/utils/screen_arguments.dart';
-import 'package:audio_call/services/navigation_service.dart';
-import 'package:audio_call/services/push_service.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:audio_call/utils/log.dart';
+import 'package:audio_call/utils/navigation_helper.dart';
+import 'package:audio_call/utils/notification_helper.dart';
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_voximplant/flutter_voximplant.dart';
 
-GetIt getIt = GetIt.instance;
+class SimpleBlocDelegate extends BlocObserver {
+  @override
+  void onEvent(Bloc bloc, Object event) {
+    super.onEvent(bloc, event);
+    log(event);
+  }
+
+  @override
+  void onTransition(Bloc bloc, Transition transition) {
+    super.onTransition(bloc, transition);
+    log(transition);
+  }
+
+  @override
+  void onError(Cubit cubit, Object error, StackTrace stackTrace) {
+    super.onError(cubit, error, stackTrace);
+    log(error);
+  }
+}
+
+VIClientConfig get defaultConfig => VIClientConfig();
 
 void main() {
-  setupLocator();
-  runApp(MyApp());
-  PushService();
-}
+  WidgetsFlutterBinding.ensureInitialized();
+  Bloc.observer = SimpleBlocDelegate();
 
-void setupLocator() {
-  getIt.registerLazySingleton(() => NavigationService());
-}
-
-class MyApp extends StatelessWidget {
-  MyApp({Key key}) : super(key: key) {
-    if (Platform.isAndroid) {
-      navigateToIncomingCallIfNeeded();
-    }
+  AuthService();
+  CallService();
+  if (Platform.isIOS) {
+    PushServiceIOS();
+    CallKitService();
+  } else if (Platform.isAndroid) {
+    PushServiceAndroid();
+    NotificationHelper();
   }
 
-  //android only
-  navigateToIncomingCallIfNeeded() async {
-    WidgetsFlutterBinding.ensureInitialized();
-    bool navigate = await NotificationsAndroid.didNotificationLaunchApp();
-    if (navigate) {
-      NotificationsAndroid.cancelNotification();
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String displayName = prefs.getString('displayName');
-      String pushPayload = prefs.getString('pushPayload');
-      Map<String, dynamic> payload = Map<String, dynamic>.from(jsonDecode(pushPayload));
-      AuthService().pushNotificationReceived(payload);
-      prefs.remove('displayName');
-      prefs.remove('pushPayload');
-      GetIt locator = GetIt.instance;
-      locator<NavigationService>().navigateTo(IncomingCallScreen.routeName,
-          arguments: CallArguments.withDisplayName(
-              displayName));
-    }
-  }
+  runApp(App());
+}
+
+class App extends StatelessWidget {
+  App({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Audio call',
       theme: ThemeData(
         primaryColor: VoximplantColors.primary,
         primaryColorDark: VoximplantColors.primaryDark,
         accentColor: VoximplantColors.accent,
       ),
-      navigatorKey: getIt<NavigationService>().navigatorKey,
-      onGenerateRoute: (settings) {
-        if (settings.name == CallScreen.routeName) {
-          final CallArguments args = settings.arguments;
-          return MaterialPageRoute(
-            builder: (context) {
-              return CallScreen(
-                callId: args.callId,
-              );
-            },
+      navigatorKey: NavigationHelper.navigatorKey,
+      initialRoute: AppRoutes.login,
+      onGenerateRoute: (routeSettings) {
+        if (routeSettings.name == AppRoutes.login) {
+          return PageRouteBuilder(
+            pageBuilder: (_, a1, a2) => BlocProvider<LoginBloc>(
+              create: (_) => LoginBloc(),
+              child: LoginPage(),
+            ),
           );
-        } else if (settings.name == IncomingCallScreen.routeName) {
-          final CallArguments args = settings.arguments;
-          return MaterialPageRoute(
-            builder: (context) {
-              return IncomingCallScreen(displayName: args.displayName);
-            },
+        } else if (routeSettings.name == AppRoutes.main) {
+          return PageRouteBuilder(
+            pageBuilder: (_, a1, a2) => BlocProvider<MainBloc>(
+              create: (_) => MainBloc(),
+              child: MainPage(),
+            ),
           );
-        } else if (settings.name == MainScreen.routeName) {
-          return MaterialPageRoute(builder: (context) {
-            return MainScreen();
-          });
-        } else {
-          return MaterialPageRoute(builder: (context) {
-            return LoginScreen();
-          });
+        } else if (routeSettings.name == AppRoutes.activeCall) {
+          ActiveCallPageArguments arguments = routeSettings.arguments;
+          return PageRouteBuilder(
+            pageBuilder: (_, a1, a2) => BlocProvider<ActiveCallBloc>(
+              create: (_) =>
+                  ActiveCallBloc(arguments.isIncoming, arguments.endpoint),
+              child: ActiveCallPage(),
+            ),
+          );
+        } else if (routeSettings.name == AppRoutes.incomingCall) {
+          return PageRouteBuilder(
+            pageBuilder: (_, a1, a2) => BlocProvider<IncomingCallBloc>(
+              create: (_) => IncomingCallBloc(),
+              child: IncomingCallPage(
+                arguments: routeSettings.arguments as IncomingCallPageArguments,
+              ),
+            ),
+          );
+        } else if (routeSettings.name == AppRoutes.callFailed) {
+          return MaterialPageRoute(
+            builder: (_) => CallFailedPage(
+              routeSettings.arguments as CallFailedPageArguments,
+            ),
+          );
         }
+        return null;
       },
-      initialRoute: LoginScreen.routeName,
     );
   }
 }

@@ -1,43 +1,41 @@
 /// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
-
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_voximplant/flutter_voximplant.dart';
-import 'package:video_call/active_call/active_call.dart';
-import 'package:video_call/call_failed/call_failed.dart';
-import 'package:video_call/incoming_call/incoming_call.dart';
-import 'package:video_call/login/login.dart';
-import 'package:video_call/make_call/make_call.dart';
+import 'package:video_call/screens/active_call/active_call.dart';
+import 'package:video_call/screens/call_failed/call_failed.dart';
+import 'package:video_call/screens/incoming_call/incoming_call.dart';
+import 'package:video_call/screens/login/login.dart';
+import 'package:video_call/screens/main/main.dart';
 import 'package:video_call/services/auth_service.dart';
 import 'package:video_call/services/call/call_service.dart';
 import 'package:video_call/services/call/callkit_service.dart';
-import 'package:video_call/services/navigation_helper.dart';
-import 'package:video_call/services/notification_service.dart';
 import 'package:video_call/services/push/push_service_android.dart';
 import 'package:video_call/services/push/push_service_ios.dart';
 import 'package:video_call/theme/voximplant_theme.dart';
-
-import 'call_failed/call_failed_page.dart';
+import 'package:video_call/utils/log.dart';
+import 'package:video_call/utils/navigation_helper.dart';
+import 'package:video_call/utils/notification_helper.dart';
 
 class SimpleBlocDelegate extends BlocObserver {
   @override
   void onEvent(Bloc bloc, Object event) {
     super.onEvent(bloc, event);
-    print(event);
+    log(event);
   }
 
   @override
   void onTransition(Bloc bloc, Transition transition) {
     super.onTransition(bloc, transition);
-    print(transition);
+    log(transition);
   }
 
   @override
   void onError(Cubit cubit, Object error, StackTrace stackTrace) {
     super.onError(cubit, error, stackTrace);
-    print(error);
+    log(error);
   }
 }
 
@@ -49,16 +47,12 @@ void main() {
 
   AuthService();
   CallService();
-  Platform.isIOS ? PushServiceIOS() : PushServiceAndroid();
-
-  /// callKit for ios
   if (Platform.isIOS) {
+    PushServiceIOS();
     CallKitService();
-  }
-
-  /// local notifications for android
-  if (Platform.isAndroid) {
-    NotificationService();
+  } else if (Platform.isAndroid) {
+    PushServiceAndroid();
+    NotificationHelper();
   }
 
   runApp(App());
@@ -70,56 +64,55 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        theme: ThemeData(
-          primaryColor: VoximplantColors.primary,
-          primaryColorDark: VoximplantColors.primaryDark,
-          accentColor: VoximplantColors.accent,
-        ),
-        navigatorKey: NavigationHelper.navigatorKey,
-        initialRoute: AppRoutes.login,
-        onGenerateRoute: (routeSettings) {
-          if (routeSettings.name == AppRoutes.login) {
-            return PageRouteBuilder(
-              pageBuilder: (_, a1, a2) => BlocProvider<LoginBloc>(
-                create: (context) => LoginBloc()..add(LoadLastUser()),
-                child: LoginPage(),
+      theme: ThemeData(
+        primaryColor: VoximplantColors.primary,
+        primaryColorDark: VoximplantColors.primaryDark,
+        accentColor: VoximplantColors.accent,
+      ),
+      navigatorKey: NavigationHelper.navigatorKey,
+      initialRoute: AppRoutes.login,
+      onGenerateRoute: (routeSettings) {
+        if (routeSettings.name == AppRoutes.login) {
+          return PageRouteBuilder(
+            pageBuilder: (_, a1, a2) => BlocProvider<LoginBloc>(
+              create: (context) => LoginBloc(),
+              child: LoginPage(),
+            ),
+          );
+        } else if (routeSettings.name == AppRoutes.main) {
+          return PageRouteBuilder(
+            pageBuilder: (_, a1, a2) => BlocProvider<MainBloc>(
+              create: (context) => MainBloc(),
+              child: MainPage(),
+            ),
+          );
+        } else if (routeSettings.name == AppRoutes.activeCall) {
+          ActiveCallPageArguments arguments = routeSettings.arguments;
+          return PageRouteBuilder(
+            pageBuilder: (_, a1, a2) => BlocProvider<ActiveCallBloc>(
+              create: (context) =>
+                  ActiveCallBloc(arguments.isIncoming, arguments.endpoint),
+              child: ActiveCallPage(),
+            ),
+          );
+        } else if (routeSettings.name == AppRoutes.incomingCall) {
+          return PageRouteBuilder(
+            pageBuilder: (context, a1, a2) => BlocProvider<IncomingCallBloc>(
+              create: (context) => IncomingCallBloc(),
+              child: IncomingCallPage(
+                arguments: routeSettings.arguments as IncomingCallPageArguments,
               ),
-            );
-          } else if (routeSettings.name == AppRoutes.makeCall) {
-            return PageRouteBuilder(
-              pageBuilder: (_, a1, a2) => BlocProvider<MakeCallBloc>(
-                create: (context) => MakeCallBloc(),
-                child: MakeCallPage(),
-              ),
-            );
-          } else if (routeSettings.name == AppRoutes.activeCall) {
-            ActiveCallPageArguments arguments = routeSettings.arguments;
-            return PageRouteBuilder(
-              pageBuilder: (_, a1, a2) => BlocProvider<ActiveCallBloc>(
-                create: (context) => ActiveCallBloc()
-                  ..add(ReadyToInteractCallEvent(
-                      isIncoming: arguments.isIncoming,
-                      endpoint: arguments.endpoint)),
-                child: ActiveCallPage(),
-              ),
-            );
-          } else if (routeSettings.name == AppRoutes.incomingCall) {
-            return PageRouteBuilder(
-              pageBuilder: (context, a1, a2) => BlocProvider<IncomingCallBloc>(
-                create: (context) =>
-                IncomingCallBloc()..add(IncomingCallEvent.readyToSubscribe),
-                child: IncomingCallPage(
-                    arguments:
-                    routeSettings.arguments as IncomingCallPageArguments),
-              ),
-            );
-          } else if (routeSettings.name == AppRoutes.callFailed) {
-            return MaterialPageRoute(
-              builder: (context) => CallFailedPage(
-                  routeSettings.arguments as CallFailedPageArguments),
-            );
-          }
-          return null;
-        });
+            ),
+          );
+        } else if (routeSettings.name == AppRoutes.callFailed) {
+          return MaterialPageRoute(
+            builder: (context) => CallFailedPage(
+              routeSettings.arguments as CallFailedPageArguments,
+            ),
+          );
+        }
+        return null;
+      },
+    );
   }
 }

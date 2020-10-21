@@ -1,17 +1,26 @@
 import Flutter
 import PushKit
-import flutter_voximplant
+import CallKit
+import flutter_callkit_voximplant
 import flutter_voip_push_notification
-import flutter_call_kit
+import shared_preferences
+import flutter_voximplant
+import permission_handler
 
 @UIApplicationMain
 final class AppDelegate: FlutterAppDelegate, PKPushRegistryDelegate {
-
+    
     override func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil
     ) -> Bool {
-        GeneratedPluginRegistrant.register(with: self)
+        // Registering plugins manually, because on iOS FLTFirebaseMessagingPlugin and FlutterLocalNotificationsPlugin
+        // are not used and should not be registered
+        FlutterCallkitPlugin.register(with: registrar(forPlugin: "FlutterCallkitPlugin")!)
+        FlutterVoipPushNotificationPlugin.register(with: registrar(forPlugin: "FlutterVoipPushNotificationPlugin")!)
+        VoximplantPlugin.register(with: registrar(forPlugin: "VoximplantPlugin")!)
+        PermissionHandlerPlugin.register(with: registrar(forPlugin: "PermissionHandlerPlugin")!)
+        FLTSharedPreferencesPlugin.register(with: registrar(forPlugin: "FLTSharedPreferencesPlugin")!)
         return super.application(application, didFinishLaunchingWithOptions: launchOptions)
     }
     
@@ -42,21 +51,32 @@ final class AppDelegate: FlutterAppDelegate, PKPushRegistryDelegate {
         guard
             let content = payload.dictionaryPayload.content,
             UIApplication.shared.applicationState != .active,
-            let callUUID = VoximplantPlugin.uuid(forPushNotification: payload.dictionaryPayload)?.uuidString.uppercased()
+            let callUUID = VoximplantPlugin.uuid(forPushNotification: payload.dictionaryPayload),
+            !FlutterCallkitPlugin.hasCall(with: callUUID)
         else {
             completion?()
             return
         }
         
-        FlutterCallKitPlugin.reportNewIncomingCall(
-            callUUID,
-            handle: content.fullUsername,
-            handleType: "generic",
-            hasVideo: false,
-            localizedCallerName: content.displayName,
-            fromPushKit: true
+        let callUpdate = CXCallUpdate()
+        callUpdate.localizedCallerName = content.displayName
+        callUpdate.remoteHandle = CXHandle(type: .generic, value: content.fullUsername)
+        callUpdate.supportsHolding = true
+        callUpdate.supportsGrouping = false
+        callUpdate.supportsUngrouping = false
+        callUpdate.supportsDTMF = false
+        callUpdate.hasVideo = false
+        
+        let configuration = CXProviderConfiguration(localizedName: "VideoCall")
+        if #available(iOS 11.0, *) {
+            configuration.includesCallsInRecents = true
+        }
+        FlutterCallkitPlugin.reportNewIncomingCall(
+            with: callUUID,
+            callUpdate: callUpdate,
+            providerConfiguration: configuration,
+            pushProcessingCompletion: completion
         )
-        completion?()
     }
 }
 
@@ -73,9 +93,5 @@ fileprivate extension Dictionary where Key == String {
     
     var fullUsername: String {
         self["userid"] as! String
-    }
-    
-    var isVideoCall: Bool {
-        self["video"] as! Bool
     }
 }

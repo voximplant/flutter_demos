@@ -1,12 +1,12 @@
 /// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
-
 import 'package:flutter_callkit_voximplant/flutter_callkit_voximplant.dart';
 import 'package:flutter_voximplant/flutter_voximplant.dart';
 import 'package:uuid/uuid.dart';
-import 'package:video_call/services/call/call_event.dart';
-import 'package:video_call/services/navigation_helper.dart';
 import 'package:video_call/services/auth_service.dart';
+import 'package:video_call/services/call/call_event.dart';
 import 'package:video_call/services/call/call_service.dart';
+import 'package:video_call/utils/log.dart';
+import 'package:video_call/utils/navigation_helper.dart';
 
 // to generate uuids for callKit
 var _uuid = Uuid();
@@ -69,7 +69,7 @@ class CallKitService {
         }
         await _authService.loginWithAccessToken();
       } catch (e) {
-        print('There was an error $e, ending call');
+        _log('There was an error $e, ending call');
         await _reportEnded(uuid, FCXCallEndedReason.failed);
       }
     };
@@ -88,13 +88,13 @@ class CallKitService {
         await Voximplant()
             .getAudioDeviceManager()
             .callKitConfigureAudioSession();
-        await _callService.makeVideoCall(callTo: startCallAction.handle.value);
+        await _callService.makeCall(callTo: startCallAction.handle.value);
         _callService.callKitUUID = startCallAction.callUuid;
         await _provider.reportOutgoingCall(startCallAction.callUuid, null);
         await startCallAction.fulfill();
       } catch (e) {
         forgetCall(startCallAction.callUuid);
-        print('There was an error $e, failing startCallAction');
+        _log('There was an error $e, failing startCallAction');
         await startCallAction.fail();
       }
     };
@@ -118,12 +118,12 @@ class CallKitService {
           forgetCall(endCallAction.callUuid);
           await endCallAction.fulfill();
         } catch (e) {
-          print('There was an error $e, failing endCallAction');
+          _log('There was an error $e, failing endCallAction');
           await endCallAction.fail();
         }
       }
 
-       // if already received call via Voximplant
+      // if already received call via Voximplant
       if (_callService.hasActiveCall) {
         await _end();
         // else should wait till Voximplant send onIncomingCall
@@ -134,7 +134,7 @@ class CallKitService {
 
     _provider.performAnswerCallAction = (answerCallAction) async {
       if (_hasNoActiveCalls) {
-        print('Active call is null, failing answerCallAction');
+        _log('Active call is null, failing answerCallAction');
         await answerCallAction.fail();
         return;
       }
@@ -146,10 +146,10 @@ class CallKitService {
           await Voximplant()
               .getAudioDeviceManager()
               .callKitConfigureAudioSession();
-          await _callService.answerVideoCall();
+          await _callService.answerCall();
           await answerCallAction.fulfill();
         } catch (e) {
-          print('There was an error $e, failing answerCallAction');
+          _log('There was an error $e, failing answerCallAction');
           await answerCallAction.fail();
         }
       }
@@ -165,7 +165,7 @@ class CallKitService {
 
     _provider.performSetHeldCallAction = (setHeldCallAction) async {
       if (_hasNoActiveCalls) {
-        print('Active call is null, failing setHeldCallAction');
+        _log('Active call is null, failing setHeldCallAction');
         await setHeldCallAction.fail();
         return;
       }
@@ -173,14 +173,14 @@ class CallKitService {
         await _callService.holdCall(hold: setHeldCallAction.onHold);
         await setHeldCallAction.fulfill();
       } catch (e) {
-        print('There was an error $e, failing setHeldCallAction');
+        _log('There was an error $e, failing setHeldCallAction');
         await setHeldCallAction.fail();
       }
     };
 
     _provider.performSetMutedCallAction = (setMutedCallAction) async {
       if (_hasNoActiveCalls) {
-        print('Active call is null, failing setMutedCallAction');
+        _log('Active call is null, failing setMutedCallAction');
         await setMutedCallAction.fail();
         return;
       }
@@ -188,16 +188,16 @@ class CallKitService {
         await _callService.muteCall(mute: setMutedCallAction.muted);
         await setMutedCallAction.fulfill();
       } catch (e) {
-        print('There was an error $e, failing setMutedCallAction');
+        _log('There was an error $e, failing setMutedCallAction');
         await setMutedCallAction.fail();
       }
     };
 
     _provider.providerDidActivateAudioSession = () async =>
-      await Voximplant().getAudioDeviceManager().callKitStartAudio();
+        await Voximplant().getAudioDeviceManager().callKitStartAudio();
 
     _provider.providerDidDeactivateAudioSession = () async =>
-      await Voximplant().getAudioDeviceManager().callKitStopAudio();
+        await Voximplant().getAudioDeviceManager().callKitStopAudio();
 
     _callController.callObserver.callChanged = (call) async {
       if (call.hasEnded) {
@@ -277,7 +277,9 @@ class CallKitService {
   }
 
   Future<void> _reportOutgoingCallConnected() async {
-    if (_activeCall.call.hasConnected) { return; }
+    if (_activeCall.call.hasConnected) {
+      return;
+    }
     await _provider.reportOutgoingCallConnected(_activeCall?.uuid, null);
   }
 
@@ -297,7 +299,7 @@ class CallKitService {
       throw 'Active call is null, holdCall failed';
     }
     if (!_activeCall.call.hasConnected) {
-      print('Cant hold due to call not being connected yet');
+      _log('Cant hold due to call not being connected yet');
       return;
     }
     await _callController.requestTransactionWithAction(
@@ -309,7 +311,7 @@ class CallKitService {
       throw 'Active call is null, muteCall failed';
     }
     if (!_activeCall.call.hasConnected) {
-      print('Cant mute due to call not being connected yet');
+      _log('Cant mute due to call not being connected yet');
       return;
     }
     await _callController.requestTransactionWithAction(
@@ -329,7 +331,7 @@ class CallKitService {
 
   Future<void> endCall() async {
     if (_hasNoActiveCalls) {
-        throw 'Active call is null, endCall failed';
+      throw 'Active call is null, endCall failed';
     }
 
     await _callController
@@ -351,7 +353,9 @@ class CallKitService {
   }
 
   Future<void> _reportEnded(String uuid, FCXCallEndedReason reason) async {
-    if (uuid == null) { return; }
+    if (uuid == null) {
+      return;
+    }
     await _provider.reportCallEnded(uuid, null, reason);
     forgetCall(uuid);
     if (_activeCall?.uuid == uuid) {
@@ -368,5 +372,9 @@ class CallKitService {
     if (actions.isNotEmpty) {
       actions.forEach((a) async => await a.fail());
     }
+  }
+
+  void _log<T>(T message) {
+    log('CallKitService($hashCode): ${message.toString()}');
   }
 }

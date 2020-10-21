@@ -1,8 +1,8 @@
 /// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
-
 import 'package:flutter_voximplant/flutter_voximplant.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:video_call/main.dart';
+import 'package:video_call/utils/log.dart';
 
 typedef void Disconnected();
 
@@ -16,7 +16,7 @@ class AuthService {
   String _voipToken;
   set voipToken(token) {
     if (token == null || token == '') {
-      print('AuthService: token is cleared');
+      _log('AuthService: token is cleared');
       _client.unregisterFromPushNotifications(_voipToken);
     }
     _voipToken = token;
@@ -29,7 +29,7 @@ class AuthService {
   AuthService._() : _client = Voximplant().getClient(defaultConfig) {
     _client.clientStateStream.listen((state) {
       clientState = state;
-      print('AuthService: client state is changed: $state');
+      _log('AuthService: client state is changed: $state');
 
       if (state == VIClientState.Disconnected && onDisconnected != null) {
         onDisconnected();
@@ -39,7 +39,7 @@ class AuthService {
   }
 
   Future<String> loginWithPassword(String username, String password) async {
-    print('AuthService: loginWithPassword');
+    _log('AuthService: loginWithPassword');
     VIClientState clientState = await _client.getClientState();
     if (clientState == VIClientState.LoggedIn) {
       return _displayName;
@@ -60,19 +60,19 @@ class AuthService {
     VIClientState clientState = await _client.getClientState();
     if (clientState == VIClientState.LoggedIn) {
       return _displayName;
-    } else if (clientState == VIClientState.Connecting
-        || clientState == VIClientState.LoggingIn) {
+    } else if (clientState == VIClientState.Connecting ||
+        clientState == VIClientState.LoggingIn) {
       return null;
     } else if (clientState == VIClientState.Disconnected) {
       await _client.connect();
     }
-    print('AuthService: loginWithAccessToken');
+    _log('AuthService: loginWithAccessToken');
     SharedPreferences prefs = await SharedPreferences.getInstance();
     VILoginTokens loginTokens = _getAuthDetails(prefs);
     String user = username ?? prefs.getString('username');
 
     VIAuthResult authResult =
-      await _client.loginWithAccessToken(user, loginTokens.accessToken);
+        await _client.loginWithAccessToken(user, loginTokens.accessToken);
     if (_voipToken != null) {
       await _client.registerForPushNotifications(_voipToken);
     }
@@ -119,5 +119,9 @@ class AuthService {
 
   Future<void> pushNotificationReceived(Map<String, dynamic> payload) async {
     await _client.handlePushNotification(payload);
+  }
+
+  void _log<T>(T message) {
+    log('AuthService($hashCode): ${message.toString()}');
   }
 }

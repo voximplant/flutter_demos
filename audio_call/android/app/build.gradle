@@ -32,7 +32,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.voximplant.flutter.audio_call"
+        applicationId "com.voximplant.flutter.audiocall"
         minSdkVersion 16
         targetSdkVersion 28
         versionCode flutterVersionCode.toInteger()
@@ -62,9 +62,10 @@ flutter {
 }
 
 dependencies {
+    implementation 'com.google.firebase:firebase-messaging:20.3.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 }
 
-//apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.gms.google-services'

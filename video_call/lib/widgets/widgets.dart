@@ -1,5 +1,4 @@
 /// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
-
 import 'package:flutter/material.dart';
 import 'package:video_call/theme/voximplant_theme.dart';
 
@@ -82,11 +81,12 @@ class Widgets {
     );
   }
 
-  static Widget iconButton(
-      {@required IconData icon,
-      @required Color color,
-      @required String tooltip,
-      @required VoidCallback onPressed}) {
+  static Widget iconButton({
+    @required IconData icon,
+    @required Color color,
+    @required String tooltip,
+    @required VoidCallback onPressed,
+  }) {
     return Ink(
       decoration: ShapeDecoration(
         color: VoximplantColors.white,
