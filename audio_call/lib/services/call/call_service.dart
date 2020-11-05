@@ -61,16 +61,36 @@ class CallService {
   VIVideoFlags get _defaultFlags =>
       VIVideoFlags(sendVideo: false, receiveVideo: false);
 
+  final VIAudioFile _progressTone;
+
   factory CallService() => _cache ?? CallService._();
   static CallService _cache;
+
   CallService._()
       : _client = Voximplant().getClient(defaultConfig),
-        _audioDeviceManager = Voximplant().getAudioDeviceManager() {
+        _audioDeviceManager = Voximplant().getAudioDeviceManager(),
+        _progressTone = VIAudioFile.file(
+          'fennelliott_beeping',
+          'wav',
+          usage: VIAudioFileUsage.inCall,
+        ) {
     _log('initialize');
     _client.onIncomingCall = _onIncomingCall;
     _client.onPushDidExpire = _pushDidExpire;
     _configureAudioDevices();
+    _configureAudioFiles();
     _cache = this;
+  }
+
+  void _configureAudioFiles() async {
+    try {
+      await _progressTone.initialize();
+      _progressTone.onStopped = (error) {
+        _log('progressTone onStopped with error: $error');
+      };
+    } catch (e) {
+      _log('Could not initialize progressTone. error: $e');
+    }
   }
 
   void _configureAudioDevices() async {
@@ -154,11 +174,11 @@ class CallService {
       await _audioDeviceManager.selectAudioDevice(device);
 
   Future<void> _onIncomingCall(
-    VIClient client,
-    VICall call,
-    bool video,
-    Map<String, String> headers,
-  ) async {
+      VIClient client,
+      VICall call,
+      bool video,
+      Map<String, String> headers,
+      ) async {
     _log('_onIncomingCall');
     if (hasActiveCall && _activeCall.callId != call.callId) {
       await call.reject();
@@ -185,6 +205,7 @@ class CallService {
     _activeCall?.onCallConnected = _onCallConnected;
     _activeCall?.onCallDisconnected = _onCallDisconnected;
     _activeCall?.onCallFailed = _onCallFailed;
+    _activeCall?.onCallAudioStarted = _onCallAudioStarted;
   }
 
   void _pushDidExpire(VIClient client, String callKitUUID) {
@@ -194,36 +215,46 @@ class CallService {
   }
 
   void _onCallDisconnected(
-    VICall call,
-    Map<String, String> headers,
-    bool answeredElsewhere,
-  ) {
+      VICall call,
+      Map<String, String> headers,
+      bool answeredElsewhere,
+      ) async {
     _log('onCallDisconnected');
     if (call.callId == _activeCall.callId) {
       _activeCall = null;
       _callState = CallState.ended;
       _endpoint = null;
-      if (Platform.isAndroid) {
-        NotificationHelper().cancelNotification();
-      }
       _callStreamController?.add(
         OnDisconnectedCallEvent(answeredElsewhere: answeredElsewhere),
       );
+      if (Platform.isAndroid) {
+        NotificationHelper().cancelNotification();
+      }
+      try {
+        await _progressTone.stop();
+      } catch (e) {
+        _log('could not stop playing progressTone. Error: $e');
+      }
     }
   }
 
   void _onCallFailed(
-    VICall call,
-    int code,
-    String description,
-    Map<String, String> headers,
-  ) {
+      VICall call,
+      int code,
+      String description,
+      Map<String, String> headers,
+      ) async {
     _log('onCallFailed($code, $description)');
     if (call.callId == _activeCall?.callId) {
       _activeCall = null;
       _callState = CallState.ended;
       _endpoint = null;
       _callStreamController?.add(OnFailedCallEvent(reason: description));
+      try {
+        await _progressTone.stop();
+      } catch (e) {
+        _log('could not stop playing progressTone. Error: $e');
+      }
     }
   }
 
@@ -242,11 +273,25 @@ class CallService {
     }
   }
 
-  void _onCallRinging(VICall call, Map<String, String> headers) {
+  void _onCallRinging(VICall call, Map<String, String> headers) async {
     _log('_onCallRinging');
     if (call.callId == _activeCall.callId) {
       _callState = CallState.ringing;
       _callStreamController?.add(OnRingingCallEvent());
+      try {
+        await _progressTone.play(true);
+      } catch (e) {
+        _log('could not start playing progressTone. Error: $e');
+      }
+    }
+  }
+
+  void _onCallAudioStarted(VICall call) async {
+    _log('_onCallAudioStarted');
+    try {
+      await _progressTone.stop();
+    } catch (e) {
+      _log('could not stop playing progressTone. Error: $e');
     }
   }
 

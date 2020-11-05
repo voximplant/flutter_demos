@@ -50,7 +50,7 @@ PODS:
     - Flutter
   - flutter_voip_push_notification (0.0.1):
     - Flutter
-  - flutter_voximplant (2.4.1):
+  - flutter_voximplant (2.4.3):
     - Flutter
     - VoxImplantSDK (= 2.34.3)
   - GoogleDataTransport (7.5.1):
@@ -153,7 +153,7 @@ SPEC CHECKSUMS:
   flutter_callkit_voximplant: c37fe6b128546d215843c5442757c3e6051e9680
   flutter_local_notifications: 0c0b1ae97e741e1521e4c1629a459d04b9aec743
   flutter_voip_push_notification: f28f3ce1c6b835a3fa9e833f37f33dc1291ab888
-  flutter_voximplant: f37e99478f4f371a56c18cf2aa3bfdbf5bfc62b4
+  flutter_voximplant: ae45bcd54c24cccde14ac44fdbc8147a59241149
   GoogleDataTransport: f56af7caa4ed338dc8e138a5d7c5973e66440833
   GoogleUtilities: 7f2f5a07f888cdb145101d6042bc4422f57e70b3
   nanopb: 59317e09cf1f1a0af72f12af412d54edf52603fc
@@ -166,4 +166,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: aafe91acc616949ddb318b77800a7f51bffa2a4c
 
-COCOAPODS: 1.9.3
+COCOAPODS: 1.10.0
