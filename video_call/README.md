@@ -4,9 +4,6 @@ This demo demonstrates basic video call functionality of the Voximplant Flutter 
 It is possible to make video calls with any application (mobile or web) that have integrated
 Voximplant SDKs.
 
-This demo application doesn't handle push notifications, so it doesn't receive incoming 
-calls if the application is in the background or killed.
-
 ## Features
 
 The application is able to:
