@@ -83,7 +83,7 @@ class ActiveCallBloc extends Bloc<ActiveCallEvent, ActiveCallState> {
       CallEvent callEvent = event.event;
 
       if (callEvent is OnFailedCallEvent) {
-        _log('onFailed event');
+        _log('onFailed event, reason: ${callEvent.reason}');
         await _callKitService?.reportCallEnded(
           reason: FCXCallEndedReason.failed,
         );

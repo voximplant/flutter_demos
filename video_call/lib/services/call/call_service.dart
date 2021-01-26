@@ -21,7 +21,7 @@ class CallService {
   String get callKitUUID => _activeCall?.callKitUUID;
   set callKitUUID(String uuid) => _activeCall?.callKitUUID = uuid;
 
-  String get localVideoStreamId => _activeCall.localVideoStream.streamId;
+  String get localVideoStreamId => _activeCall?.localVideoStream?.streamId;
   String remoteVideoStreamId;
 
   CallState get callState => _callState;
