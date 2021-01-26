@@ -77,7 +77,7 @@ class ActiveCallBloc extends Bloc<ActiveCallEvent, ActiveCallState> {
           remoteVideoStreamID: _callService.remoteVideoStreamId,
         );
       } catch (e) {
-        add(CallChangedEvent(event: OnFailedCallEvent(reason: e)));
+        add(CallChangedEvent(event: OnFailedCallEvent(reason: e.toString())));
       }
     } else if (event is CallChangedEvent) {
       CallEvent callEvent = event.event;
