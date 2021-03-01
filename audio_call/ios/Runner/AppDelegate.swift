@@ -46,13 +46,16 @@ final class AppDelegate: FlutterAppDelegate, PKPushRegistryDelegate {
     
     private func processPush(with payload: PKPushPayload, type: PKPushType, and completion: (() -> Void)?) {
         print("Push received: \(payload)")
+
         FlutterVoipPushNotificationPlugin.didReceiveIncomingPush(with: payload, forType: type.rawValue)
-        
+
+        let callKitPlugin = FlutterCallkitPlugin.sharedInstance
+
         guard
             let content = payload.dictionaryPayload.content,
             UIApplication.shared.applicationState != .active,
             let callUUID = VoximplantPlugin.uuid(forPushNotification: payload.dictionaryPayload),
-            !FlutterCallkitPlugin.hasCall(with: callUUID)
+            !callKitPlugin.hasCall(with: callUUID)
         else {
             completion?()
             return
@@ -71,7 +74,7 @@ final class AppDelegate: FlutterAppDelegate, PKPushRegistryDelegate {
         if #available(iOS 11.0, *) {
             configuration.includesCallsInRecents = true
         }
-        FlutterCallkitPlugin.reportNewIncomingCall(
+        callKitPlugin.reportNewIncomingCall(
             with: callUUID,
             callUpdate: callUpdate,
             providerConfiguration: configuration,
