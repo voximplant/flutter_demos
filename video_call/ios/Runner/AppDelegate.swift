@@ -9,6 +9,7 @@ import permission_handler
 
 @UIApplicationMain
 final class AppDelegate: FlutterAppDelegate, PKPushRegistryDelegate {
+
     override func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil
@@ -45,13 +46,16 @@ final class AppDelegate: FlutterAppDelegate, PKPushRegistryDelegate {
     
     private func processPush(with payload: PKPushPayload, type: PKPushType, and completion: (() -> Void)?) {
         print("Push received: \(payload)")
-        FlutterVoipPushNotificationPlugin.didReceiveIncomingPush(with: payload, forType: type.rawValue)
         
+        FlutterVoipPushNotificationPlugin.didReceiveIncomingPush(with: payload, forType: type.rawValue)
+
+        let callKitPlugin = FlutterCallkitPlugin.sharedInstance
+
         guard
             let content = payload.dictionaryPayload.content,
             UIApplication.shared.applicationState != .active,
             let callUUID = VoximplantPlugin.uuid(forPushNotification: payload.dictionaryPayload),
-            !FlutterCallkitPlugin.hasCall(with: callUUID)
+            !callKitPlugin.hasCall(with: callUUID)
         else {
             completion?()
             return
@@ -71,7 +75,7 @@ final class AppDelegate: FlutterAppDelegate, PKPushRegistryDelegate {
             configuration.includesCallsInRecents = true
         }
         configuration.supportsVideo = content.isVideoCall
-        FlutterCallkitPlugin.reportNewIncomingCall(
+        callKitPlugin.reportNewIncomingCall(
             with: callUUID,
             callUpdate: callUpdate,
             providerConfiguration: configuration,

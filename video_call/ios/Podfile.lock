@@ -40,15 +40,15 @@ PODS:
     - GoogleUtilities/UserDefaults (~> 6.7)
     - Protobuf (>= 3.9.2, ~> 3.9)
   - Flutter (1.0.0)
-  - "flutter_callkit_voximplant (1.1.0+3)":
+  - "flutter_callkit_voximplant (1.2.0+3)":
     - Flutter
   - flutter_local_notifications (0.0.1):
     - Flutter
   - flutter_voip_push_notification (0.0.1):
     - Flutter
-  - flutter_voximplant (2.5.0):
+  - flutter_voximplant (2.6.0):
     - Flutter
-    - VoxImplantSDK (= 2.35.0)
+    - VoxImplantSDK (= 2.36.2)
   - GoogleDataTransport (7.5.1):
     - nanopb (~> 1.30906.0)
   - GoogleUtilities/AppDelegateSwizzler (6.7.2):
@@ -75,13 +75,13 @@ PODS:
   - nanopb/encode (1.30906.0)
   - "permission_handler (5.0.1+1)":
     - Flutter
-  - PromisesObjC (1.2.11)
+  - PromisesObjC (1.2.12)
   - Protobuf (3.14.0)
   - shared_preferences (0.0.1):
     - Flutter
-  - VoxImplantSDK (2.35.0):
-    - VoxImplantSDK/Core (= 2.35.0)
-  - VoxImplantSDK/Core (2.35.0):
+  - VoxImplantSDK (2.36.2):
+    - VoxImplantSDK/Core (= 2.36.2)
+  - VoxImplantSDK/Core (2.36.2):
     - VoxImplantWebRTC (= 78.5.1)
   - VoxImplantWebRTC (78.5.1)
 
@@ -142,18 +142,18 @@ SPEC CHECKSUMS:
   FirebaseInstanceID: bd3ffc24367f901a43c063b36c640b345a4a5dd1
   FirebaseMessaging: 5eca4ef173de76253352511aafef774caa1cba2a
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
-  flutter_callkit_voximplant: c37fe6b128546d215843c5442757c3e6051e9680
+  flutter_callkit_voximplant: 3a3645b8265af3d61050087056ba1440ef9a5eaf
   flutter_local_notifications: 0c0b1ae97e741e1521e4c1629a459d04b9aec743
   flutter_voip_push_notification: f28f3ce1c6b835a3fa9e833f37f33dc1291ab888
-  flutter_voximplant: 1426942f5232d836db078180be0aa9a9797ea25b
+  flutter_voximplant: b221289a2aa3fd7cc1b6db82dbcca516f589d3d3
   GoogleDataTransport: f56af7caa4ed338dc8e138a5d7c5973e66440833
   GoogleUtilities: 7f2f5a07f888cdb145101d6042bc4422f57e70b3
   nanopb: 59317e09cf1f1a0af72f12af412d54edf52603fc
   permission_handler: eac8e15b4a1a3fba55b761d19f3f4e6b005d15b6
-  PromisesObjC: 8c196f5a328c2cba3e74624585467a557dcb482f
+  PromisesObjC: 3113f7f76903778cf4a0586bd1ab89329a0b7b97
   Protobuf: 0cde852566359049847168e51bd1c690e0f70056
   shared_preferences: af6bfa751691cdc24be3045c43ec037377ada40d
-  VoxImplantSDK: 347d313098367012720e4dfc33c0374c91374554
+  VoxImplantSDK: 349743fa9798c405ace58ca133718ad1d6b1a555
   VoxImplantWebRTC: 706f77ca9df71b4013af45a3d4ed7e06185c0be6
 
 PODFILE CHECKSUM: aafe91acc616949ddb318b77800a7f51bffa2a4c
