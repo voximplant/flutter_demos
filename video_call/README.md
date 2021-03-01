@@ -1,6 +1,7 @@
 # video_call
 
 This demo demonstrates basic video call functionality of the Voximplant Flutter SDK.
+
 It is possible to make video calls with any application (mobile or web) that have integrated
 Voximplant SDKs.
 
@@ -56,7 +57,7 @@ VoxEngine.easyProcess(e.call, newCall, ()=>{}, true);
 });
 ```
 
-## Instaling
+## Installing
 
 1. Clone this repo
 2. Run `flutter pub get`
