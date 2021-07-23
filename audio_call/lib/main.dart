@@ -33,8 +33,8 @@ class SimpleBlocDelegate extends BlocObserver {
   }
 
   @override
-  void onError(Cubit cubit, Object error, StackTrace stackTrace) {
-    super.onError(cubit, error, stackTrace);
+  void onError(BlocBase bloc, Object error, StackTrace stackTrace) {
+    super.onError(bloc, error, stackTrace);
     log(error);
   }
 }
@@ -48,7 +48,7 @@ void main() {
   AuthService();
   CallService();
   if (Platform.isIOS) {
-    PushServiceIOS();
+    // PushServiceIOS();
     CallKitService();
   } else if (Platform.isAndroid) {
     PushServiceAndroid();

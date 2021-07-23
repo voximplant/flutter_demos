@@ -87,7 +87,7 @@ class CallKitService {
 
       try {
         await Voximplant()
-            .getAudioDeviceManager()
+            .audioDeviceManager
             .callKitConfigureAudioSession();
         await _callService.makeCall(callTo: startCallAction.handle.value);
         _callService.callKitUUID = startCallAction.callUuid;
@@ -114,7 +114,7 @@ class CallKitService {
               ? await _callService.hangup()
               : await _callService.decline();
           await Voximplant()
-              .getAudioDeviceManager()
+              .audioDeviceManager
               .callKitReleaseAudioSession();
           forgetCall(endCallAction.callUuid);
           await endCallAction.fulfill();
@@ -145,7 +145,7 @@ class CallKitService {
       Future<void> _answer() async {
         try {
           await Voximplant()
-              .getAudioDeviceManager()
+              .audioDeviceManager
               .callKitConfigureAudioSession();
           await _callService.answerCall();
           await answerCallAction.fulfill();
@@ -195,10 +195,10 @@ class CallKitService {
     };
 
     _provider.providerDidActivateAudioSession = () async =>
-    await Voximplant().getAudioDeviceManager().callKitStartAudio();
+    await Voximplant().audioDeviceManager.callKitStartAudio();
 
     _provider.providerDidDeactivateAudioSession = () async =>
-    await Voximplant().getAudioDeviceManager().callKitStopAudio();
+    await Voximplant().audioDeviceManager.callKitStopAudio();
 
     _callController.callObserver.callChanged = (call) async {
       if (call.hasEnded) {
@@ -360,7 +360,7 @@ class CallKitService {
       actions.forEach((a) async => await a.fail());
     }
   }
-  
+
   void _log<T>(T message) {
     log('CallKitService($hashCode): ${message.toString()}');
   }

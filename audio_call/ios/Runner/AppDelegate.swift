@@ -2,7 +2,7 @@ import Flutter
 import PushKit
 import CallKit
 import flutter_callkit_voximplant
-import flutter_voip_push_notification
+//import flutter_voip_push_notification
 import shared_preferences
 import flutter_voximplant
 import permission_handler
@@ -17,7 +17,7 @@ final class AppDelegate: FlutterAppDelegate, PKPushRegistryDelegate {
         // Registering plugins manually, because on iOS FLTFirebaseMessagingPlugin and FlutterLocalNotificationsPlugin
         // are not used and should not be registered
         FlutterCallkitPlugin.register(with: registrar(forPlugin: "FlutterCallkitPlugin")!)
-        FlutterVoipPushNotificationPlugin.register(with: registrar(forPlugin: "FlutterVoipPushNotificationPlugin")!)
+//        FlutterVoipPushNotificationPlugin.register(with: registrar(forPlugin: "FlutterVoipPushNotificationPlugin")!)
         VoximplantPlugin.register(with: registrar(forPlugin: "VoximplantPlugin")!)
         PermissionHandlerPlugin.register(with: registrar(forPlugin: "PermissionHandlerPlugin")!)
         FLTSharedPreferencesPlugin.register(with: registrar(forPlugin: "FLTSharedPreferencesPlugin")!)
@@ -26,7 +26,7 @@ final class AppDelegate: FlutterAppDelegate, PKPushRegistryDelegate {
     
     // MARK: - PKPushRegistryDelegate -
     func pushRegistry(_ registry: PKPushRegistry, didUpdate pushCredentials: PKPushCredentials, for type: PKPushType) {
-        FlutterVoipPushNotificationPlugin.didUpdate(pushCredentials, forType: type.rawValue)
+//        FlutterVoipPushNotificationPlugin.didUpdate(pushCredentials, forType: type.rawValue)
     }
     
     func pushRegistry(_ registry: PKPushRegistry,
@@ -47,7 +47,7 @@ final class AppDelegate: FlutterAppDelegate, PKPushRegistryDelegate {
     private func processPush(with payload: PKPushPayload, type: PKPushType, and completion: (() -> Void)?) {
         print("Push received: \(payload)")
 
-        FlutterVoipPushNotificationPlugin.didReceiveIncomingPush(with: payload, forType: type.rawValue)
+//        FlutterVoipPushNotificationPlugin.didReceiveIncomingPush(with: payload, forType: type.rawValue)
 
         let callKitPlugin = FlutterCallkitPlugin.sharedInstance
 
