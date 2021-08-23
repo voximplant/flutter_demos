@@ -6,7 +6,7 @@ import 'package:permission_handler/permission_handler.dart';
 Future<bool> checkPermissions() async {
   if (Platform.isAndroid) {
     PermissionStatus recordAudio = await Permission.microphone.status;
-    List<Permission> requestPermissions = List();
+    List<Permission> requestPermissions = [];
     if (recordAudio != PermissionStatus.granted) {
       requestPermissions.add(Permission.microphone);
     }

@@ -9,11 +9,11 @@ abstract class ActiveCallEvent { }
 
 class ReadyToStartCallEvent implements ActiveCallEvent {
   final bool isIncoming;
-  final String endpoint;
+  final String? endpoint;
 
   ReadyToStartCallEvent({
-    @required this.isIncoming,
-    @required this.endpoint,
+    required this.isIncoming,
+    required this.endpoint,
   });
 }
 
@@ -21,7 +21,7 @@ class CallChangedEvent implements ActiveCallEvent {
   final CallEvent event;
 
   CallChangedEvent({
-    @required this.event,
+    required this.event,
   });
 }
 
@@ -29,7 +29,7 @@ class AudioDevicesChanged implements ActiveCallEvent {
   final AudioDeviceEvent event;
 
   AudioDevicesChanged({
-    @required this.event,
+    required this.event,
   });
 }
 
@@ -37,7 +37,7 @@ class HoldPressedEvent implements ActiveCallEvent {
   final bool hold;
 
   HoldPressedEvent({
-    @required this.hold,
+    required this.hold,
   });
 }
 
@@ -45,7 +45,7 @@ class SelectAudioDevicePressedEvent implements ActiveCallEvent {
   final VIAudioDevice device;
 
   SelectAudioDevicePressedEvent({
-    @required this.device,
+    required this.device,
   });
 }
 
@@ -53,7 +53,7 @@ class MutePressedEvent implements ActiveCallEvent {
   final bool mute;
 
   MutePressedEvent({
-    @required this.mute,
+    required this.mute,
   });
 }
 

@@ -12,7 +12,7 @@ import 'incoming_call_state.dart';
 class IncomingCallBloc extends Bloc<IncomingCallEvent, IncomingCallState> {
   final CallService _callService = CallService();
 
-  StreamSubscription _callStateSubscription;
+  StreamSubscription? _callStateSubscription;
 
   IncomingCallBloc() : super(IncomingCallState.callIncoming) {
     _callStateSubscription =
@@ -40,9 +40,7 @@ class IncomingCallBloc extends Bloc<IncomingCallEvent, IncomingCallState> {
 
   @override
   Future<void> close() {
-    if (_callStateSubscription != null) {
-      _callStateSubscription.cancel();
-    }
+    _callStateSubscription?.cancel();
     return super.close();
   }
 

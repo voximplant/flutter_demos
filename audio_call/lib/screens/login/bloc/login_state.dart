@@ -6,7 +6,7 @@ abstract class LoginState extends Equatable {
   const LoginState();
 
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [];
 
   @override
   bool get stringify => true;
@@ -16,10 +16,10 @@ class LoginInitial extends LoginState {}
 
 class LoginLastUserLoaded extends LoginState {
   final String lastUser;
-  const LoginLastUserLoaded({@required this.lastUser});
+  const LoginLastUserLoaded({required this.lastUser});
 
   @override
-  List<Object> get props => [lastUser];
+  List<Object?> get props => [lastUser];
 }
 
 class LoginInProgress extends LoginState {}
@@ -28,13 +28,13 @@ class LoginSuccess extends LoginState {}
 
 class LoginFailure extends LoginState {
   final String errorCode;
-  final String errorDescription;
+  final String? errorDescription;
 
   const LoginFailure({
-    @required this.errorCode,
-    @required this.errorDescription,
+    required this.errorCode,
+    required this.errorDescription,
   });
 
   @override
-  List<Object> get props => [errorCode, errorDescription];
+  List<Object?> get props => [errorCode, errorDescription];
 }

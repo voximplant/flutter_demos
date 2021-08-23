@@ -20,7 +20,7 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
-  MainBloc _bloc;
+  late MainBloc _bloc;
 
   final _callToController = TextEditingController();
 
@@ -28,13 +28,15 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     _bloc = BlocProvider.of<MainBloc>(context);
-    WidgetsBinding.instance.addObserver(this);
+    //TODO(yulia): check force unwrap
+    WidgetsBinding.instance!.addObserver(this);
   }
 
   @override
   void dispose() {
     _callToController.dispose();
-    WidgetsBinding.instance.removeObserver(this);
+    //TODO(yulia): check force unwrap
+    WidgetsBinding.instance!.removeObserver(this);
     super.dispose();
   }
 
@@ -160,7 +162,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                       padding: EdgeInsets.only(bottom: 20),
                       child: Text(
                         state.myDisplayName != null &&
-                                state.myDisplayName.isNotEmpty
+                                state.myDisplayName!.isNotEmpty
                             ? 'Logged in as ${state.myDisplayName}'
                             : '',
                       ),

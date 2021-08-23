@@ -16,8 +16,8 @@ class IncomingCallPage extends StatefulWidget {
 
   final String _endpoint;
 
-  IncomingCallPage({@required IncomingCallPageArguments arguments})
-      : _endpoint = arguments.endpoint;
+  IncomingCallPage({required IncomingCallPageArguments arguments})
+      : _endpoint = arguments.endpoint ?? 'Unknown';
 
   @override
   State<StatefulWidget> createState() => _IncomingCallPageState(_endpoint);
@@ -26,7 +26,7 @@ class IncomingCallPage extends StatefulWidget {
 class _IncomingCallPageState extends State<IncomingCallPage> {
   final String _endpoint;
 
-  IncomingCallBloc _bloc;
+  late IncomingCallBloc _bloc;
 
   @override
   void initState() {

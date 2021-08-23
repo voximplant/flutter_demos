@@ -21,7 +21,7 @@ import 'package:flutter_voximplant/flutter_voximplant.dart';
 
 class SimpleBlocDelegate extends BlocObserver {
   @override
-  void onEvent(Bloc bloc, Object event) {
+  void onEvent(Bloc bloc, Object? event) {
     super.onEvent(bloc, event);
     log(event);
   }
@@ -59,7 +59,7 @@ void main() {
 }
 
 class App extends StatelessWidget {
-  App({Key key}) : super(key: key);
+  App({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -87,11 +87,11 @@ class App extends StatelessWidget {
             ),
           );
         } else if (routeSettings.name == AppRoutes.activeCall) {
-          ActiveCallPageArguments arguments = routeSettings.arguments;
+          ActiveCallPageArguments? arguments = routeSettings.arguments as ActiveCallPageArguments?;
           return PageRouteBuilder(
             pageBuilder: (_, a1, a2) => BlocProvider<ActiveCallBloc>(
               create: (_) =>
-                  ActiveCallBloc(arguments.isIncoming, arguments.endpoint),
+                  ActiveCallBloc(arguments!.isIncoming, arguments.endpoint),
               child: ActiveCallPage(),
             ),
           );

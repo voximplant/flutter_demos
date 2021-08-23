@@ -18,7 +18,7 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-  LoginBloc _bloc;
+  late LoginBloc _bloc;
 
   bool _isUsernameValid = true;
   bool _isPasswordValid = true;
@@ -45,7 +45,8 @@ class _LoginPageState extends State<LoginPage> {
           ),
         );
 
-    void _handleLoginFailed(String errorCode, String errorDescription) {
+    //TODO(yulia): check error description optionality
+    void _handleLoginFailed(String errorCode, String? errorDescription) {
       if (errorCode == 'ERROR_INVALID_USERNAME') {
         setState(() => _isUsernameValid = false);
       } else if (errorCode == 'ERROR_INVALID_PASSWORD') {
@@ -124,10 +125,10 @@ class _LoginPageState extends State<LoginPage> {
           });
           Navigator.of(context).pushReplacementNamed(AppRoutes.main);
         }
-        if (state is! LoginInProgress && state is! LoginSuccess) {
+        if (state is LoginInProgress || state is LoginSuccess) {
           Future.delayed(
             Duration(milliseconds: 100),
-            () => _formKey?.currentState?.validate(),
+            () => _formKey.currentState?.validate(),
           );
         }
       },

@@ -5,13 +5,13 @@ import 'package:flutter/material.dart';
 
 class Widgets {
   static Widget textFormField({
-    @required TextEditingController controller,
-    @required bool darkBackground,
-    String labelText,
-    String suffixText,
+    required TextEditingController controller,
+    required bool darkBackground,
+    String? labelText,
+    String? suffixText,
     bool obscureText = false,
     TextInputType inputType = TextInputType.text,
-    FormFieldValidator<String> validator,
+    FormFieldValidator<String>? validator,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(
@@ -60,8 +60,8 @@ class Widgets {
   }
 
   static Widget maxWidthRaisedButton({
-    @required String text,
-    @required VoidCallback onPressed,
+    required String text,
+    required VoidCallback onPressed,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(
@@ -82,9 +82,9 @@ class Widgets {
   }
 
   static Widget textWithPadding({
-    @required String text,
-    Color textColor,
-    double fontSize,
+    required String text,
+    Color? textColor,
+    double? fontSize,
     double verticalPadding = 0.0,
     double horizontalPadding = 0.0,
   }) {
@@ -104,10 +104,10 @@ class Widgets {
   }
 
   static Widget iconButton({
-    @required IconData icon,
-    @required Color color,
-    @required String tooltip,
-    @required VoidCallback onPressed,
+    required IconData icon,
+    required Color color,
+    required String tooltip,
+    required VoidCallback onPressed,
   }) {
     return Ink(
       decoration: ShapeDecoration(

@@ -17,7 +17,7 @@ class LogOut extends MainEvent {}
 class ReceivedIncomingCall extends MainEvent {
   final String displayName;
 
-  ReceivedIncomingCall({@required this.displayName});
+  ReceivedIncomingCall({required this.displayName});
 
   @override
   List<Object> get props => [displayName];

@@ -15,10 +15,10 @@ import 'package:flutter_voximplant/flutter_voximplant.dart';
 class MainBloc extends Bloc<MainEvent, MainState> {
   final AuthService _authService = AuthService();
   final CallService _callService = CallService();
-  final CallKitService _callKitService =
+  final CallKitService? _callKitService =
       Platform.isIOS ? CallKitService() : null;
 
-  StreamSubscription _callStateSubscription;
+  StreamSubscription? _callStateSubscription;
 
   MainBloc() : super(MainInitial(myDisplayName: AuthService().displayName)) {
     _authService.onDisconnected = () => add(ConnectionClosed());
@@ -28,9 +28,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
   @override
   Future<void> close() {
-    if (_callStateSubscription != null) {
-      _callStateSubscription.cancel();
-    }
+    _callStateSubscription?.cancel();
     return super.close();
   }
 
@@ -56,7 +54,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     }
     if (event is Reconnect) {
       try {
-        String displayName = await _authService.loginWithAccessToken();
+        String? displayName = await _authService.loginWithAccessToken();
         if (displayName == null) {
           return;
         }
@@ -75,7 +73,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       );
     } else if (event is OnIncomingCallEvent) {
       if (Platform.isIOS) {
-        await _callKitService.createIncomingCall(
+        await _callKitService?.createIncomingCall(
           _callService.callKitUUID,
           event.username,
           event.displayName,
@@ -83,7 +81,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       } else if (Platform.isAndroid) {
         add(
           ReceivedIncomingCall(
-            displayName: event.displayName ?? event.username,
+            displayName: event.displayName ?? event.username ?? 'Unknown',
           ),
         );
       }

@@ -15,10 +15,10 @@ var _uuid = Uuid();
 // to remember a call even when only uuid available
 class CallWrapper {
   final String uuid;
-  FCXCall call;
+  FCXCall? call;
 
   CallWrapper(this.uuid);
-  CallWrapper.withCall(this.call) : this.uuid = call.uuid;
+  CallWrapper.withCall(FCXCall this.call) : this.uuid = call.uuid;
 }
 
 class CallKitService {
@@ -29,7 +29,7 @@ class CallKitService {
   final FCXProvider _provider;
   final FCXCallController _callController;
 
-  CallWrapper _activeCall;
+  CallWrapper? _activeCall;
   bool get _hasActiveCall => _activeCall != null;
   bool get _hasNoActiveCalls => _activeCall == null;
 
@@ -38,7 +38,7 @@ class CallKitService {
   bool _alreadyEnded(String uuid) => _endedCalls.contains(uuid);
 
   factory CallKitService() => _cache ?? CallKitService._();
-  static CallKitService _cache;
+  static CallKitService? _cache;
   CallKitService._()
       : this._authService = AuthService(),
         this._callService = CallService(),
@@ -49,7 +49,7 @@ class CallKitService {
     _cache = this;
     _callService.subscribeToCallEvents().listen((event) {
       if (event is OnDisconnectedCallEvent && _hasActiveCall) {
-        _reportEnded(_activeCall.uuid, FCXCallEndedReason.declinedElsewhere);
+        _reportEnded(_activeCall!.uuid, FCXCallEndedReason.declinedElsewhere);
       }
     });
   }
@@ -61,7 +61,7 @@ class CallKitService {
       }
       try {
         if (_hasActiveCall) {
-          if (_activeCall.uuid != uuid) {
+          if (_activeCall!.uuid != uuid) {
             await _reportEnded(uuid, FCXCallEndedReason.failed);
           }
           return;
@@ -77,7 +77,7 @@ class CallKitService {
 
     _provider.performStartCallAction = (startCallAction) async {
       if (_hasActiveCall) {
-        if (_activeCall.uuid != startCallAction.callUuid) {
+        if (_activeCall!.uuid != startCallAction.callUuid) {
           startCallAction.fail();
           return;
         }
@@ -214,8 +214,8 @@ class CallKitService {
         return;
       }
 
-      if (call.uuid == _activeCall.uuid) {
-        _activeCall.call = call;
+      if (call.uuid == _activeCall!.uuid) {
+        _activeCall!.call = call;
       } else {
         await _reportEnded(call.uuid, FCXCallEndedReason.failed);
       }
@@ -235,12 +235,12 @@ class CallKitService {
   }
 
   Future<void> createIncomingCall(
-    String uuid,
-    String username,
-    String displayName,
+    String? uuid,
+    String? username,
+    String? displayName,
   ) async {
     if (_hasActiveCall) {
-      if (_activeCall.uuid == uuid) {
+      if (_activeCall!.uuid == uuid) {
         return;
       } else {
         throw 'There is already an active call';
@@ -248,9 +248,9 @@ class CallKitService {
     }
 
     await _provider.reportNewIncomingCall(
-      uuid,
+      uuid!,
       FCXCallUpdate(
-        remoteHandle: FCXHandle(FCXHandleType.Generic, username),
+        remoteHandle: FCXHandle(FCXHandleType.Generic, username!),
         supportsHolding: true,
         supportsGrouping: false,
         supportsUngrouping: false,
@@ -270,52 +270,59 @@ class CallKitService {
     await _callController.requestTransactionWithAction(action);
   }
 
-  Future<void> reportConnected(String username, String displayName) async {
+  Future<void> reportConnected(String? username, String? displayName) async {
     if (_hasNoActiveCalls) {
       throw 'Active call is null, reportConnected failed';
     }
-    _activeCall.call.outgoing
+    _activeCall!.call!.outgoing
         ? await _reportOutgoingCallConnected()
-        : await _reportUpdated(username, displayName);
+        : await _reportUpdated(username!, displayName);
   }
 
   Future<void> _reportOutgoingCallConnected() async {
-    if (_activeCall.call.hasConnected) { return; }
-    await _provider.reportOutgoingCallConnected(_activeCall?.uuid, null);
+    if (_hasNoActiveCalls) {
+      throw 'Active call is null, reportConnected failed';
+    }
+    if (_activeCall!.call!.hasConnected) { return; }
+    await _provider.reportOutgoingCallConnected(_activeCall!.uuid, null);
   }
 
-  Future<void> _reportUpdated(String username, String displayName) async =>
-      await _provider.reportCallUpdated(
-        _activeCall?.uuid,
-        FCXCallUpdate(
-          remoteHandle: FCXHandle(FCXHandleType.Generic, username),
-          hasVideo: false,
-          localizedCallerName: displayName,
-        ),
-      );
+  Future<void> _reportUpdated(String username, String? displayName) async {
+    if (_hasNoActiveCalls) {
+      throw 'Active call is null, reportConnected failed';
+    }
+    await _provider.reportCallUpdated(
+      _activeCall!.uuid,
+      FCXCallUpdate(
+        remoteHandle: FCXHandle(FCXHandleType.Generic, username),
+        hasVideo: false,
+        localizedCallerName: displayName,
+      ),
+    );
+  }
 
   Future<void> holdCall(bool hold) async {
     if (_hasNoActiveCalls) {
       throw 'Active call is null, holdCall failed';
     }
-    if (!_activeCall.call.hasConnected) {
+    if (!_activeCall!.call!.hasConnected) {
       _log('Cant hold due to call not being connected yet');
       return;
     }
     await _callController.requestTransactionWithAction(
-        FCXSetHeldCallAction(_activeCall.uuid, hold));
+        FCXSetHeldCallAction(_activeCall!.uuid, hold));
   }
 
   Future<void> muteCall(bool mute) async {
     if (_hasNoActiveCalls) {
       throw 'Active call is null, muteCall failed';
     }
-    if (!_activeCall.call.hasConnected) {
+    if (!_activeCall!.call!.hasConnected) {
       _log('Cant mute due to call not being connected yet');
       return;
     }
     await _callController.requestTransactionWithAction(
-        FCXSetMutedCallAction(_activeCall.uuid, mute));
+        FCXSetMutedCallAction(_activeCall!.uuid, mute));
   }
 
   Future<void> endCall() async {
@@ -324,7 +331,7 @@ class CallKitService {
     }
 
     await _callController
-        .requestTransactionWithAction(FCXEndCallAction(_activeCall.uuid));
+        .requestTransactionWithAction(FCXEndCallAction(_activeCall!.uuid));
   }
 
   Future<void> reportCallEnded(
@@ -336,12 +343,12 @@ class CallKitService {
     if (!_alreadyEnded(uuid)) {
       _endedCalls.add(uuid);
     }
-    if (uuid == _activeCall.uuid) {
+    if (uuid == _activeCall!.uuid) {
       _activeCall = null;
     }
   }
 
-  Future<void> _reportEnded(String uuid, FCXCallEndedReason reason) async {
+  Future<void> _reportEnded(String? uuid, FCXCallEndedReason reason) async {
     if (uuid == null) { return; }
     await _provider.reportCallEnded(uuid, null, reason);
     forgetCall(uuid);

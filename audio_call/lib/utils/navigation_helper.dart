@@ -12,27 +12,27 @@ class NavigationHelper {
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
 
-  static Future<void> pushToIncomingCall({
-    @required String caller,
+  static Future<void>? pushToIncomingCall({
+    required String? caller,
   }) =>
-      navigatorKey.currentState.pushReplacementNamed(
+      navigatorKey.currentState?.pushReplacementNamed(
         AppRoutes.incomingCall,
         arguments: IncomingCallPageArguments(endpoint: caller),
       );
 
-  static Future<void> pushToActiveCall({
-    @required bool isIncoming,
-    @required String callTo,
+  static Future<void>? pushToActiveCall({
+    required bool isIncoming,
+    required String? callTo,
   }) =>
-      navigatorKey.currentState.pushReplacementNamed(
+      navigatorKey.currentState?.pushReplacementNamed(
         AppRoutes.activeCall,
         arguments: ActiveCallPageArguments(
           isIncoming: isIncoming,
-          endpoint: callTo,
+          endpoint: callTo ?? "",
         ),
       );
 
-  static Future<void> pop() => navigatorKey.currentState.maybePop();
+  static Future<void>? pop() => navigatorKey.currentState?.maybePop();
 }
 
 class AppRoutes {

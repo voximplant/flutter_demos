@@ -17,7 +17,7 @@ class ActiveCallPage extends StatefulWidget {
 }
 
 class _ActiveCallPageState extends State<ActiveCallPage> {
-  ActiveCallBloc _bloc;
+  late ActiveCallBloc _bloc;
 
   _ActiveCallPageState();
 
@@ -54,7 +54,7 @@ class _ActiveCallPageState extends State<ActiveCallPage> {
 
     String _getNameForDevice(VIAudioDevice device) {
       List<String> splitted = device.toString().split('.');
-      if (splitted != null && splitted.length >= 2) {
+      if (splitted.length >= 2) {
         return splitted[1];
       } else {
         return device.toString();

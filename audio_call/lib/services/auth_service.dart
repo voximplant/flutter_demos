@@ -8,37 +8,37 @@ typedef void Disconnected();
 
 class AuthService {
   VIClient _client;
-  String _displayName;
+  String? _displayName;
 
-  String get displayName => _displayName;
-  Disconnected onDisconnected;
+  String? get displayName => _displayName;
+  Disconnected? onDisconnected;
 
-  String _voipToken;
+  String? _voipToken;
   set voipToken(token) {
     if (token == null || token == '') {
       _log('voip token cleared');
-      _client.unregisterFromPushNotifications(_voipToken);
+      _client.unregisterFromPushNotifications(_voipToken!);
     }
     _voipToken = token;
   }
 
-  VIClientState clientState;
+  VIClientState clientState = VIClientState.Disconnected;
 
   factory AuthService() => _cache ?? AuthService._();
-  static AuthService _cache;
+  static AuthService? _cache;
   AuthService._() : _client = Voximplant().getClient(defaultConfig) {
     _log('initialize');
     _client.clientStateStream.listen((state) {
       clientState = state;
       _log('client state is changed to: $state');
-      if (state == VIClientState.Disconnected && onDisconnected != null) {
-        onDisconnected();
+      if (state == VIClientState.Disconnected) {
+        onDisconnected?.call();
       }
     });
     _cache = this;
   }
 
-  Future<String> loginWithPassword(String username, String password) async {
+  Future<String?> loginWithPassword(String username, String password) async {
     _log('loginWithPassword');
     VIClientState clientState = await _client.getClientState();
     if (clientState == VIClientState.LoggedIn) {
@@ -49,14 +49,14 @@ class AuthService {
     }
     VIAuthResult authResult = await _client.login(username, password);
     if (_voipToken != null) {
-      await _client.registerForPushNotifications(_voipToken);
+      await _client.registerForPushNotifications(_voipToken!);
     }
-    await _saveAuthDetails(username, authResult.loginTokens);
+    await _saveAuthDetails(username, authResult.loginTokens!);
     _displayName = authResult.displayName;
     return _displayName;
   }
 
-  Future<String> loginWithAccessToken([String username]) async {
+  Future<String?> loginWithAccessToken([String? username]) async {
     VIClientState clientState = await _client.getClientState();
     if (clientState == VIClientState.LoggedIn) {
       return _displayName;
@@ -69,14 +69,14 @@ class AuthService {
     _log('loginWithAccessToken');
     SharedPreferences prefs = await SharedPreferences.getInstance();
     VILoginTokens loginTokens = _getAuthDetails(prefs);
-    String user = username ?? prefs.getString('username');
+    String user = username ?? prefs.getString('username')!;
 
     VIAuthResult authResult =
         await _client.loginWithAccessToken(user, loginTokens.accessToken);
     if (_voipToken != null) {
-      await _client.registerForPushNotifications(_voipToken);
+      await _client.registerForPushNotifications(_voipToken!);
     }
-    await _saveAuthDetails(user, authResult.loginTokens);
+    await _saveAuthDetails(user, authResult.loginTokens!);
     _displayName = authResult.displayName;
     return _displayName;
   }
@@ -84,18 +84,26 @@ class AuthService {
   Future<void> logout() async {
     _log('logout');
     await _client.disconnect();
-    VILoginTokens loginTokens = VILoginTokens();
-    _saveAuthDetails(null, loginTokens);
+    await _removeAuthDetails();
   }
 
   Future<String> getUsername() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('username')?.replaceAll('.voximplant.com', '');
+    return prefs.getString('username')?.replaceAll('.voximplant.com', '') ?? "";
   }
 
   Future<bool> canUseAccessToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('accessToken') != null;
+  }
+
+  Future<void> _removeAuthDetails() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.remove('username');
+    prefs.remove('accessToken');
+    prefs.remove('refreshToken');
+    prefs.remove('accessExpire');
+    prefs.remove('refreshExpire');
   }
 
   Future<void> _saveAuthDetails(
@@ -110,10 +118,10 @@ class AuthService {
 
   VILoginTokens _getAuthDetails(SharedPreferences prefs) {
     VILoginTokens loginTokens = VILoginTokens();
-    loginTokens.accessToken = prefs.getString('accessToken');
-    loginTokens.accessExpire = prefs.getInt('accessExpire');
-    loginTokens.refreshExpire = prefs.getInt('refreshExpire');
-    loginTokens.refreshToken = prefs.getString('refreshToken');
+    loginTokens.accessToken = prefs.getString('accessToken')!;
+    loginTokens.accessExpire = prefs.getInt('accessExpire')!;
+    loginTokens.refreshExpire = prefs.getInt('refreshExpire')!;
+    loginTokens.refreshToken = prefs.getString('refreshToken')!;
 
     return loginTokens;
   }

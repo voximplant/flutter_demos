@@ -13,21 +13,21 @@ class ActiveCallState implements Equatable {
   final bool isMuted;
 
   ActiveCallState({
-    @required this.endpointName,
-    @required this.callStatus,
-    @required this.activeAudioDevice,
-    @required this.availableAudioDevices,
-    @required this.isOnHold,
-    @required this.isMuted,
+    required this.endpointName,
+    required this.callStatus,
+    required this.activeAudioDevice,
+    required this.availableAudioDevices,
+    required this.isOnHold,
+    required this.isMuted,
   });
 
   ActiveCallState copyWith({
-    String endpointName,
-    String callStatus,
-    VIAudioDevice activeAudioDevice,
-    List<VIAudioDevice> availableAudioDevices,
-    bool isOnHold,
-    bool isMuted,
+    String? endpointName,
+    String? callStatus,
+    VIAudioDevice? activeAudioDevice,
+    List<VIAudioDevice>? availableAudioDevices,
+    bool? isOnHold,
+    bool? isMuted,
   }) =>
       ActiveCallState(
         endpointName: endpointName ?? this.endpointName,
@@ -40,7 +40,7 @@ class ActiveCallState implements Equatable {
       );
 
   @override
-  List<Object> get props => [
+  List<Object?> get props => [
         callStatus,
         endpointName,
         activeAudioDevice,
@@ -59,10 +59,10 @@ class CallEndedActiveCallState extends ActiveCallState {
   final String reason;
 
   CallEndedActiveCallState({
-    @required this.reason,
-    @required this.failed,
-    @required endpointName,
-    @required activeAudioDevice,
+    required this.reason,
+    required this.failed,
+    required endpointName,
+    required activeAudioDevice,
   }) : super(
           endpointName: endpointName,
           callStatus: failed ? 'Failed' : 'Disconnected',

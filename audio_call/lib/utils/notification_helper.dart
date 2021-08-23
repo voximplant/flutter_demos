@@ -15,7 +15,7 @@ class NotificationHelper {
   final FlutterLocalNotificationsPlugin _plugin;
 
   factory NotificationHelper() => _cached ?? NotificationHelper._();
-  static NotificationHelper _cached;
+  static NotificationHelper? _cached;
   NotificationHelper._() : _plugin = FlutterLocalNotificationsPlugin() {
     _configure();
     _cached = this;
@@ -36,9 +36,9 @@ class NotificationHelper {
   }
 
   Future<void> displayNotification({
-    @required String title,
-    @required String description,
-    String payload,
+    required String title,
+    required String description,
+    String? payload,
   }) async {
     _log('displayNotification title: $title, description: $description');
     await _plugin.show(
@@ -67,7 +67,7 @@ class NotificationHelper {
   }
 
   Future<bool> didNotificationLaunchApp() async {
-    var details = await _plugin.getNotificationAppLaunchDetails();
+    var details = await (_plugin.getNotificationAppLaunchDetails() as FutureOr<NotificationAppLaunchDetails>);
     _log('didNotificationLaunchApp: ${details.didNotificationLaunchApp}');
     return details.didNotificationLaunchApp;
   }

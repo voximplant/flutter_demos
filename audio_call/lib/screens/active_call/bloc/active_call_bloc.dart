@@ -11,20 +11,21 @@ import 'package:audio_call/services/call/callkit_service.dart';
 import 'package:audio_call/utils/log.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter_callkit_voximplant/flutter_callkit_voximplant.dart';
+import 'package:flutter_voximplant/flutter_voximplant.dart';
 
 class ActiveCallBloc extends Bloc<ActiveCallEvent, ActiveCallState> {
   final CallService _callService = CallService();
-  final CallKitService _callKitService =
+  final CallKitService? _callKitService =
       Platform.isIOS ? CallKitService() : null;
 
-  StreamSubscription _callStateSubscription;
-  StreamSubscription _audioDeviceSubscription;
+  StreamSubscription? _callStateSubscription;
+  StreamSubscription? _audioDeviceSubscription;
 
-  ActiveCallBloc(bool isIncoming, String endpoint)
+  ActiveCallBloc(bool isIncoming, String? endpoint)
       : super(ActiveCallState(
           isOnHold: false,
           isMuted: false,
-          activeAudioDevice: null,
+          activeAudioDevice: VIAudioDevice.Earpiece,
           availableAudioDevices: [],
           endpointName: '',
           callStatus: '',
@@ -37,12 +38,8 @@ class ActiveCallBloc extends Bloc<ActiveCallEvent, ActiveCallState> {
 
   @override
   Future<void> close() {
-    if (_callStateSubscription != null) {
-      _callStateSubscription.cancel();
-    }
-    if (_audioDeviceSubscription != null) {
-      _audioDeviceSubscription.cancel();
-    }
+    _callStateSubscription?.cancel();
+    _audioDeviceSubscription?.cancel();
     return super.close();
   }
 
@@ -73,15 +70,15 @@ class ActiveCallBloc extends Bloc<ActiveCallEvent, ActiveCallState> {
           }
         } else /* if (direction == outgoing) */ {
           if (Platform.isAndroid) {
-            await _callService.makeCall(callTo: event.endpoint);
+            await _callService.makeCall(callTo: event.endpoint ?? "");
           } else if (Platform.isIOS) {
-            await _callKitService.startOutgoingCall(event.endpoint);
+            await _callKitService?.startOutgoingCall(event.endpoint ?? "");
           }
         }
         yield state.copyWith(
           callStatus: _makeStringFromCallState(_callService.callState),
-          endpointName: _callService?.endpoint?.displayName ??
-              _callService?.endpoint?.userName ??
+          endpointName: _callService.endpoint?.displayName ??
+              _callService.endpoint?.userName ??
               event.endpoint ??
               '',
           availableAudioDevices: _callService.availableAudioDevices,
@@ -139,15 +136,15 @@ class ActiveCallBloc extends Bloc<ActiveCallEvent, ActiveCallState> {
       }
     } else if (event is HoldPressedEvent) {
       Platform.isIOS
-          ? await _callKitService.holdCall(event.hold)
+          ? await _callKitService?.holdCall(event.hold)
           : await _callService.holdCall(hold: event.hold);
     } else if (event is MutePressedEvent) {
       Platform.isIOS
-          ? await _callKitService.muteCall(event.mute)
+          ? await _callKitService?.muteCall(event.mute)
           : await _callService.muteCall(mute: event.mute);
     } else if (event is HangupPressedEvent) {
       Platform.isIOS
-          ? await _callKitService.endCall()
+          ? await _callKitService?.endCall()
           : await _callService.hangup();
     } else if (event is SelectAudioDevicePressedEvent) {
       await _callService.selectAudioDevice(device: event.device);
@@ -161,7 +158,7 @@ class ActiveCallBloc extends Bloc<ActiveCallEvent, ActiveCallState> {
     }
   }
 
-  String _makeStringFromCallState(CallState state) {
+  String _makeStringFromCallState(CallState? state) {
     switch (state) {
       case CallState.connecting:
         return 'Connecting';

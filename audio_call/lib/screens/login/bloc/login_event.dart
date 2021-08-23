@@ -15,7 +15,7 @@ class LoginWithPassword extends LoginEvent {
   final String username;
   final String password;
 
-  LoginWithPassword({@required this.username, @required this.password});
+  LoginWithPassword({required this.username, required this.password});
 
   @override
   List<Object> get props => [username, password];
