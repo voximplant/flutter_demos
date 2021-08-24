@@ -68,17 +68,21 @@ class AuthService {
     }
     _log('loginWithAccessToken');
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    VILoginTokens loginTokens = _getAuthDetails(prefs);
-    String user = username ?? prefs.getString('username')!;
+    String? accessToken = _getAccessToken(prefs);
+    String? user = username ?? prefs.getString('username');
 
-    VIAuthResult authResult =
-        await _client.loginWithAccessToken(user, loginTokens.accessToken);
-    if (_voipToken != null) {
-      await _client.registerForPushNotifications(_voipToken!);
+    if (user != null && accessToken != null) {
+      VIAuthResult authResult =
+        await _client.loginWithAccessToken(user, accessToken);
+      if (_voipToken != null) {
+        await _client.registerForPushNotifications(_voipToken!);
+      }
+      await _saveAuthDetails(user, authResult.loginTokens!);
+      _displayName = authResult.displayName;
+      return _displayName;
+    } else {
+      throw VIException(VIClientError.ERROR_INTERNAL, "Not able to login");
     }
-    await _saveAuthDetails(user, authResult.loginTokens!);
-    _displayName = authResult.displayName;
-    return _displayName;
   }
 
   Future<void> logout() async {
@@ -116,14 +120,8 @@ class AuthService {
     prefs.setInt('refreshExpire', loginTokens.refreshExpire);
   }
 
-  VILoginTokens _getAuthDetails(SharedPreferences prefs) {
-    VILoginTokens loginTokens = VILoginTokens();
-    loginTokens.accessToken = prefs.getString('accessToken')!;
-    loginTokens.accessExpire = prefs.getInt('accessExpire')!;
-    loginTokens.refreshExpire = prefs.getInt('refreshExpire')!;
-    loginTokens.refreshToken = prefs.getString('refreshToken')!;
-
-    return loginTokens;
+  String? _getAccessToken(SharedPreferences prefs) {
+    return prefs.getString('accessToken');
   }
 
   Future<void> pushNotificationReceived(Map<String, dynamic> payload) async {
