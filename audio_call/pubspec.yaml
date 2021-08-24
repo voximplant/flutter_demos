@@ -4,7 +4,7 @@ description: A new Flutter project.
 version: 1.2.2
 
 environment:
-  sdk: ">=2.2.2 <3.0.0"
+  sdk: '>=2.12.0 <3.0.0'
 
 dependencies:
   flutter:
@@ -12,12 +12,12 @@ dependencies:
   flutter_bloc: 7.0.1
   equatable: 2.0.3
   uuid: 3.0.4
-  firebase_core: ^1.4.0
-  firebase_messaging: 10.0.4
+  firebase_core: ^1.5.0
+  firebase_messaging: 10.0.5
   flutter_voximplant: 3.0.0
   flutter_callkit_voximplant: 2.0.2+2
 #  flutter_voip_push_notification: 0.0.3
-  flutter_local_notifications: 6.0.0
+  flutter_local_notifications: 8.1.1
   shared_preferences: 2.0.6
   permission_handler: 8.1.4+1
 

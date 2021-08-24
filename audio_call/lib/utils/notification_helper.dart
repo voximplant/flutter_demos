@@ -3,7 +3,6 @@
 import 'dart:async';
 
 import 'package:audio_call/utils/log.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import 'navigation_helper.dart';
@@ -67,9 +66,13 @@ class NotificationHelper {
   }
 
   Future<bool> didNotificationLaunchApp() async {
-    var details = await (_plugin.getNotificationAppLaunchDetails() as FutureOr<NotificationAppLaunchDetails>);
-    _log('didNotificationLaunchApp: ${details.didNotificationLaunchApp}');
-    return details.didNotificationLaunchApp;
+    final NotificationAppLaunchDetails? notificationAppLaunchDetails =
+        await _plugin.getNotificationAppLaunchDetails();
+    if (notificationAppLaunchDetails != null) {
+      return notificationAppLaunchDetails.didNotificationLaunchApp;
+    } else {
+      return false;
+    }
   }
 
   void _log<T>(T message) {
