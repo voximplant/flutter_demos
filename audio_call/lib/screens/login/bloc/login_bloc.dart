@@ -17,11 +17,6 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   @override
   Stream<LoginState> mapEventToState(LoginEvent event) async* {
     if (event is LoadLastUser) {
-      if (Platform.isAndroid &&
-          await NotificationHelper().didNotificationLaunchApp()) {
-        print('Launched from notification, skipping autologin');
-        return;
-      }
       String lastUser = await _authService.getUsername();
       yield LoginLastUserLoaded(lastUser: lastUser);
       bool canUseAccessToken = await _authService.canUseAccessToken();
