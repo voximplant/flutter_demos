@@ -128,6 +128,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
           return Scaffold(
             appBar: AppBar(
               title: Text('Voximplant'),
+              brightness: Brightness.dark,
               actions: <Widget>[
                 IconButton(
                   icon: Icon(Icons.exit_to_app),

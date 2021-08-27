@@ -112,6 +112,7 @@ class _ActiveCallPageState extends State<ActiveCallPage> {
           return Scaffold(
             appBar: AppBar(
               title: Text('Call'),
+              brightness: Brightness.dark,
             ),
             backgroundColor: VoximplantColors.white,
             body: SafeArea(
