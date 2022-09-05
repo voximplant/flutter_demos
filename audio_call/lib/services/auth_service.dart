@@ -22,7 +22,7 @@ class AuthService {
     _voipToken = token;
   }
 
-  VIClientState clientState;
+  VIClientState clientState = VIClientState.Disconnected;
 
   factory AuthService() => _cache ?? AuthService._();
   static AuthService _cache;

@@ -46,9 +46,9 @@ PODS:
     - Flutter
   - flutter_voip_push_notification (0.0.1):
     - Flutter
-  - flutter_voximplant (2.6.0):
+  - flutter_voximplant (3.5.1):
     - Flutter
-    - VoxImplantSDK (= 2.36.2)
+    - VoxImplantSDK (= 2.46.8)
   - GoogleDataTransport (7.5.1):
     - nanopb (~> 1.30906.0)
   - GoogleUtilities/AppDelegateSwizzler (6.7.2):
@@ -76,14 +76,14 @@ PODS:
   - "permission_handler (5.0.1+1)":
     - Flutter
   - PromisesObjC (1.2.12)
-  - Protobuf (3.14.0)
+  - Protobuf (3.21.5)
   - shared_preferences (0.0.1):
     - Flutter
-  - VoxImplantSDK (2.36.2):
-    - VoxImplantSDK/Core (= 2.36.2)
-  - VoxImplantSDK/Core (2.36.2):
-    - VoxImplantWebRTC (= 78.5.1)
-  - VoxImplantWebRTC (78.5.1)
+  - VoxImplantSDK (2.46.8):
+    - VoxImplantSDK/Core (= 2.46.8)
+  - VoxImplantSDK/Core (2.46.8):
+    - VoxImplantWebRTC (= 93.0.0)
+  - VoxImplantWebRTC (93.0.0)
 
 DEPENDENCIES:
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
@@ -141,21 +141,21 @@ SPEC CHECKSUMS:
   FirebaseInstallations: 466c7b4d1f58fe16707693091da253726a731ed2
   FirebaseInstanceID: bd3ffc24367f901a43c063b36c640b345a4a5dd1
   FirebaseMessaging: 5eca4ef173de76253352511aafef774caa1cba2a
-  Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
+  Flutter: 50d75fe2f02b26cc09d224853bb45737f8b3214a
   flutter_callkit_voximplant: 3a3645b8265af3d61050087056ba1440ef9a5eaf
   flutter_local_notifications: 0c0b1ae97e741e1521e4c1629a459d04b9aec743
   flutter_voip_push_notification: f28f3ce1c6b835a3fa9e833f37f33dc1291ab888
-  flutter_voximplant: b221289a2aa3fd7cc1b6db82dbcca516f589d3d3
+  flutter_voximplant: 353fd13572e815a14e7e7ef713087a75be8b49e7
   GoogleDataTransport: f56af7caa4ed338dc8e138a5d7c5973e66440833
   GoogleUtilities: 7f2f5a07f888cdb145101d6042bc4422f57e70b3
   nanopb: 59317e09cf1f1a0af72f12af412d54edf52603fc
   permission_handler: eac8e15b4a1a3fba55b761d19f3f4e6b005d15b6
   PromisesObjC: 3113f7f76903778cf4a0586bd1ab89329a0b7b97
-  Protobuf: 0cde852566359049847168e51bd1c690e0f70056
+  Protobuf: 7504b04fffcf6662ad629694db8231f5e744327f
   shared_preferences: af6bfa751691cdc24be3045c43ec037377ada40d
-  VoxImplantSDK: 349743fa9798c405ace58ca133718ad1d6b1a555
-  VoxImplantWebRTC: 706f77ca9df71b4013af45a3d4ed7e06185c0be6
+  VoxImplantSDK: 7cda8a0a0b482378ac5fba74f20be6b31ed398d3
+  VoxImplantWebRTC: 8ddd8a63d0c20afa604fec22a2552c32b0371974
 
-PODFILE CHECKSUM: aafe91acc616949ddb318b77800a7f51bffa2a4c
+PODFILE CHECKSUM: ffdffcc6cca746c5be0d15eeb3b9d5b3d3831235
 
-COCOAPODS: 1.10.0
+COCOAPODS: 1.11.3
