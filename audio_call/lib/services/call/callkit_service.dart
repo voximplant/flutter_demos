@@ -18,6 +18,7 @@ class CallWrapper {
   FCXCall call;
 
   CallWrapper(this.uuid);
+
   CallWrapper.withCall(this.call) : this.uuid = call.uuid;
 }
 
@@ -30,15 +31,19 @@ class CallKitService {
   final FCXCallController _callController;
 
   CallWrapper _activeCall;
+
   bool get _hasActiveCall => _activeCall != null;
+
   bool get _hasNoActiveCalls => _activeCall == null;
 
   // To handle late push, which call already been ended
   List<String> _endedCalls = [];
+
   bool _alreadyEnded(String uuid) => _endedCalls.contains(uuid);
 
   factory CallKitService() => _cache ?? CallKitService._();
   static CallKitService _cache;
+
   CallKitService._()
       : this._authService = AuthService(),
         this._callService = CallService(),
@@ -69,6 +74,7 @@ class CallKitService {
           _activeCall = CallWrapper(uuid);
         }
         await _authService.loginWithAccessToken();
+        await _commitTransactions();
       } catch (e) {
         _log('There was an error $e, ending call');
         await _reportEnded(uuid, FCXCallEndedReason.failed);
@@ -86,9 +92,7 @@ class CallKitService {
       }
 
       try {
-        await Voximplant()
-            .getAudioDeviceManager()
-            .callKitConfigureAudioSession();
+        await Voximplant().audioDeviceManager.callKitConfigureAudioSession();
         await _callService.makeCall(callTo: startCallAction.handle.value);
         _callService.callKitUUID = startCallAction.callUuid;
         await _provider.reportOutgoingCall(startCallAction.callUuid, null);
@@ -98,6 +102,31 @@ class CallKitService {
         _log('There was an error $e, failing startCallAction');
         await startCallAction.fail();
       }
+    };
+
+    _provider.executeTransaction = (transaction) {
+      _log('Should execute or delay transaction...');
+      if ((_authService.clientState == VIClientState.LoggedIn ||
+              _authService.clientState == VIClientState.Reconnecting) &&
+          _callService.hasActiveCall) {
+        _log('Executing transaction now');
+        return false;
+      } else if (_authService.clientState == VIClientState.Disconnected || _authService.clientState == VIClientState.Connected) {
+        _log('Need to connect or login...');
+        Future<void> loginAndCommitTransactions() async {
+          try {
+            await _authService.loginWithAccessToken();
+            await _commitTransactions();
+          } catch (e) {
+            _log('There was an error $e, failing');
+            await _provider.reportCallEnded(
+                _callService.callKitUUID, null, FCXCallEndedReason.failed);
+          }
+        }
+        loginAndCommitTransactions();
+      }
+      _log('Delaying transaction');
+      return true;
     };
 
     _provider.performEndCallAction = (endCallAction) async {
@@ -110,12 +139,10 @@ class CallKitService {
       Future<void> _end() async {
         try {
           (_activeCall?.call?.outgoing ?? false) ||
-              (_activeCall?.call?.hasConnected ?? false)
+                  (_activeCall?.call?.hasConnected ?? false)
               ? await _callService.hangup()
               : await _callService.decline();
-          await Voximplant()
-              .getAudioDeviceManager()
-              .callKitReleaseAudioSession();
+          await Voximplant().audioDeviceManager.callKitReleaseAudioSession();
           forgetCall(endCallAction.callUuid);
           await endCallAction.fulfill();
         } catch (e) {
@@ -144,9 +171,7 @@ class CallKitService {
 
       Future<void> _answer() async {
         try {
-          await Voximplant()
-              .getAudioDeviceManager()
-              .callKitConfigureAudioSession();
+          await Voximplant().audioDeviceManager.callKitConfigureAudioSession();
           await _callService.answerCall();
           await answerCallAction.fulfill();
         } catch (e) {
@@ -194,11 +219,11 @@ class CallKitService {
       }
     };
 
-    _provider.providerDidActivateAudioSession = () async =>
-    await Voximplant().getAudioDeviceManager().callKitStartAudio();
+    _provider.providerDidActivateAudioSession =
+        () async => await Voximplant().audioDeviceManager.callKitStartAudio();
 
-    _provider.providerDidDeactivateAudioSession = () async =>
-    await Voximplant().getAudioDeviceManager().callKitStopAudio();
+    _provider.providerDidDeactivateAudioSession =
+        () async => await Voximplant().audioDeviceManager.callKitStopAudio();
 
     _callController.callObserver.callChanged = (call) async {
       if (call.hasEnded) {
@@ -232,6 +257,37 @@ class CallKitService {
       maximumCallsPerCallGroup: 1,
       supportedHandleTypes: <FCXHandleType>{FCXHandleType.Generic},
     ));
+  }
+
+  Future<void> _commitTransactions() async {
+    List<FCXTransaction> transactions =
+    await _provider.getPendingTransactions();
+    for (final transaction in transactions) {
+      List<FCXAction> actions = await transaction.getActions();
+      for (final action in actions) {
+        if (action is FCXStartCallAction) {
+          _provider.performStartCallAction(action);
+        }
+        if (action is FCXAnswerCallAction) {
+          _provider.performAnswerCallAction(action);
+        }
+        if (action is FCXEndCallAction) {
+          _provider.performEndCallAction(action);
+        }
+        if (action is FCXSetHeldCallAction) {
+          _provider.performSetHeldCallAction(action);
+        }
+        if (action is FCXSetMutedCallAction) {
+          _provider.performSetMutedCallAction(action);
+        }
+        if (action is FCXSetGroupCallAction) {
+          _provider.performSetGroupCallAction(action);
+        }
+        if (action is FCXPlayDTMFCallAction) {
+          _provider.performPlayDTMFCallAction(action);
+        }
+      }
+    }
   }
 
   Future<void> createIncomingCall(
@@ -280,7 +336,9 @@ class CallKitService {
   }
 
   Future<void> _reportOutgoingCallConnected() async {
-    if (_activeCall.call.hasConnected) { return; }
+    if (_activeCall.call.hasConnected) {
+      return;
+    }
     await _provider.reportOutgoingCallConnected(_activeCall?.uuid, null);
   }
 
@@ -342,7 +400,9 @@ class CallKitService {
   }
 
   Future<void> _reportEnded(String uuid, FCXCallEndedReason reason) async {
-    if (uuid == null) { return; }
+    if (uuid == null) {
+      return;
+    }
     await _provider.reportCallEnded(uuid, null, reason);
     forgetCall(uuid);
     if (_activeCall?.uuid == uuid) {
@@ -360,7 +420,7 @@ class CallKitService {
       actions.forEach((a) async => await a.fail());
     }
   }
-  
+
   void _log<T>(T message) {
     log('CallKitService($hashCode): ${message.toString()}');
   }

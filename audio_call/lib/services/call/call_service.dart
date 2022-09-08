@@ -68,7 +68,7 @@ class CallService {
 
   CallService._()
       : _client = Voximplant().getClient(defaultConfig),
-        _audioDeviceManager = Voximplant().getAudioDeviceManager(),
+        _audioDeviceManager = Voximplant().audioDeviceManager,
         _progressTone = VIAudioFile.file(
           'fennelliott_beeping',
           'wav',
@@ -126,7 +126,7 @@ class CallService {
     }
     VICallSettings callSettings = VICallSettings();
     callSettings.videoFlags = _defaultFlags;
-    _activeCall = await _client.call(callTo, callSettings);
+    _activeCall = await _client.call(callTo, settings: callSettings);
     _callState = CallState.connecting;
     _listenToActiveCallEvents();
   }
@@ -137,7 +137,7 @@ class CallService {
     }
     VICallSettings callSettings = VICallSettings();
     callSettings.videoFlags = _defaultFlags;
-    await _activeCall.answer(callSettings);
+    await _activeCall.answer(settings: callSettings);
   }
 
   Future<void> hangup() async {
