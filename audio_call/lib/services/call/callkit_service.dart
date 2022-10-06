@@ -36,6 +36,8 @@ class CallKitService {
 
   bool get _hasNoActiveCalls => _activeCall == null;
 
+  bool _callStarting = false;
+
   // To handle late push, which call already been ended
   List<String> _endedCalls = [];
 
@@ -91,6 +93,8 @@ class CallKitService {
         _activeCall = CallWrapper(startCallAction.callUuid);
       }
 
+      _callStarting = false;
+
       try {
         await Voximplant().audioDeviceManager.callKitConfigureAudioSession();
         await _callService.makeCall(callTo: startCallAction.handle.value);
@@ -106,9 +110,10 @@ class CallKitService {
 
     _provider.executeTransaction = (transaction) {
       _log('Should execute or delay transaction...');
-      if ((_authService.clientState == VIClientState.LoggedIn ||
-              _authService.clientState == VIClientState.Reconnecting) &&
-          _callService.hasActiveCall) {
+
+      if ((_authService.clientState == VIClientState.LoggedIn || _authService.clientState == VIClientState.Reconnecting)
+          && (_callService.hasActiveCall || _callStarting)
+      ) {
         _log('Executing transaction now');
         return false;
       } else if (_authService.clientState == VIClientState.Disconnected || _authService.clientState == VIClientState.Connected) {
@@ -323,6 +328,7 @@ class CallKitService {
     }
     FCXHandle handle = FCXHandle(FCXHandleType.Generic, contactName);
     FCXStartCallAction action = FCXStartCallAction(_uuid.v4(), handle);
+    _callStarting = true;
     await _callController.requestTransactionWithAction(action);
   }
 

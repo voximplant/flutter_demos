@@ -48,7 +48,7 @@ PODS:
     - Flutter
   - flutter_voximplant (3.5.1):
     - Flutter
-    - VoxImplantSDK (= 2.46.8)
+    - VoxImplantSDK (= 2.46.10)
   - GoogleDataTransport (7.5.1):
     - nanopb (~> 1.30906.0)
   - GoogleUtilities/AppDelegateSwizzler (6.7.2):
@@ -79,9 +79,9 @@ PODS:
   - Protobuf (3.21.5)
   - shared_preferences (0.0.1):
     - Flutter
-  - VoxImplantSDK (2.46.8):
-    - VoxImplantSDK/Core (= 2.46.8)
-  - VoxImplantSDK/Core (2.46.8):
+  - VoxImplantSDK (2.46.10):
+    - VoxImplantSDK/Core (= 2.46.10)
+  - VoxImplantSDK/Core (2.46.10):
     - VoxImplantWebRTC (= 93.0.0)
   - VoxImplantWebRTC (93.0.0)
 
@@ -145,7 +145,7 @@ SPEC CHECKSUMS:
   flutter_callkit_voximplant: 3a3645b8265af3d61050087056ba1440ef9a5eaf
   flutter_local_notifications: 0c0b1ae97e741e1521e4c1629a459d04b9aec743
   flutter_voip_push_notification: f28f3ce1c6b835a3fa9e833f37f33dc1291ab888
-  flutter_voximplant: 353fd13572e815a14e7e7ef713087a75be8b49e7
+  flutter_voximplant: 5e54116ff1f9cd0fd973f62950e61b39bac3bd57
   GoogleDataTransport: f56af7caa4ed338dc8e138a5d7c5973e66440833
   GoogleUtilities: 7f2f5a07f888cdb145101d6042bc4422f57e70b3
   nanopb: 59317e09cf1f1a0af72f12af412d54edf52603fc
@@ -153,7 +153,7 @@ SPEC CHECKSUMS:
   PromisesObjC: 3113f7f76903778cf4a0586bd1ab89329a0b7b97
   Protobuf: 7504b04fffcf6662ad629694db8231f5e744327f
   shared_preferences: af6bfa751691cdc24be3045c43ec037377ada40d
-  VoxImplantSDK: 7cda8a0a0b482378ac5fba74f20be6b31ed398d3
+  VoxImplantSDK: db660ef67c89e3df0e07ca270369c496effab6e5
   VoxImplantWebRTC: 8ddd8a63d0c20afa604fec22a2552c32b0371974
 
 PODFILE CHECKSUM: 20d5202926f5ac9150a51c202a7ded0a3b174026
