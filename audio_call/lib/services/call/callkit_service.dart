@@ -106,9 +106,9 @@ class CallKitService {
 
     _provider.executeTransaction = (transaction) {
       _log('Should execute or delay transaction...');
-      if ((_authService.clientState == VIClientState.LoggedIn ||
-              _authService.clientState == VIClientState.Reconnecting) &&
-          _callService.hasActiveCall) {
+      if ((_authService.clientState == VIClientState.LoggedIn || _authService.clientState == VIClientState.Reconnecting)
+          && _hasActiveCall
+      ) {
         _log('Executing transaction now');
         return false;
       } else if (_authService.clientState == VIClientState.Disconnected || _authService.clientState == VIClientState.Connected) {
@@ -323,6 +323,7 @@ class CallKitService {
     }
     FCXHandle handle = FCXHandle(FCXHandleType.Generic, contactName);
     FCXStartCallAction action = FCXStartCallAction(_uuid.v4(), handle);
+    _activeCall = CallWrapper(action.callUuid.toUpperCase());
     await _callController.requestTransactionWithAction(action);
   }
 
