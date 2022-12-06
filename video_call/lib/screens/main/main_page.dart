@@ -76,7 +76,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
             content: Text(
                 'Please give "record audio" and "camera" permissions to make calls'),
             actions: <Widget>[
-              FlatButton(
+              TextButton(
                 child: Text('Close'),
                 onPressed: () {
                   Navigator.of(context).pop();

@@ -48,10 +48,12 @@ class _LoginPageState extends State<LoginPage> {
       } else if (errorCode == 'ERROR_INVALID_PASSWORD') {
         setState(() => _isPasswordValid = false);
       } else {
-        Scaffold.of(context).showSnackBar(SnackBar(
-          content: Text('$errorDescription'),
-          backgroundColor: Colors.red,
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('$errorDescription'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     }
 

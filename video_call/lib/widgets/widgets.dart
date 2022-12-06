@@ -17,8 +17,8 @@ class Widgets {
         data: ThemeData(
           primaryColor:
               darkBackground ? VoximplantColors.white : VoximplantColors.button,
-          cursorColor:
-              darkBackground ? VoximplantColors.white : VoximplantColors.button,
+          // cursorColor:
+          //     darkBackground ? VoximplantColors.white : VoximplantColors.button,
           hintColor:
               darkBackground ? VoximplantColors.white : VoximplantColors.button,
         ),
@@ -55,11 +55,13 @@ class Widgets {
       child: SizedBox(
         width: double.infinity,
         height: 50,
-        child: RaisedButton(
-          textColor: VoximplantColors.white,
-          color: VoximplantColors.button,
-          onPressed: onPressed,
+        child: ElevatedButton(
           child: Text(text),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: VoximplantColors.button,
+            foregroundColor: VoximplantColors.white,
+          ),
+          onPressed: onPressed,
         ),
       ),
     );

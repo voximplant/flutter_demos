@@ -141,7 +141,7 @@ class ActiveCallBloc extends Bloc<ActiveCallEvent, ActiveCallState> {
       VICameraType cameraToSwitch = state.cameraType == VICameraType.Front
           ? VICameraType.Back
           : VICameraType.Front;
-      await Voximplant().getCameraManager().selectCamera(cameraToSwitch);
+      await Voximplant().cameraManager.selectCamera(cameraToSwitch);
       yield state.copyWith(cameraType: cameraToSwitch);
     } else if (event is HoldPressedEvent) {
       Platform.isIOS

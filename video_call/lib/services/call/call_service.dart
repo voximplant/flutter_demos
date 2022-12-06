@@ -55,7 +55,7 @@ class CallService {
     VICallSettings callSettings = VICallSettings();
     callSettings.videoFlags = VIVideoFlags(receiveVideo: true, sendVideo: true);
     callSettings.preferredVideoCodec = VIVideoCodec.VP8;
-    _activeCall = await _client.call(callTo, callSettings);
+    _activeCall = await _client.call(callTo, settings: callSettings);
     _callState = CallState.connecting;
     _listenToActiveCallEvents();
   }
@@ -67,7 +67,7 @@ class CallService {
     VICallSettings callSettings = VICallSettings();
     callSettings.videoFlags = VIVideoFlags(receiveVideo: true, sendVideo: true);
     callSettings.preferredVideoCodec = VIVideoCodec.VP8;
-    await _activeCall.answer(callSettings);
+    await _activeCall.answer(settings: callSettings);
   }
 
   Future<void> hangup() async {
