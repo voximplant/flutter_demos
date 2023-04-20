@@ -1,7 +1,5 @@
 /// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
 import 'package:audio_call/screens/active_call/active_call.dart';
-import 'package:audio_call/screens/active_call/bloc/active_call_event.dart';
-import 'package:audio_call/screens/active_call/bloc/active_call_state.dart';
 import 'package:audio_call/screens/call_failed/call_failed.dart';
 import 'package:audio_call/theme/voximplant_theme.dart';
 import 'package:audio_call/utils/navigation_helper.dart';
@@ -17,29 +15,28 @@ class ActiveCallPage extends StatefulWidget {
 }
 
 class _ActiveCallPageState extends State<ActiveCallPage> {
-  ActiveCallBloc _bloc;
-
-  _ActiveCallPageState();
+  late ActiveCallBloc _bloc;
 
   @override
   void initState() {
     super.initState();
     _bloc = BlocProvider.of<ActiveCallBloc>(context);
+    context.read<ActiveCallBloc>().add(ReadyToStartCallEvent());
   }
 
   @override
   Widget build(BuildContext context) {
-    void _hangup() => _bloc.add(HangupPressedEvent());
+    void hangup() => _bloc.add(HangupPressedEvent());
 
-    void _hold(bool hold) => _bloc.add(HoldPressedEvent(hold: hold));
+    void _hold(bool hold) => _bloc.add(HoldPressedEvent(hold));
 
-    void _mute(bool mute) => _bloc.add(MutePressedEvent(mute: mute));
+    void _mute(bool mute) => _bloc.add(MutePressedEvent(mute));
 
-    void _selectAudioDevice(VIAudioDevice device) => _bloc.add(
-          SelectAudioDevicePressedEvent(device: device),
+    void selectAudioDevice(VIAudioDevice device) => _bloc.add(
+          SelectAudioDevicePressedEvent(device),
         );
 
-    IconData _getIconForDevice(VIAudioDevice device) {
+    IconData getIconForDevice(VIAudioDevice device) {
       switch (device) {
         case VIAudioDevice.Bluetooth:
           return Icons.bluetooth_audio;
@@ -52,22 +49,22 @@ class _ActiveCallPageState extends State<ActiveCallPage> {
       }
     }
 
-    String _getNameForDevice(VIAudioDevice device) {
+    String getNameForDevice(VIAudioDevice device) {
       List<String> splitted = device.toString().split('.');
-      if (splitted != null && splitted.length >= 2) {
+      if (splitted.length >= 2) {
         return splitted[1];
       } else {
         return device.toString();
       }
     }
 
-    _showAvailableAudioDevices(List<VIAudioDevice> devices) {
+    showAvailableAudioDevices(List<VIAudioDevice> devices) {
       return showDialog<void>(
         context: context,
         barrierDismissible: true,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('Select audio device'),
+            title: const Text('Select audio device'),
             content: SingleChildScrollView(
               child: Container(
                 width: 100,
@@ -75,13 +72,13 @@ class _ActiveCallPageState extends State<ActiveCallPage> {
                 child: ListView.builder(
                   itemCount: devices.length,
                   itemBuilder: (_, int index) {
-                    return FlatButton(
+                    return TextButton(
                       child: Text(
-                        _getNameForDevice(devices[index]),
-                        style: TextStyle(fontSize: 16),
+                        getNameForDevice(devices[index]),
+                        style: const TextStyle(fontSize: 16),
                       ),
                       onPressed: () {
-                        _selectAudioDevice(devices[index]);
+                        selectAudioDevice(devices[index]);
                       },
                     );
                   },
@@ -111,7 +108,7 @@ class _ActiveCallPageState extends State<ActiveCallPage> {
         builder: (context, state) {
           return Scaffold(
             appBar: AppBar(
-              title: Text('Call'),
+              title: const Text('Call'),
             ),
             backgroundColor: VoximplantColors.white,
             body: SafeArea(
@@ -125,13 +122,13 @@ class _ActiveCallPageState extends State<ActiveCallPage> {
                       children: <Widget>[
                         Text(
                           state.endpointName,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 26,
                           ),
                         ),
                         Text(
                           state.callStatus,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 18,
                           ),
                         ),
@@ -151,7 +148,7 @@ class _ActiveCallPageState extends State<ActiveCallPage> {
                                 bottom: 20,
                               ),
                               child: Ink(
-                                decoration: ShapeDecoration(
+                                decoration: const ShapeDecoration(
                                   color: VoximplantColors.white,
                                   shape: CircleBorder(
                                     side: BorderSide(
@@ -181,7 +178,7 @@ class _ActiveCallPageState extends State<ActiveCallPage> {
                                 left: 20,
                               ),
                               child: Ink(
-                                decoration: ShapeDecoration(
+                                decoration: const ShapeDecoration(
                                   color: VoximplantColors.white,
                                   shape: CircleBorder(
                                     side: BorderSide(
@@ -211,7 +208,7 @@ class _ActiveCallPageState extends State<ActiveCallPage> {
                                 bottom: 20,
                               ),
                               child: Ink(
-                                decoration: ShapeDecoration(
+                                decoration: const ShapeDecoration(
                                   color: VoximplantColors.white,
                                   shape: CircleBorder(
                                     side: BorderSide(
@@ -223,13 +220,13 @@ class _ActiveCallPageState extends State<ActiveCallPage> {
                                 ),
                                 child: IconButton(
                                   onPressed: () {
-                                    _showAvailableAudioDevices(
+                                    showAvailableAudioDevices(
                                       state.availableAudioDevices,
                                     );
                                   },
                                   iconSize: 40,
                                   icon: Icon(
-                                    _getIconForDevice(state.activeAudioDevice),
+                                    getIconForDevice(state.activeAudioDevice),
                                     color: VoximplantColors.button,
                                   ),
                                   tooltip: 'Select audio device',
@@ -248,7 +245,7 @@ class _ActiveCallPageState extends State<ActiveCallPage> {
                         bottom: 20,
                       ),
                       child: Ink(
-                        decoration: ShapeDecoration(
+                        decoration: const ShapeDecoration(
                           color: VoximplantColors.white,
                           shape: CircleBorder(
                             side: BorderSide(
@@ -259,9 +256,9 @@ class _ActiveCallPageState extends State<ActiveCallPage> {
                           ),
                         ),
                         child: IconButton(
-                          onPressed: _hangup,
+                          onPressed: hangup,
                           iconSize: 40,
-                          icon: Icon(
+                          icon: const Icon(
                             Icons.call_end,
                             color: VoximplantColors.red,
                           ),

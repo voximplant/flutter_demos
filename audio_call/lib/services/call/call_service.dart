@@ -10,36 +10,36 @@ import 'package:audio_call/utils/notification_helper.dart';
 import 'package:flutter_voximplant/flutter_voximplant.dart';
 import 'package:meta/meta.dart';
 
-enum CallState { connecting, ringing, connected, ended }
+enum CallState { none, connecting, ringing, connected, ended }
 
 class CallService {
   final VIClient _client;
   final VIAudioDeviceManager _audioDeviceManager;
 
-  VICall _activeCall;
+  VICall? _activeCall;
   bool get hasActiveCall => _activeCall != null;
   bool get hasNoActiveCalls => _activeCall == null;
 
-  String get callKitUUID => _activeCall?.callKitUUID;
-  set callKitUUID(String uuid) => _activeCall?.callKitUUID = uuid;
+  String? get callKitUUID => _activeCall?.callKitUUID;
+  set callKitUUID(String? uuid) => _activeCall?.callKitUUID = uuid;
 
-  Function onIncomingCall;
+  Function? onIncomingCall;
 
-  StreamController<CallEvent> _callStreamController;
-  StreamController<AudioDeviceEvent> _audioDeviceStreamController;
+  StreamController<CallEvent> _callStreamController = StreamController.broadcast();
+  StreamController<AudioDeviceEvent> _audioDeviceStreamController = StreamController.broadcast();
 
   CallState get callState => _callState;
-  CallState _callState;
+  CallState _callState = CallState.none;
 
-  VIEndpoint get endpoint => _endpoint;
-  VIEndpoint _endpoint;
+  VIEndpoint? get endpoint => _endpoint;
+  VIEndpoint? _endpoint;
 
-  VIAudioDevice get activeAudioDevice => __activeAudioDevice;
-  VIAudioDevice __activeAudioDevice;
+  VIAudioDevice? get activeAudioDevice => __activeAudioDevice;
+  VIAudioDevice? __activeAudioDevice;
   set _activeAudioDevice(VIAudioDevice device) {
     _log('onAudioDeviceChanged');
     __activeAudioDevice = device;
-    _audioDeviceStreamController?.add(
+    _audioDeviceStreamController.add(
       OnActiveAudioDeviceChanged(
         device: device,
       ),
@@ -47,11 +47,11 @@ class CallService {
   }
 
   get availableAudioDevices => __availableAudioDevices;
-  List<VIAudioDevice> __availableAudioDevices;
+  late List<VIAudioDevice> __availableAudioDevices;
   set _availableAudioDevices(List<VIAudioDevice> devices) {
     _log('onAudioDeviceListChanged');
     __availableAudioDevices = devices;
-    _audioDeviceStreamController?.add(
+    _audioDeviceStreamController.add(
       OnAvailableAudioDevicesListChanged(
         devices: devices,
       ),
@@ -63,9 +63,10 @@ class CallService {
 
   final VIAudioFile _progressTone;
 
-  factory CallService() => _cache ?? CallService._();
-  static CallService _cache;
-
+  factory CallService() {
+    return _instance;
+  }
+  static final CallService _instance = CallService._();
   CallService._()
       : _client = Voximplant().getClient(defaultConfig),
         _audioDeviceManager = Voximplant().audioDeviceManager,
@@ -79,7 +80,6 @@ class CallService {
     _client.onPushDidExpire = _pushDidExpire;
     _configureAudioDevices();
     _configureAudioFiles();
-    _cache = this;
   }
 
   void _configureAudioFiles() async {
@@ -109,18 +109,18 @@ class CallService {
   }
 
   Stream<CallEvent> subscribeToCallEvents() {
-    _callStreamController?.close();
+    _callStreamController.close();
     _callStreamController = StreamController.broadcast();
-    return _callStreamController?.stream;
+    return _callStreamController.stream;
   }
 
   Stream<AudioDeviceEvent> subscribeToAudioDeviceEvents() {
-    _audioDeviceStreamController?.close();
+    _audioDeviceStreamController.close();
     _audioDeviceStreamController = StreamController.broadcast();
-    return _audioDeviceStreamController?.stream;
+    return _audioDeviceStreamController.stream;
   }
 
-  Future<void> makeCall({@required String callTo}) async {
+  Future<void> makeCall({required String callTo}) async {
     if (hasActiveCall) {
       throw ('There is already an active call');
     }
@@ -137,50 +137,50 @@ class CallService {
     }
     VICallSettings callSettings = VICallSettings();
     callSettings.videoFlags = _defaultFlags;
-    await _activeCall.answer(settings: callSettings);
+    await _activeCall?.answer(settings: callSettings);
   }
 
   Future<void> hangup() async {
     if (hasNoActiveCalls) {
       throw 'Tried to hangup having no active call';
     }
-    await _activeCall.hangup();
+    await _activeCall?.hangup();
   }
 
   Future<void> decline() async {
     if (hasNoActiveCalls) {
       throw 'Tried to decline having no active call';
     }
-    await _activeCall.decline();
+    await _activeCall?.decline();
   }
 
-  Future<void> muteCall({@required bool mute}) async {
+  Future<void> muteCall({required bool mute}) async {
     if (hasNoActiveCalls) {
       throw 'Tried to mute having no active call';
     }
-    await _activeCall.sendAudio(!mute);
-    _callStreamController?.add(OnMuteCallEvent(muted: mute));
+    await _activeCall?.sendAudio(!mute);
+    _callStreamController.add(OnMuteCallEvent(muted: mute));
   }
 
-  Future<void> holdCall({@required bool hold}) async {
+  Future<void> holdCall({required bool hold}) async {
     if (hasNoActiveCalls) {
       throw 'Tried to hold having no active call';
     }
-    await _activeCall.hold(hold);
-    _callStreamController?.add(OnHoldCallEvent(hold: hold));
+    await _activeCall?.hold(hold);
+    _callStreamController.add(OnHoldCallEvent(hold: hold));
   }
 
-  Future<void> selectAudioDevice({@required VIAudioDevice device}) async =>
+  Future<void> selectAudioDevice({required VIAudioDevice device}) async =>
       await _audioDeviceManager.selectAudioDevice(device);
 
   Future<void> _onIncomingCall(
       VIClient client,
       VICall call,
       bool video,
-      Map<String, String> headers,
+      Map<String, String>? headers,
       ) async {
     _log('_onIncomingCall');
-    if (hasActiveCall && _activeCall.callId != call.callId) {
+    if (hasActiveCall && _activeCall?.callId != call.callId) {
       await call.reject();
       return;
     }
@@ -188,14 +188,14 @@ class CallService {
     _callState = CallState.connecting;
     _endpoint = call.endpoints.first;
     _listenToActiveCallEvents();
-    _callStreamController?.add(
+    _callStreamController.add(
       OnIncomingCallEvent(
-        username: call?.endpoints?.first?.userName,
-        displayName: call?.endpoints?.first?.displayName,
+        username: call.endpoints.first.userName ?? 'Unknown user',
+        displayName: call.endpoints.first.displayName ?? 'Unknown user',
       ),
     );
     if (onIncomingCall != null) {
-      onIncomingCall();
+      onIncomingCall?.call();
       onIncomingCall = null;
     }
   }
@@ -209,22 +209,22 @@ class CallService {
   }
 
   void _pushDidExpire(VIClient client, String callKitUUID) {
-    _callStreamController?.add(
+    _callStreamController.add(
       OnDisconnectedCallEvent(answeredElsewhere: false),
     );
   }
 
   void _onCallDisconnected(
       VICall call,
-      Map<String, String> headers,
+      Map<String, String>? headers,
       bool answeredElsewhere,
       ) async {
     _log('onCallDisconnected');
-    if (call.callId == _activeCall.callId) {
+    if (call.callId == _activeCall?.callId) {
       _activeCall = null;
       _callState = CallState.ended;
       _endpoint = null;
-      _callStreamController?.add(
+      _callStreamController.add(
         OnDisconnectedCallEvent(answeredElsewhere: answeredElsewhere),
       );
       if (Platform.isAndroid) {
@@ -242,14 +242,14 @@ class CallService {
       VICall call,
       int code,
       String description,
-      Map<String, String> headers,
+      Map<String, String>? headers,
       ) async {
     _log('onCallFailed($code, $description)');
     if (call.callId == _activeCall?.callId) {
       _activeCall = null;
       _callState = CallState.ended;
       _endpoint = null;
-      _callStreamController?.add(OnFailedCallEvent(reason: description));
+      _callStreamController.add(OnFailedCallEvent(reason: description));
       try {
         await _progressTone.stop();
       } catch (e) {
@@ -258,26 +258,26 @@ class CallService {
     }
   }
 
-  void _onCallConnected(VICall call, Map<String, String> headers) async {
+  void _onCallConnected(VICall call, Map<String, String>? headers) async {
     _log('_onCallConnected');
     if (call.callId == _activeCall?.callId) {
       _activeCall = call;
       _callState = CallState.connected;
       _endpoint = call.endpoints.first;
-      _callStreamController?.add(
+      _callStreamController.add(
         OnConnectedCallEvent(
-          username: call.endpoints?.first?.userName,
-          displayName: call.endpoints?.first?.displayName,
+          username: call.endpoints.first.userName ?? 'Unknown user',
+          displayName: call.endpoints.first.displayName ?? 'Unknown user',
         ),
       );
     }
   }
 
-  void _onCallRinging(VICall call, Map<String, String> headers) async {
+  void _onCallRinging(VICall call, Map<String, String>? headers) async {
     _log('_onCallRinging');
-    if (call.callId == _activeCall.callId) {
+    if (call.callId == _activeCall?.callId) {
       _callState = CallState.ringing;
-      _callStreamController?.add(OnRingingCallEvent());
+      _callStreamController.add(OnRingingCallEvent());
       try {
         await _progressTone.play(true);
       } catch (e) {

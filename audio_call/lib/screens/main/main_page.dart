@@ -20,7 +20,7 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
-  MainBloc _bloc;
+  late MainBloc _bloc;
 
   final _callToController = TextEditingController();
 
@@ -58,26 +58,26 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    void _makeCall() {
+    void makeCall() {
       if (_callToController.text == '') {
         return;
       }
       _bloc.add(CheckPermissionsForCall());
     }
 
-    void _logout() => _bloc.add(LogOut());
+    void logout() => _bloc.add(LogOut());
 
-    void _showPermissionCheckError() {
+    void showPermissionCheckError() {
       showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: Text('Permissions missing'),
+            title: const Text('Permissions missing'),
             content:
-                Text('Please give "record audio" permissions to make calls'),
+                const Text('Please give "record audio" permissions to make calls'),
             actions: <Widget>[
-              FlatButton(
-                child: Text('Close'),
+              TextButton(
+                child: const Text('Close'),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
@@ -109,7 +109,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
           );
         }
         if (state is PermissionCheckFail) {
-          _showPermissionCheckError();
+          showPermissionCheckError();
         }
         if (state is IncomingCall) {
           Navigator.of(context).pushReplacementNamed(
@@ -125,11 +125,11 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
         builder: (context, state) {
           return Scaffold(
             appBar: AppBar(
-              title: Text('Voximplant'),
+              title: const Text('Voximplant'),
               actions: <Widget>[
                 IconButton(
-                  icon: Icon(Icons.exit_to_app),
-                  onPressed: _logout,
+                  icon: const Icon(Icons.exit_to_app),
+                  onPressed: logout,
                 )
               ],
             ),
@@ -148,7 +148,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                               labelText: 'user or number'),
                           Widgets.maxWidthRaisedButton(
                             text: 'Call',
-                            onPressed: _makeCall,
+                            onPressed: makeCall,
                           ),
                         ],
                       ),
@@ -157,10 +157,9 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                   Align(
                     alignment: Alignment.bottomCenter,
                     child: Padding(
-                      padding: EdgeInsets.only(bottom: 20),
+                      padding: const EdgeInsets.only(bottom: 20),
                       child: Text(
-                        state.myDisplayName != null &&
-                                state.myDisplayName.isNotEmpty
+                        state.myDisplayName.isNotEmpty
                             ? 'Logged in as ${state.myDisplayName}'
                             : '',
                       ),

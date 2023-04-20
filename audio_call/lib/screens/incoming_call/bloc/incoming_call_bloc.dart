@@ -12,43 +12,47 @@ import 'incoming_call_state.dart';
 class IncomingCallBloc extends Bloc<IncomingCallEvent, IncomingCallState> {
   final CallService _callService = CallService();
 
-  StreamSubscription _callStateSubscription;
+  StreamSubscription? _callStateSubscription;
 
   IncomingCallBloc() : super(IncomingCallState.callIncoming) {
     _callStateSubscription =
         _callService.subscribeToCallEvents().listen(onCallEvent);
-  }
-
-  @override
-  Stream<IncomingCallState> mapEventToState(IncomingCallEvent event) async* {
-    switch (event) {
-      case IncomingCallEvent.checkPermissions:
-        bool granted = await checkPermissions();
-        if (granted) {
-          yield IncomingCallState.permissionsGranted;
-        }
-        break;
-      case IncomingCallEvent.declineCall:
-        await _callService.decline();
-        yield IncomingCallState.callCancelled;
-        break;
-      case IncomingCallEvent.callDisconnected:
-        yield IncomingCallState.callCancelled;
-        break;
-    }
+    on<CheckPermissions>(_checkPermissions);
+    on<DeclineCall>(_declineCall);
+    on<CallDisconnected>(_callDisconnected);
   }
 
   @override
   Future<void> close() {
-    if (_callStateSubscription != null) {
-      _callStateSubscription.cancel();
-    }
+    _callStateSubscription?.cancel();
     return super.close();
+  }
+
+  Future<void> _checkPermissions(
+      CheckPermissions event,
+      Emitter<IncomingCallState> emit) async {
+    bool granted = await checkPermissions();
+    if (granted) {
+      emit(IncomingCallState.permissionsGranted);
+    }
+  }
+
+  Future<void> _declineCall(
+      DeclineCall event,
+      Emitter<IncomingCallState> emit) async {
+    await _callService.decline();
+    emit(IncomingCallState.callCancelled);
+  }
+
+  Future<void> _callDisconnected(
+      CallDisconnected event,
+      Emitter<IncomingCallState> emit) async {
+    emit(IncomingCallState.callCancelled);
   }
 
   void onCallEvent(CallEvent event) {
     if (event is OnDisconnectedCallEvent || event is OnFailedCallEvent) {
-      add(IncomingCallEvent.callDisconnected);
+      add(CallDisconnected());
     }
   }
 }

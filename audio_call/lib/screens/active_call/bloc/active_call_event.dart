@@ -8,53 +8,36 @@ import 'package:flutter_voximplant/flutter_voximplant.dart';
 abstract class ActiveCallEvent { }
 
 class ReadyToStartCallEvent implements ActiveCallEvent {
-  final bool isIncoming;
-  final String endpoint;
-
-  ReadyToStartCallEvent({
-    @required this.isIncoming,
-    @required this.endpoint,
-  });
+  ReadyToStartCallEvent();
 }
 
 class CallChangedEvent implements ActiveCallEvent {
   final CallEvent event;
-
-  CallChangedEvent({
-    @required this.event,
-  });
+  CallChangedEvent(this.event);
 }
 
 class AudioDevicesChanged implements ActiveCallEvent {
   final AudioDeviceEvent event;
 
-  AudioDevicesChanged({
-    @required this.event,
-  });
+  AudioDevicesChanged(this.event);
 }
 
 class HoldPressedEvent implements ActiveCallEvent {
   final bool hold;
 
-  HoldPressedEvent({
-    @required this.hold,
-  });
+  HoldPressedEvent(this.hold);
 }
 
 class SelectAudioDevicePressedEvent implements ActiveCallEvent {
   final VIAudioDevice device;
 
-  SelectAudioDevicePressedEvent({
-    @required this.device,
-  });
+  SelectAudioDevicePressedEvent(this.device);
 }
 
 class MutePressedEvent implements ActiveCallEvent {
   final bool mute;
 
-  MutePressedEvent({
-    @required this.mute,
-  });
+  MutePressedEvent(this.mute);
 }
 
 class HangupPressedEvent implements ActiveCallEvent { }

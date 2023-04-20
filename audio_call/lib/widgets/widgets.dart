@@ -5,13 +5,13 @@ import 'package:flutter/material.dart';
 
 class Widgets {
   static Widget textFormField({
-    @required TextEditingController controller,
-    @required bool darkBackground,
-    String labelText,
-    String suffixText,
+    required TextEditingController controller,
+    required bool darkBackground,
+    required String labelText,
+    String? suffixText,
     bool obscureText = false,
     TextInputType inputType = TextInputType.text,
-    FormFieldValidator<String> validator,
+    FormFieldValidator<String>? validator,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(
@@ -22,8 +22,8 @@ class Widgets {
         data: ThemeData(
           primaryColor:
               darkBackground ? VoximplantColors.white : VoximplantColors.button,
-          cursorColor:
-              darkBackground ? VoximplantColors.white : VoximplantColors.button,
+          // cursorColor:
+          //     darkBackground ? VoximplantColors.white : VoximplantColors.button,
           hintColor:
               darkBackground ? VoximplantColors.white : VoximplantColors.button,
         ),
@@ -60,8 +60,8 @@ class Widgets {
   }
 
   static Widget maxWidthRaisedButton({
-    @required String text,
-    @required VoidCallback onPressed,
+    required String text,
+    required VoidCallback onPressed,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(
@@ -71,9 +71,8 @@ class Widgets {
       child: SizedBox(
         width: double.infinity,
         height: 50,
-        child: RaisedButton(
-          textColor: VoximplantColors.white,
-          color: VoximplantColors.button,
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(textStyle: const TextStyle(color: VoximplantColors.white)),
           onPressed: onPressed,
           child: Text(text),
         ),
@@ -82,9 +81,9 @@ class Widgets {
   }
 
   static Widget textWithPadding({
-    @required String text,
-    Color textColor,
-    double fontSize,
+    required String text,
+    required Color textColor,
+    double fontSize = 30.0,
     double verticalPadding = 0.0,
     double horizontalPadding = 0.0,
   }) {
@@ -104,13 +103,13 @@ class Widgets {
   }
 
   static Widget iconButton({
-    @required IconData icon,
-    @required Color color,
-    @required String tooltip,
-    @required VoidCallback onPressed,
+    required IconData icon,
+    required Color color,
+    required String tooltip,
+    required VoidCallback onPressed,
   }) {
     return Ink(
-      decoration: ShapeDecoration(
+      decoration: const ShapeDecoration(
         color: VoximplantColors.white,
         shape: CircleBorder(),
       ),

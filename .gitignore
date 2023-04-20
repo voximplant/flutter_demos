@@ -2,3 +2,4 @@
 .idea/
 *.last_build_id
 
+**/google-services.json

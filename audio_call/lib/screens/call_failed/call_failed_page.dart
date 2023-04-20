@@ -25,27 +25,24 @@ class CallFailedPage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: <Widget>[
-              Container(
-                child: Column(
-                  children: <Widget>[
-                    Widgets.textWithPadding(
-                      text: 'Call failed',
-                      textColor: VoximplantColors.white,
-                      fontSize: 40,
-                    ),
-                    Widgets.textWithPadding(
-                      text: _endpoint,
-                      textColor: VoximplantColors.white,
-                      fontSize: 30,
-                      verticalPadding: 30,
-                    ),
-                    Widgets.textWithPadding(
-                      text: _failureReason,
-                      textColor: VoximplantColors.white,
-                      fontSize: 25,
-                    ),
-                  ],
-                ),
+              Column(
+                children: <Widget>[
+                  Widgets.textWithPadding(
+                    text: 'Call failed',
+                    textColor: VoximplantColors.white,
+                    fontSize: 40,
+                  ),
+                  Widgets.textWithPadding(
+                    text: _endpoint,
+                    textColor: VoximplantColors.white,
+                    verticalPadding: 30,
+                  ),
+                  Widgets.textWithPadding(
+                    text: _failureReason,
+                    textColor: VoximplantColors.white,
+                    fontSize: 25,
+                  ),
+                ],
               ),
               Widgets.iconButton(
                 icon: Icons.close,

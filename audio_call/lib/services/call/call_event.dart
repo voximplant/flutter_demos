@@ -9,8 +9,8 @@ class OnIncomingCallEvent implements CallEvent {
   final String displayName;
 
   OnIncomingCallEvent({
-    @required this.username,
-    @required this.displayName,
+    required this.username,
+    required this.displayName,
   });
 }
 
@@ -21,8 +21,8 @@ class OnConnectedCallEvent implements CallEvent {
   final String displayName;
 
   OnConnectedCallEvent({
-    @required this.username,
-    @required this.displayName,
+    required this.username,
+    required this.displayName,
   });
 }
 
@@ -30,7 +30,7 @@ class OnDisconnectedCallEvent implements CallEvent {
   final bool answeredElsewhere;
 
   OnDisconnectedCallEvent({
-    @required this.answeredElsewhere,
+    required this.answeredElsewhere,
   });
 }
 
@@ -38,7 +38,7 @@ class OnFailedCallEvent implements CallEvent {
   final String reason;
 
   OnFailedCallEvent({
-    @required this.reason,
+    required this.reason,
   });
 }
 
@@ -46,7 +46,7 @@ class OnHoldCallEvent implements CallEvent {
   final bool hold;
 
   OnHoldCallEvent({
-    @required this.hold,
+    required this.hold,
   });
 }
 
@@ -54,6 +54,6 @@ class OnMuteCallEvent implements CallEvent {
   final bool muted;
 
   OnMuteCallEvent({
-    @required this.muted,
+    required this.muted,
   });
 }

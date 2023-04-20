@@ -12,19 +12,19 @@ class NavigationHelper {
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
 
-  static Future<void> pushToIncomingCall({
-    @required String caller,
-  }) =>
-      navigatorKey.currentState.pushReplacementNamed(
-        AppRoutes.incomingCall,
-        arguments: IncomingCallPageArguments(endpoint: caller),
-      );
-
+  // static Future<void> pushToIncomingCall({
+  //   String? caller,
+  // }) =>
+  //     navigatorKey.currentState!.pushReplacementNamed(
+  //       AppRoutes.incomingCall,
+  //       arguments: IncomingCallPageArguments(endpoint: caller),
+  //     );
+  //
   static Future<void> pushToActiveCall({
-    @required bool isIncoming,
-    @required String callTo,
+    required bool isIncoming,
+    required String callTo,
   }) =>
-      navigatorKey.currentState.pushReplacementNamed(
+      navigatorKey.currentState!.pushReplacementNamed(
         AppRoutes.activeCall,
         arguments: ActiveCallPageArguments(
           isIncoming: isIncoming,
@@ -32,13 +32,13 @@ class NavigationHelper {
         ),
       );
 
-  static Future<void> pop() => navigatorKey.currentState.maybePop();
+  static Future<void> pop() => navigatorKey.currentState!.maybePop();
 }
 
 class AppRoutes {
-  static final String login = LoginPage.routeName;
-  static final String main = MainPage.routeName;
-  static final String incomingCall = IncomingCallPage.routeName;
-  static final String activeCall = ActiveCallPage.routeName;
-  static final String callFailed = CallFailedPage.routeName;
+  static const String login = LoginPage.routeName;
+  static const String main = MainPage.routeName;
+  static const String incomingCall = IncomingCallPage.routeName;
+  static const String activeCall = ActiveCallPage.routeName;
+  static const String callFailed = CallFailedPage.routeName;
 }

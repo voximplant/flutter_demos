@@ -9,7 +9,7 @@ class OnActiveAudioDeviceChanged implements AudioDeviceEvent {
   final VIAudioDevice device;
 
   OnActiveAudioDeviceChanged({
-    @required this.device,
+    required this.device,
   });
 }
 
@@ -17,6 +17,6 @@ class OnAvailableAudioDevicesListChanged implements AudioDeviceEvent {
   final List<VIAudioDevice> devices;
 
   OnAvailableAudioDevicesListChanged({
-    @required this.devices,
+    required this.devices,
   });
 }
