@@ -361,9 +361,10 @@ class CallKitService {
     if (call == null) {
       return;
     }
-    call.outgoing
-        ? await _reportOutgoingCallConnected()
-        : await _reportUpdated(username, displayName);
+    if (call.outgoing) {
+      await _reportOutgoingCallConnected();
+    }
+    await _reportUpdated(username, displayName);
   }
 
   Future<void> _reportOutgoingCallConnected() async {
