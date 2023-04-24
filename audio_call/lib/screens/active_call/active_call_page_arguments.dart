@@ -7,6 +7,6 @@ class ActiveCallPageArguments {
   bool isIncoming;
 
   ActiveCallPageArguments(
-      {@required this.endpoint,
-      @required this.isIncoming});
+      {required this.endpoint,
+      required this.isIncoming});
 }

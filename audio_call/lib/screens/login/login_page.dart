@@ -18,7 +18,7 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-  LoginBloc _bloc;
+  late LoginBloc _bloc;
 
   bool _isUsernameValid = true;
   bool _isPasswordValid = true;
@@ -27,6 +27,7 @@ class _LoginPageState extends State<LoginPage> {
   void initState() {
     super.initState();
     _bloc = BlocProvider.of<LoginBloc>(context);
+    context.read<LoginBloc>().add(LoadLastUser());
   }
 
   @override
@@ -38,29 +39,29 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    void _login() => _bloc.add(
+    void login() => _bloc.add(
           LoginWithPassword(
             username: _usernameController.text,
             password: _passwordController.text,
           ),
         );
 
-    void _handleLoginFailed(String errorCode, String errorDescription) {
+    void handleLoginFailed(String errorCode, String errorDescription) {
       if (errorCode == 'ERROR_INVALID_USERNAME') {
         setState(() => _isUsernameValid = false);
       } else if (errorCode == 'ERROR_INVALID_PASSWORD') {
         setState(() => _isPasswordValid = false);
       } else {
-        Scaffold.of(context).showSnackBar(
+        ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('$errorDescription'),
+            content: Text(errorDescription),
             backgroundColor: Colors.red,
           ),
         );
       }
     }
 
-    Widget _loginForm() {
+    Widget loginForm() {
       return Center(
         child: Form(
           key: _formKey,
@@ -71,7 +72,6 @@ class _LoginPageState extends State<LoginPage> {
               children: <Widget>[
                 Widgets.textWithPadding(
                   text: 'Audio call',
-                  fontSize: 30,
                   textColor: VoximplantColors.white,
                   verticalPadding: 30,
                 ),
@@ -94,7 +94,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 Widgets.maxWidthRaisedButton(
                   text: 'Log in',
-                  onPressed: _login,
+                  onPressed: login,
                 ),
               ],
             ),
@@ -103,8 +103,8 @@ class _LoginPageState extends State<LoginPage> {
       );
     }
 
-    Widget _loginInProgress() {
-      return Center(
+    Widget loginInProgress() {
+      return const Center(
         child: CircularProgressIndicator(),
       );
     }
@@ -115,7 +115,7 @@ class _LoginPageState extends State<LoginPage> {
           _usernameController.text = state.lastUser;
         }
         if (state is LoginFailure) {
-          _handleLoginFailed(state.errorCode, state.errorDescription);
+          handleLoginFailed(state.errorCode, state.errorDescription);
         }
         if (state is LoginSuccess) {
           setState(() {
@@ -126,8 +126,8 @@ class _LoginPageState extends State<LoginPage> {
         }
         if (state is! LoginInProgress && state is! LoginSuccess) {
           Future.delayed(
-            Duration(milliseconds: 100),
-            () => _formKey?.currentState?.validate(),
+            const Duration(milliseconds: 100),
+            () => _formKey.currentState?.validate(),
           );
         }
       },
@@ -137,8 +137,8 @@ class _LoginPageState extends State<LoginPage> {
             backgroundColor: VoximplantColors.primary,
             body: SafeArea(
               child: (state is LoginInProgress || state is LoginSuccess)
-                  ? _loginInProgress()
-                  : _loginForm(),
+                  ? loginInProgress()
+                  : loginForm(),
             ),
           );
         },

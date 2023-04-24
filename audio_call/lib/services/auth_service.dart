@@ -4,59 +4,69 @@ import 'package:audio_call/utils/log.dart';
 import 'package:flutter_voximplant/flutter_voximplant.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-typedef void Disconnected();
+typedef Disconnected = void Function();
 
 class AuthService {
   VIClient _client;
-  String _displayName;
+  String? _displayName;
 
-  String get displayName => _displayName;
-  Disconnected onDisconnected;
+  String? get displayName => _displayName;
+  Disconnected? onDisconnected;
 
-  String _voipToken;
+  String? _voipToken;
   set voipToken(token) {
     if (token == null || token == '') {
       _log('voip token cleared');
-      _client.unregisterFromPushNotifications(_voipToken);
+      final voipToken = _voipToken;
+      if (voipToken != null) {
+        _client.unregisterFromPushNotifications(voipToken);
+      }
     }
     _voipToken = token;
   }
 
   VIClientState clientState = VIClientState.Disconnected;
 
-  factory AuthService() => _cache ?? AuthService._();
-  static AuthService _cache;
+  factory AuthService() {
+    return _instance;
+  }
+  static final AuthService _instance = AuthService._();
   AuthService._() : _client = Voximplant().getClient(defaultConfig) {
     _log('initialize');
     _client.clientStateStream.listen((state) {
       clientState = state;
       _log('client state is changed to: $state');
       if (state == VIClientState.Disconnected && onDisconnected != null) {
-        onDisconnected();
+        onDisconnected?.call();
       }
     });
-    _cache = this;
   }
 
   Future<String> loginWithPassword(String username, String password) async {
     _log('loginWithPassword');
     VIClientState clientState = await _client.getClientState();
     if (clientState == VIClientState.LoggedIn) {
-      return _displayName;
+      final displayName = _displayName;
+      if (displayName != null) {
+        return displayName;
+      }
     }
     if (clientState == VIClientState.Disconnected) {
       await _client.connect();
     }
     VIAuthResult authResult = await _client.login(username, password);
     if (_voipToken != null) {
-      await _client.registerForPushNotifications(_voipToken);
+      final voipToken = _voipToken;
+      if (voipToken != null) {
+        await _client.registerForPushNotifications(voipToken);
+      }
     }
     await _saveAuthDetails(username, authResult.loginTokens);
     _displayName = authResult.displayName;
-    return _displayName;
+    return _displayName ?? "Unknown user";
   }
 
-  Future<String> loginWithAccessToken([String username]) async {
+  Future<String?> loginWithAccessToken() async {
     VIClientState clientState = await _client.getClientState();
     if (clientState == VIClientState.LoggedIn) {
       return _displayName;
@@ -68,27 +78,32 @@ class AuthService {
     }
     _log('loginWithAccessToken');
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    VILoginTokens loginTokens = _getAuthDetails(prefs);
-    String user = username ?? prefs.getString('username');
-
-    VIAuthResult authResult =
-        await _client.loginWithAccessToken(user, loginTokens.accessToken);
-    if (_voipToken != null) {
-      await _client.registerForPushNotifications(_voipToken);
+    final loginTokens = _getAuthDetails(prefs);
+    String? user = prefs.getString('username');
+    if (user != null && loginTokens != null) {
+      VIAuthResult authResult = await _client.loginWithAccessToken(user, loginTokens.accessToken);
+      await _saveAuthDetails(user, authResult.loginTokens);
+      _displayName = authResult.displayName;
     }
-    await _saveAuthDetails(user, authResult.loginTokens);
-    _displayName = authResult.displayName;
+    final voipToken = _voipToken;
+    if (voipToken != null) {
+      await _client.registerForPushNotifications(voipToken);
+    }
     return _displayName;
   }
 
   Future<void> logout() async {
     _log('logout');
     await _client.disconnect();
-    VILoginTokens loginTokens = VILoginTokens();
-    _saveAuthDetails(null, loginTokens);
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.remove('username');
+    prefs.remove('accessToken');
+    prefs.remove('refreshToken');
+    prefs.remove('accessExpire');
+    prefs.remove('refreshExpire');
   }
 
-  Future<String> getUsername() async {
+  Future<String?> getUsername() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('username')?.replaceAll('.voximplant.com', '');
   }
@@ -99,7 +114,10 @@ class AuthService {
   }
 
   Future<void> _saveAuthDetails(
-      String username, VILoginTokens loginTokens) async {
+      String username, VILoginTokens? loginTokens) async {
+    if (loginTokens == null) {
+      return;
+    }
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString('username', username);
     prefs.setString('accessToken', loginTokens.accessToken);
@@ -108,14 +126,21 @@ class AuthService {
     prefs.setInt('refreshExpire', loginTokens.refreshExpire);
   }
 
-  VILoginTokens _getAuthDetails(SharedPreferences prefs) {
-    VILoginTokens loginTokens = VILoginTokens();
-    loginTokens.accessToken = prefs.getString('accessToken');
-    loginTokens.accessExpire = prefs.getInt('accessExpire');
-    loginTokens.refreshExpire = prefs.getInt('refreshExpire');
-    loginTokens.refreshToken = prefs.getString('refreshToken');
-
-    return loginTokens;
+  VILoginTokens? _getAuthDetails(SharedPreferences prefs) {
+    final accessToken = prefs.getString('accessToken');
+    final refreshToken = prefs.getString('refreshToken');
+    final refreshExpire = prefs.getInt('refreshExpire');
+    final accessExpire = prefs.getInt('accessExpire');
+    if (accessToken != null && refreshToken != null && refreshExpire != null && accessExpire != null) {
+      VILoginTokens loginTokens = VILoginTokens(
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+        accessExpire: accessExpire,
+        refreshExpire: refreshExpire
+      );
+      return loginTokens;
+    }
+    return null;
   }
 
   Future<void> pushNotificationReceived(Map<String, dynamic> payload) async {

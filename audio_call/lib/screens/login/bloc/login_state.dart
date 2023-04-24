@@ -16,7 +16,7 @@ class LoginInitial extends LoginState {}
 
 class LoginLastUserLoaded extends LoginState {
   final String lastUser;
-  const LoginLastUserLoaded({@required this.lastUser});
+  const LoginLastUserLoaded({required this.lastUser});
 
   @override
   List<Object> get props => [lastUser];
@@ -31,8 +31,8 @@ class LoginFailure extends LoginState {
   final String errorDescription;
 
   const LoginFailure({
-    @required this.errorCode,
-    @required this.errorDescription,
+    required this.errorCode,
+    required this.errorDescription,
   });
 
   @override

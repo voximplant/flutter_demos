@@ -10,27 +10,27 @@ import 'package:flutter_voximplant/flutter_voximplant.dart';
 import 'package:uuid/uuid.dart';
 
 // to generate uuids for callKit
-var _uuid = Uuid();
+var _uuid = const Uuid();
 
 // to remember a call even when only uuid available
 class CallWrapper {
   final String uuid;
-  FCXCall call;
+  FCXCall? call;
 
   CallWrapper(this.uuid);
 
-  CallWrapper.withCall(this.call) : this.uuid = call.uuid;
+  CallWrapper.withCall(FCXCall this.call) : uuid = call.uuid;
 }
 
 class CallKitService {
-  final AuthService _authService;
-  final CallService _callService;
+  final AuthService _authService = AuthService();
+  final CallService _callService = CallService();
 
-  final FCXPlugin _plugin;
-  final FCXProvider _provider;
-  final FCXCallController _callController;
+  final FCXPlugin _plugin = FCXPlugin();
+  final FCXProvider _provider = FCXProvider();
+  final FCXCallController _callController = FCXCallController();
 
-  CallWrapper _activeCall;
+  CallWrapper? _activeCall;
 
   bool get _hasActiveCall => _activeCall != null;
 
@@ -39,24 +39,21 @@ class CallKitService {
   bool _callStarting = false;
 
   // To handle late push, which call already been ended
-  List<String> _endedCalls = [];
+  final List<String> _endedCalls = [];
 
   bool _alreadyEnded(String uuid) => _endedCalls.contains(uuid);
 
-  factory CallKitService() => _cache ?? CallKitService._();
-  static CallKitService _cache;
+  factory CallKitService() {
+    return _instance;
+  }
 
-  CallKitService._()
-      : this._authService = AuthService(),
-        this._callService = CallService(),
-        this._plugin = FCXPlugin(),
-        this._provider = FCXProvider(),
-        this._callController = FCXCallController() {
+  static final CallKitService _instance = CallKitService._();
+
+  CallKitService._() {
     _configure();
-    _cache = this;
     _callService.subscribeToCallEvents().listen((event) {
       if (event is OnDisconnectedCallEvent && _hasActiveCall) {
-        _reportEnded(_activeCall.uuid, FCXCallEndedReason.declinedElsewhere);
+        _reportEnded(_activeCall?.uuid, FCXCallEndedReason.declinedElsewhere);
       }
     });
   }
@@ -68,7 +65,7 @@ class CallKitService {
       }
       try {
         if (_hasActiveCall) {
-          if (_activeCall.uuid != uuid) {
+          if (_activeCall?.uuid != uuid) {
             await _reportEnded(uuid, FCXCallEndedReason.failed);
           }
           return;
@@ -85,7 +82,7 @@ class CallKitService {
 
     _provider.performStartCallAction = (startCallAction) async {
       if (_hasActiveCall) {
-        if (_activeCall.uuid != startCallAction.callUuid) {
+        if (_activeCall?.uuid != startCallAction.callUuid) {
           startCallAction.fail();
           return;
         }
@@ -124,8 +121,11 @@ class CallKitService {
             await _commitTransactions();
           } catch (e) {
             _log('There was an error $e, failing');
-            await _provider.reportCallEnded(
-                _callService.callKitUUID, null, FCXCallEndedReason.failed);
+            final callKitUUID = _callService.callKitUUID;
+            if (callKitUUID != null) {
+              await _provider.reportCallEnded(
+                  callKitUUID, null, FCXCallEndedReason.failed);
+            }
           }
         }
         loginAndCommitTransactions();
@@ -141,7 +141,7 @@ class CallKitService {
         return;
       }
 
-      Future<void> _end() async {
+      Future<void> end() async {
         try {
           (_activeCall?.call?.outgoing ?? false) ||
                   (_activeCall?.call?.hasConnected ?? false)
@@ -158,10 +158,10 @@ class CallKitService {
 
       // if already received call via Voximplant
       if (_callService.hasActiveCall) {
-        await _end();
+        await end();
         // else should wait till Voximplant send onIncomingCall
       } else {
-        _callService.onIncomingCall = () async => await _end();
+        _callService.onIncomingCall = () async => await end();
       }
     };
 
@@ -172,9 +172,9 @@ class CallKitService {
         return;
       }
 
-      NavigationHelper.pushToActiveCall(isIncoming: true, callTo: null);
+      NavigationHelper.pushToActiveCall(isIncoming: true, callTo: "");
 
-      Future<void> _answer() async {
+      Future<void> answer() async {
         try {
           await Voximplant().audioDeviceManager.callKitConfigureAudioSession();
           await _callService.answerCall();
@@ -187,10 +187,10 @@ class CallKitService {
 
       // if already received call via Voximplant
       if (_callService.hasActiveCall) {
-        await _answer();
+        await answer();
         // else should wait till Voximplant send onIncomingCall
       } else {
-        _callService.onIncomingCall = () async => await _answer();
+        _callService.onIncomingCall = () async => await answer();
       }
     };
 
@@ -244,8 +244,8 @@ class CallKitService {
         return;
       }
 
-      if (call.uuid == _activeCall.uuid) {
-        _activeCall.call = call;
+      if (call.uuid == _activeCall?.uuid) {
+        _activeCall?.call = call;
       } else {
         await _reportEnded(call.uuid, FCXCallEndedReason.failed);
       }
@@ -271,25 +271,46 @@ class CallKitService {
       List<FCXAction> actions = await transaction.getActions();
       for (final action in actions) {
         if (action is FCXStartCallAction) {
-          _provider.performStartCallAction(action);
+          final perform = _provider.performStartCallAction;
+          if (perform != null) {
+            perform(action);
+          }
         }
         if (action is FCXAnswerCallAction) {
-          _provider.performAnswerCallAction(action);
+          final perform = _provider.performAnswerCallAction;
+          if (perform != null) {
+            perform(action);
+          }
         }
         if (action is FCXEndCallAction) {
-          _provider.performEndCallAction(action);
+          final perform = _provider.performEndCallAction;
+          if (perform != null) {
+            perform(action);
+          }
         }
         if (action is FCXSetHeldCallAction) {
-          _provider.performSetHeldCallAction(action);
+          final perform = _provider.performSetHeldCallAction;
+          if (perform != null) {
+            perform(action);
+          }
         }
         if (action is FCXSetMutedCallAction) {
-          _provider.performSetMutedCallAction(action);
+          final perform = _provider.performSetMutedCallAction;
+          if (perform != null) {
+            perform(action);
+          }
         }
         if (action is FCXSetGroupCallAction) {
-          _provider.performSetGroupCallAction(action);
+          final perform = _provider.performSetGroupCallAction;
+          if (perform != null) {
+            perform(action);
+          }
         }
         if (action is FCXPlayDTMFCallAction) {
-          _provider.performPlayDTMFCallAction(action);
+          final perform = _provider.performPlayDTMFCallAction;
+          if (perform != null) {
+            perform(action);
+          }
         }
       }
     }
@@ -301,7 +322,7 @@ class CallKitService {
     String displayName,
   ) async {
     if (_hasActiveCall) {
-      if (_activeCall.uuid == uuid) {
+      if (_activeCall?.uuid == uuid) {
         return;
       } else {
         throw 'There is already an active call';
@@ -336,59 +357,72 @@ class CallKitService {
     if (_hasNoActiveCalls) {
       throw 'Active call is null, reportConnected failed';
     }
-    _activeCall.call.outgoing
+    final call = _activeCall?.call;
+    if (call == null) {
+      return;
+    }
+    call.outgoing
         ? await _reportOutgoingCallConnected()
         : await _reportUpdated(username, displayName);
   }
 
   Future<void> _reportOutgoingCallConnected() async {
-    if (_activeCall.call.hasConnected) {
+    final call = _activeCall?.call;
+    if (call == null || call.hasConnected) {
       return;
     }
-    await _provider.reportOutgoingCallConnected(_activeCall?.uuid, null);
+    await _provider.reportOutgoingCallConnected(call.uuid, null);
   }
 
-  Future<void> _reportUpdated(String username, String displayName) async =>
-      await _provider.reportCallUpdated(
-        _activeCall?.uuid,
-        FCXCallUpdate(
-          remoteHandle: FCXHandle(FCXHandleType.Generic, username),
-          hasVideo: false,
-          localizedCallerName: displayName,
-        ),
-      );
+  Future<void> _reportUpdated(String username, String displayName) async {
+    final call = _activeCall?.call;
+    if (call == null) {
+      return;
+    }
+    await _provider.reportCallUpdated(
+      call.uuid,
+      FCXCallUpdate(
+        remoteHandle: FCXHandle(FCXHandleType.Generic, username),
+        hasVideo: false,
+        localizedCallerName: displayName,
+      ),
+    );
+  }
 
   Future<void> holdCall(bool hold) async {
     if (_hasNoActiveCalls) {
       throw 'Active call is null, holdCall failed';
     }
-    if (!_activeCall.call.hasConnected) {
-      _log('Cant hold due to call not being connected yet');
+    final call = _activeCall?.call;
+    if (call == null || call.hasConnected) {
       return;
     }
     await _callController.requestTransactionWithAction(
-        FCXSetHeldCallAction(_activeCall.uuid, hold));
+        FCXSetHeldCallAction(call.uuid, hold));
   }
 
   Future<void> muteCall(bool mute) async {
     if (_hasNoActiveCalls) {
       throw 'Active call is null, muteCall failed';
     }
-    if (!_activeCall.call.hasConnected) {
-      _log('Cant mute due to call not being connected yet');
+    final call = _activeCall?.call;
+    if (call == null || call.hasConnected) {
       return;
     }
     await _callController.requestTransactionWithAction(
-        FCXSetMutedCallAction(_activeCall.uuid, mute));
+        FCXSetMutedCallAction(call.uuid, mute));
   }
 
   Future<void> endCall() async {
     if (_hasNoActiveCalls) {
       throw 'Active call is null, endCall failed';
     }
-
+    final call = _activeCall?.call;
+    if (call == null) {
+      return;
+    }
     await _callController
-        .requestTransactionWithAction(FCXEndCallAction(_activeCall.uuid));
+        .requestTransactionWithAction(FCXEndCallAction(call.uuid));
   }
 
   Future<void> reportCallEnded(
@@ -400,12 +434,12 @@ class CallKitService {
     if (!_alreadyEnded(uuid)) {
       _endedCalls.add(uuid);
     }
-    if (uuid == _activeCall.uuid) {
+    if (uuid == _activeCall?.uuid) {
       _activeCall = null;
     }
   }
 
-  Future<void> _reportEnded(String uuid, FCXCallEndedReason reason) async {
+  Future<void> _reportEnded(String? uuid, FCXCallEndedReason reason) async {
     if (uuid == null) {
       return;
     }
@@ -419,11 +453,14 @@ class CallKitService {
 
   Future<void> _failTransactions() async {
     List<FCXAction> actions = [];
-    (await _provider.getPendingTransactions())
-        .forEach((t) async => actions.addAll(await t.getActions()));
+    for (var transaction in (await _provider.getPendingTransactions())) {
+      actions.addAll(await transaction.getActions());
+    }
 
     if (actions.isNotEmpty) {
-      actions.forEach((a) async => await a.fail());
+      for (var action in actions) {
+        await action.fail();
+      }
     }
   }
 
