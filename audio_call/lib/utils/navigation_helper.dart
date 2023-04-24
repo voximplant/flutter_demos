@@ -12,14 +12,14 @@ class NavigationHelper {
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
 
-  // static Future<void> pushToIncomingCall({
-  //   String? caller,
-  // }) =>
-  //     navigatorKey.currentState!.pushReplacementNamed(
-  //       AppRoutes.incomingCall,
-  //       arguments: IncomingCallPageArguments(endpoint: caller),
-  //     );
-  //
+  static Future<void> pushToIncomingCall({
+    String? caller,
+  }) =>
+      navigatorKey.currentState!.pushReplacementNamed(
+        AppRoutes.incomingCall,
+        arguments: IncomingCallPageArguments(endpoint: caller ?? "User"),
+      );
+
   static Future<void> pushToActiveCall({
     required bool isIncoming,
     required String callTo,

@@ -31,7 +31,7 @@ class NotificationHelper {
       ),
       onDidReceiveNotificationResponse: (notificationResponse) async {
         _log('NotificationHelper onSelect $notificationResponse');
-        // await NavigationHelper.pushToIncomingCall(caller: notificationResponse.payload);
+        await NavigationHelper.pushToIncomingCall(caller: notificationResponse.payload);
         return Future.value();
       },
     );

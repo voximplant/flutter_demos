@@ -19,6 +19,7 @@ Future<void> onBackgroundMessage(RemoteMessage message) async {
     description: "from $displayName",
     payload: displayName,
   );
+  await AuthService().pushNotificationReceived(message.data);
 }
 
 class PushServiceAndroid {
@@ -42,33 +43,6 @@ class PushServiceAndroid {
     String? token = await _firebaseMessaging.getToken();
     _onToken(token);
   }
-
-  // static Future<void> backgroundMessageHandler(
-  //   Map<String, dynamic> message,
-  // ) async {
-  //   _log('onBackgroundMessage: $message');
-  //   if (!message.containsKey('data')) {
-  //     return Future.value();
-  //   }
-  //
-  //   final Map<String, dynamic> data =
-  //       Map<String, dynamic>.from(message['data']);
-  //
-  //   if (!data.containsKey('voximplant')) {
-  //     return Future.value();
-  //   }
-  //
-  //   await AuthService().pushNotificationReceived(data);
-  //
-  //   Map<String, dynamic> callDetails = jsonDecode(data['voximplant']);
-  //   final String displayName = callDetails['display_name'];
-  //
-  //   NotificationHelper().displayNotification(
-  //     title: 'Incoming call',
-  //     description: "from $displayName",
-  //     payload: displayName,
-  //   );
-  // }
 
   Future<void> _onMessage(RemoteMessage message) async {
     _log('PushServiceAndroid: onMessage data: ${message.data}');
