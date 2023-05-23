@@ -1,5 +1,8 @@
 /// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
 import 'dart:convert';
+import 'dart:async';
+import 'dart:isolate';
+import 'dart:ui';
 
 import 'package:audio_call/services/auth_service.dart';
 import 'package:audio_call/utils/log.dart';
@@ -7,19 +10,27 @@ import 'package:audio_call/utils/notification_helper.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_core/firebase_core.dart';
 
+final ReceivePort backgroundMessagePort = ReceivePort();
+const String backgroundMessageIsolateName = 'fcm_background_msg_isolate';
+
 @pragma('vm:entry-point')
 Future<void> onBackgroundMessage(RemoteMessage message) async {
   print('PushServiceAndroid: _onBackgroundMessage data: ${message.data}');
   await Firebase.initializeApp();
-  Map<String, dynamic> callDetails = jsonDecode(message.data['voximplant']);
-  final String displayName = callDetails['display_name'];
 
-  NotificationHelper().displayNotification(
-    title: 'Incoming call',
-    description: "from $displayName",
-    payload: displayName,
-  );
-  await AuthService().pushNotificationReceived(message.data);
+  final port = IsolateNameServer.lookupPortByName(backgroundMessageIsolateName);
+  if (port != null) {
+    port.send(message.data);
+  } else {
+    Map<String, dynamic> callDetails = jsonDecode(message.data['voximplant']);
+    final String displayName = callDetails['display_name'];
+    NotificationHelper().displayNotification(
+      title: 'Incoming call',
+      description: "from $displayName",
+      payload: displayName,
+    );
+    await AuthService().pushNotificationReceived(message.data);
+  }
 }
 
 class PushServiceAndroid {
@@ -42,6 +53,25 @@ class PushServiceAndroid {
     _firebaseMessaging.onTokenRefresh.listen(_onToken);
     String? token = await _firebaseMessaging.getToken();
     _onToken(token);
+
+    IsolateNameServer.registerPortWithName(
+      backgroundMessagePort.sendPort,
+      backgroundMessageIsolateName,
+    );
+
+    backgroundMessagePort.listen(backgroundMessagePortHandler);
+  }
+
+  void backgroundMessagePortHandler(message) async {
+    _log('firebase message received on main isolate $message');
+    await AuthService().pushNotificationReceived(message);
+    Map<String, dynamic> callDetails = jsonDecode(message['voximplant']);
+    final String displayName = callDetails['display_name'];
+    NotificationHelper().displayNotification(
+      title: 'Incoming call',
+      description: "from $displayName",
+      payload: displayName,
+    );
   }
 
   Future<void> _onMessage(RemoteMessage message) async {
