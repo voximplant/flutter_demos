@@ -332,7 +332,6 @@ class CallKitService {
     await _provider.reportNewIncomingCall(
       uuid,
       FCXCallUpdate(
-        remoteHandle: FCXHandle(FCXHandleType.Generic, username),
         supportsHolding: true,
         supportsGrouping: false,
         supportsUngrouping: false,
@@ -383,7 +382,6 @@ class CallKitService {
     await _provider.reportCallUpdated(
       call.uuid,
       FCXCallUpdate(
-        remoteHandle: FCXHandle(FCXHandleType.Generic, username),
         hasVideo: false,
         localizedCallerName: displayName,
       ),

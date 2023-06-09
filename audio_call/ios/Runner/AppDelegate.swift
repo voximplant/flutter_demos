@@ -53,7 +53,6 @@ import flutter_voximplant
         
         let callUpdate = CXCallUpdate()
         callUpdate.localizedCallerName = content.displayName
-        callUpdate.remoteHandle = CXHandle(type: .generic, value: content.fullUsername)
         callUpdate.supportsHolding = true
         callUpdate.supportsGrouping = false
         callUpdate.supportsUngrouping = false
@@ -83,10 +82,6 @@ fileprivate extension Dictionary where Key == AnyHashable {
 fileprivate extension Dictionary where Key == String {
     var displayName: String {
         self["display_name"] as! String
-    }
-    
-    var fullUsername: String {
-        self["userid"] as! String
     }
 }
 
