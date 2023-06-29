@@ -18,7 +18,7 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-  LoginBloc _bloc;
+  late LoginBloc _bloc;
 
   bool _isUsernameValid = true;
   bool _isPasswordValid = true;
@@ -123,7 +123,7 @@ class _LoginPageState extends State<LoginPage> {
         }
         if (state is! LoginInProgress && state is! LoginSuccess) {
           Future.delayed(Duration(milliseconds: 100),
-              () => _formKey?.currentState?.validate());
+              () => _formKey.currentState?.validate());
         }
       },
       child: BlocBuilder<LoginBloc, LoginState>(

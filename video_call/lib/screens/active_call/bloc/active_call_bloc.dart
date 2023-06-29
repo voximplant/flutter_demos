@@ -14,12 +14,15 @@ import 'package:video_call/utils/log.dart';
 
 class ActiveCallBloc extends Bloc<ActiveCallEvent, ActiveCallState> {
   final CallService _callService = CallService();
-  final CallKitService _callKitService =
+  final CallKitService? _callKitService =
       Platform.isIOS ? CallKitService() : null;
 
-  StreamSubscription _callStateSubscription;
+  StreamSubscription? _callStateSubscription;
 
-  ActiveCallBloc(bool isIncoming, String endpoint)
+  bool _isIncoming;
+  String _endpoint;
+
+  ActiveCallBloc(this._isIncoming, this._endpoint)
       : super(ActiveCallState(
           callStatus: 'Connecting',
           localVideoStreamID: null,
@@ -29,133 +32,144 @@ class ActiveCallBloc extends Bloc<ActiveCallEvent, ActiveCallState> {
           isMuted: false,
           endpointName: '',
         )) {
-    add(ReadyToStartCallEvent(isIncoming: isIncoming, endpoint: endpoint));
+    on<ReadyToStartCallEvent>(_readyToStartCall);
+    on<CallChangedEvent>(_handleCallChanged);
+    on<HoldPressedEvent>(_holdCall);
+    on<MutePressedEvent>(_muteAudio);
+    on<HangupPressedEvent>(_hangupCall);
+    on<SendVideoPressedEvent>(_sendVideo);
+    on<SwitchCameraPressedEvent>(_switchCamera);
   }
 
   @override
   Future<void> close() {
-    if (_callStateSubscription != null) {
-      _callStateSubscription.cancel();
-    }
+    _callStateSubscription?.cancel();
     return super.close();
   }
 
-  @override
-  Stream<ActiveCallState> mapEventToState(ActiveCallEvent event) async* {
-    if (event is ReadyToStartCallEvent) {
-      _callStateSubscription = _callService.subscribeToCallEvents().listen(
-        (event) {
-          add(CallChangedEvent(event: event));
-        },
-      );
-
-      try {
-        if (event.isIncoming) {
-          if (Platform.isAndroid) {
-            if (_callService.hasActiveCall) {
+  Future<void> _readyToStartCall(
+      ReadyToStartCallEvent event, Emitter<ActiveCallState> emit) async {
+    _callStateSubscription = _callService.subscribeToCallEvents().listen(
+      (event) {
+        add(CallChangedEvent(event: event));
+      },
+    );
+    try {
+      if (_isIncoming) {
+        if (Platform.isAndroid) {
+          if (_callService.hasActiveCall) {
+            await _callService.answerCall();
+          } else {
+            _callService.onIncomingCall = (_) async {
               await _callService.answerCall();
-            } else {
-              _callService.onIncomingCall = (_) async {
-                await _callService.answerCall();
-              };
-            }
-          }
-        } else /* if (direction == outgoing) */ {
-          if (Platform.isAndroid) {
-            await _callService.makeCall(callTo: event.endpoint);
-          } else if (Platform.isIOS) {
-            await _callKitService.startOutgoingCall(event.endpoint);
+            };
           }
         }
-        yield state.copyWith(
-          callStatus: _makeStringFromCallState(_callService.callState),
-          endpointName: _callService?.endpoint?.displayName ??
-              _callService?.endpoint?.userName ??
-              event.endpoint ??
-              '',
-          localVideoStreamID: _callService.localVideoStreamId,
-          remoteVideoStreamID: _callService.remoteVideoStreamId,
-        );
-      } catch (e) {
-        add(CallChangedEvent(event: OnFailedCallEvent(reason: e.toString())));
+      } else /* if (direction == outgoing) */ {
+        if (Platform.isAndroid) {
+          await _callService.makeCall(callTo: _endpoint);
+        } else if (Platform.isIOS) {
+          await _callKitService?.startOutgoingCall(_endpoint);
+        }
       }
-    } else if (event is CallChangedEvent) {
-      CallEvent callEvent = event.event;
+      emit(state.copyWith(
+        callStatus: _makeStringFromCallState(_callService.callState),
+        endpointName: _callService.endpoint?.displayName ??
+            _callService.endpoint?.userName ??
+            _endpoint,
+      ));
+    } catch (e) {
+      add(CallChangedEvent(event: OnFailedCallEvent(reason: e.toString())));
+    }
+  }
 
-      if (callEvent is OnFailedCallEvent) {
-        _log('onFailed event, reason: ${callEvent.reason}');
-        await _callKitService?.reportCallEnded(
-          reason: FCXCallEndedReason.failed,
-        );
-        yield CallEndedActiveCallState(
+  Future<void> _handleCallChanged(
+      CallChangedEvent event, Emitter<ActiveCallState> emit) async {
+    CallEvent callEvent = event.event;
+
+    if (callEvent is OnFailedCallEvent) {
+      _log('onFailed event');
+      await _callKitService?.reportCallEnded(
+        reason: FCXCallEndedReason.failed,
+      );
+      emit(CallEndedActiveCallState(
           reason: callEvent.reason,
-          endpointName: state.endpointName,
-          cameraType: state.cameraType,
           failed: true,
-        );
-      } else if (callEvent is OnDisconnectedCallEvent) {
-        _log('onDisconnected event');
-        if (Platform.isIOS) {
-          await _callKitService?.reportCallEnded(
-            reason: FCXCallEndedReason.remoteEnded,
-          );
-        }
-        yield CallEndedActiveCallState(
+          endpointName: state.endpointName,
+          cameraType: state.cameraType));
+    } else if (callEvent is OnDisconnectedCallEvent) {
+      _log('onDisconnected event');
+      await _callKitService?.reportCallEnded(
+        reason: FCXCallEndedReason.remoteEnded,
+      );
+      emit(CallEndedActiveCallState(
           reason: 'Disconnected',
           failed: false,
           endpointName: state.endpointName,
-          cameraType: state.cameraType,
-        );
-      } else if (callEvent is OnChangedLocalVideoCallEvent) {
-        _log('onChangedLocalVideo event');
-        yield state.copyWithLocalStream(callEvent.streamId);
-      } else if (callEvent is OnChangedRemoteVideoCallEvent) {
-        _log('onChangedRemoteVideo event');
-        yield state.copyWithRemoteStream(callEvent.streamId);
-      } else if (callEvent is OnHoldCallEvent) {
-        _log('onHold event');
-        bool isOnHold = callEvent.hold;
-        String status = isOnHold ? 'Is on hold' : 'Connected';
-        yield state.copyWith(isOnHold: isOnHold, callStatus: status);
-      } else if (callEvent is OnMuteCallEvent) {
-        _log('onMute event');
-        yield state.copyWith(isMuted: callEvent.muted);
-      } else if (callEvent is OnConnectedCallEvent) {
-        _log('onConnected event');
-        String name = callEvent.displayName ?? callEvent.username ?? '';
-        yield state.copyWith(callStatus: 'Connected', endpointName: name);
-        await _callKitService?.reportConnected(
-            callEvent.username,
-            callEvent.displayName,
-            state.localVideoStreamID != null ||
-                state.remoteVideoStreamID != null);
-      } else if (callEvent is OnRingingCallEvent) {
-        _log('onRinging event');
-        yield state.copyWith(callStatus: 'Ringing');
-      }
-    } else if (event is SendVideoPressedEvent) {
-      Platform.isIOS
-          ? await _callKitService.sendVideo(event.send)
-          : await _callService.sendVideo(send: event.send);
-    } else if (event is SwitchCameraPressedEvent) {
-      VICameraType cameraToSwitch = state.cameraType == VICameraType.Front
-          ? VICameraType.Back
-          : VICameraType.Front;
-      await Voximplant().cameraManager.selectCamera(cameraToSwitch);
-      yield state.copyWith(cameraType: cameraToSwitch);
-    } else if (event is HoldPressedEvent) {
-      Platform.isIOS
-          ? await _callKitService.holdCall(event.hold)
-          : await _callService.holdCall(hold: event.hold);
-    } else if (event is MutePressedEvent) {
-      Platform.isIOS
-          ? await _callKitService.muteCall(event.mute)
-          : await _callService.muteCall(mute: event.mute);
-    } else if (event is HangupPressedEvent) {
-      Platform.isIOS
-          ? await _callKitService.endCall()
-          : await _callService.hangup();
+          cameraType: state.cameraType));
+    } else if (callEvent is OnHoldCallEvent) {
+      _log('onHold event');
+      bool isOnHold = callEvent.hold;
+      String status = isOnHold ? 'Is on hold' : 'Connected';
+      emit(state.copyWith(isOnHold: isOnHold, callStatus: status));
+    } else if (callEvent is OnMuteCallEvent) {
+      _log('onMute event');
+      emit(state.copyWith(isMuted: callEvent.muted));
+    } else if (callEvent is OnConnectedCallEvent) {
+      _log('onConnected event');
+      String name = callEvent.displayName;
+      emit(state.copyWith(callStatus: 'Connected', endpointName: name));
+      await _callKitService?.reportConnected(
+        callEvent.username,
+        callEvent.displayName,
+      );
+    } else if (callEvent is OnRingingCallEvent) {
+      _log('onRinging event');
+      emit(state.copyWith(callStatus: 'Ringing'));
+    } else if (callEvent is OnChangedLocalVideoCallEvent) {
+      _log('onChangedLocalVideo event');
+      emit(state.copyWithLocalStream(callEvent.streamId));
+    } else if (callEvent is OnChangedRemoteVideoCallEvent) {
+      _log('onChangedRemoteVideo event');
+      emit(state.copyWithRemoteStream(callEvent.streamId));
     }
+  }
+
+  Future<void> _holdCall(
+      HoldPressedEvent event, Emitter<ActiveCallState> emit) async {
+    Platform.isIOS
+        ? await _callKitService?.holdCall(event.hold)
+        : await _callService.holdCall(hold: event.hold);
+  }
+
+  Future<void> _muteAudio(
+      MutePressedEvent event, Emitter<ActiveCallState> emit) async {
+    Platform.isIOS
+        ? await _callKitService?.muteCall(event.mute)
+        : await _callService.muteCall(mute: event.mute);
+  }
+
+  Future<void> _hangupCall(
+      HangupPressedEvent event, Emitter<ActiveCallState> emit) async {
+    Platform.isIOS
+        ? await _callKitService?.endCall()
+        : await _callService.hangup();
+  }
+
+  Future<void> _sendVideo(
+      SendVideoPressedEvent event, Emitter<ActiveCallState> emit) async {
+    Platform.isIOS
+        ? await _callKitService?.sendVideo(event.send)
+        : await _callService.sendVideo(send: event.send);
+  }
+
+  Future<void> _switchCamera(
+      SwitchCameraPressedEvent event, Emitter<ActiveCallState> emit) async {
+    VICameraType cameraToSwitch = state.cameraType == VICameraType.Front
+        ? VICameraType.Back
+        : VICameraType.Front;
+    await Voximplant().cameraManager.selectCamera(cameraToSwitch);
+    emit(state.copyWith(cameraType: cameraToSwitch));
   }
 
   String _makeStringFromCallState(CallState state) {

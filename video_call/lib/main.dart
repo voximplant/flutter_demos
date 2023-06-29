@@ -21,7 +21,7 @@ import 'package:video_call/utils/notification_helper.dart';
 
 class SimpleBlocDelegate extends BlocObserver {
   @override
-  void onEvent(Bloc bloc, Object event) {
+  void onEvent(Bloc bloc, Object? event) {
     super.onEvent(bloc, event);
     log(event);
   }
@@ -33,8 +33,8 @@ class SimpleBlocDelegate extends BlocObserver {
   }
 
   @override
-  void onError(Cubit cubit, Object error, StackTrace stackTrace) {
-    super.onError(cubit, error, stackTrace);
+  void onError(BlocBase bloc, Object error, StackTrace stackTrace) {
+    super.onError(bloc, error, stackTrace);
     log(error);
   }
 }
@@ -59,7 +59,7 @@ void main() {
 }
 
 class App extends StatelessWidget {
-  App({Key key}) : super(key: key);
+  const App({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +87,8 @@ class App extends StatelessWidget {
             ),
           );
         } else if (routeSettings.name == AppRoutes.activeCall) {
-          ActiveCallPageArguments arguments = routeSettings.arguments;
+          final routingArguments = routeSettings.arguments as ActiveCallPageArguments;
+          ActiveCallPageArguments arguments = routingArguments;
           return PageRouteBuilder(
             pageBuilder: (_, a1, a2) => BlocProvider<ActiveCallBloc>(
               create: (context) =>

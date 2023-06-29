@@ -15,36 +15,36 @@ abstract class MainState extends Equatable {
 }
 
 class MainInitial extends MainState {
-  const MainInitial({@required String myDisplayName}) : super(myDisplayName);
+  const MainInitial({required String myDisplayName}) : super(myDisplayName);
 }
 
 class PermissionCheckFail extends MainState {
-  const PermissionCheckFail({@required String myDisplayName})
+  const PermissionCheckFail({required String myDisplayName})
       : super(myDisplayName);
 }
 
 class PermissionCheckSuccess extends MainState {
-  const PermissionCheckSuccess({@required String myDisplayName})
+  const PermissionCheckSuccess({required String myDisplayName})
       : super(myDisplayName);
 }
 
 class LoggedOut extends MainState {
   final bool networkIssues;
-  const LoggedOut({@required this.networkIssues}) : super(null);
+  const LoggedOut({required this.networkIssues}) : super("");
 }
 
 class IncomingCall extends MainState {
   final String caller;
 
-  const IncomingCall({@required this.caller, @required String myDisplayName})
+  const IncomingCall({required this.caller, required String myDisplayName})
       : super(myDisplayName);
 }
 
 class ReconnectSuccess extends MainState {
-  const ReconnectSuccess({@required String myDisplayName})
+  const ReconnectSuccess({required String myDisplayName})
       : super(myDisplayName);
 }
 
 class ReconnectFailed extends MainState {
-  const ReconnectFailed() : super(null);
+  const ReconnectFailed() : super("");
 }

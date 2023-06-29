@@ -1,48 +1,82 @@
 /// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
 import 'dart:convert';
+import 'dart:async';
+import 'dart:isolate';
+import 'dart:ui';
 
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:video_call/services/auth_service.dart';
 import 'package:video_call/utils/log.dart';
 import 'package:video_call/utils/notification_helper.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_core/firebase_core.dart';
+
+final ReceivePort backgroundMessagePort = ReceivePort();
+const String backgroundMessageIsolateName = 'fcm_background_msg_isolate';
+
+@pragma('vm:entry-point')
+Future<void> onBackgroundMessage(RemoteMessage message) async {
+  print('PushServiceAndroid: _onBackgroundMessage data: ${message.data}');
+  await Firebase.initializeApp();
+
+  final port = IsolateNameServer.lookupPortByName(backgroundMessageIsolateName);
+  if (port != null) {
+    port.send(message.data);
+  } else {
+    Map<String, dynamic> callDetails = jsonDecode(message.data['voximplant']);
+    final String displayName = callDetails['display_name'];
+    NotificationHelper().displayNotification(
+      title: 'Incoming call',
+      description: "from $displayName",
+      payload: displayName,
+    );
+    await AuthService().pushNotificationReceived(message.data);
+  }
+}
 
 class PushServiceAndroid {
-  final FirebaseMessaging _firebaseMessaging;
+  late FirebaseMessaging _firebaseMessaging;
+  static final PushServiceAndroid _instance = PushServiceAndroid._();
 
-  factory PushServiceAndroid() => _cache ?? PushServiceAndroid._();
-  static PushServiceAndroid _cache;
-  PushServiceAndroid._() : _firebaseMessaging = FirebaseMessaging() {
+  factory PushServiceAndroid() {
+    return _instance;
+  }
+  PushServiceAndroid._() {
     _configure();
-    _cache = this;
   }
 
   Future<void> _configure() async {
     _log('configure');
-    _firebaseMessaging.configure(onBackgroundMessage: backgroundMessageHandler);
+    await Firebase.initializeApp();
+    _firebaseMessaging = FirebaseMessaging.instance;
+    FirebaseMessaging.onMessage.listen(_onMessage);
+    FirebaseMessaging.onBackgroundMessage(onBackgroundMessage);
     _firebaseMessaging.onTokenRefresh.listen(_onToken);
-    String token = await _firebaseMessaging.getToken();
+    String? token = await _firebaseMessaging.getToken();
     _onToken(token);
-    return Future.value();
+
+    IsolateNameServer.registerPortWithName(
+      backgroundMessagePort.sendPort,
+      backgroundMessageIsolateName,
+    );
+
+    backgroundMessagePort.listen(backgroundMessagePortHandler);
   }
 
-  static Future<void> backgroundMessageHandler(
-    Map<String, dynamic> message,
-  ) async {
-    _log('onBackgroundMessage: $message');
-    if (!message.containsKey('data')) {
-      return Future.value();
-    }
+  void backgroundMessagePortHandler(message) async {
+    _log('firebase message received on main isolate $message');
+    await AuthService().pushNotificationReceived(message);
+    Map<String, dynamic> callDetails = jsonDecode(message['voximplant']);
+    final String displayName = callDetails['display_name'];
+    NotificationHelper().displayNotification(
+      title: 'Incoming call',
+      description: "from $displayName",
+      payload: displayName,
+    );
+  }
 
-    final Map<String, dynamic> data =
-        Map<String, dynamic>.from(message['data']);
-
-    if (!data.containsKey('voximplant')) {
-      return Future.value();
-    }
-
-    await AuthService().pushNotificationReceived(data);
-
-    Map<String, dynamic> callDetails = jsonDecode(data['voximplant']);
+  Future<void> _onMessage(RemoteMessage message) async {
+    _log('PushServiceAndroid: onMessage data: ${message.data}');
+    Map<String, dynamic> callDetails = jsonDecode(message.data['voximplant']);
     final String displayName = callDetails['display_name'];
 
     NotificationHelper().displayNotification(
@@ -50,12 +84,10 @@ class PushServiceAndroid {
       description: "from $displayName",
       payload: displayName,
     );
-
-    return null;
   }
 
-  Future<void> _onToken(String token) async {
-    _log("onToken: " + token);
+  Future<void> _onToken(String? token) async {
+    _log("onToken: $token");
     AuthService().voipToken = token;
   }
 

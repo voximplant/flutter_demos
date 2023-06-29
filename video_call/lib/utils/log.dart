@@ -1,3 +1,3 @@
 void log<T>(T message) {
-  print('[AudioCallDemo] ${message.toString()}');
+  print('[VideoCallDemo] ${message.toString()}');
 }

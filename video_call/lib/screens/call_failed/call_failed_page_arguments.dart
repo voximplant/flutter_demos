@@ -6,7 +6,7 @@ class CallFailedPageArguments {
   final String endpoint;
 
   CallFailedPageArguments({
-    @required this.failureReason,
-    @required this.endpoint,
+    required this.failureReason,
+    required this.endpoint,
   });
 }

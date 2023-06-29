@@ -1,44 +1,48 @@
 /// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
-import 'package:flutter_voip_push_notification/flutter_voip_push_notification.dart';
+
 import 'package:video_call/services/auth_service.dart';
 import 'package:video_call/utils/log.dart';
+import 'package:flutter/services.dart';
 
 class PushServiceIOS {
-  final FlutterVoipPushNotification _voipPushNotification =
-      FlutterVoipPushNotification();
+  final MethodChannel _channel = const MethodChannel('plugins.voximplant.com/pushkit');
+  final EventChannel _pushKitEventChannel = const EventChannel('plugins.voximplant.com/pushkitevents');
 
-  factory PushServiceIOS() => _cache ?? PushServiceIOS._();
-  static PushServiceIOS _cache;
+  factory PushServiceIOS() {
+    return _instance;
+  }
+  static final PushServiceIOS _instance = PushServiceIOS._();
   PushServiceIOS._() {
+    _log('configure');
+    _pushKitEventChannel.receiveBroadcastStream('pushkit').listen(_pushKitEventListener);
     _configure();
-    _cache = this;
   }
 
   Future<void> _configure() async {
-    _log('configure');
-    await _voipPushNotification.requestNotificationPermissions();
-    // listen to voip device token changes
-    _voipPushNotification.onTokenRefresh.listen(_onToken);
-    // do configure voip push
-    _voipPushNotification.configure(onMessage: onMessage, onResume: onResume);
+    final token = await _channel.invokeMethod("voipToken");
+    if (token != null) {
+      _log('configure: token $token}');
+      AuthService().voipToken = token;
+    }
   }
 
-  Future<void> onMessage(bool isLocal, Map<String, dynamic> payload) {
-    // handle foreground notification
-    _log('onMessage: $payload');
-    AuthService().pushNotificationReceived(payload);
-    return Future.value();
-  }
-
-  Future<void> onResume(bool isLocal, Map<String, dynamic> payload) {
-    // handle background notification
-    _log('onResume: $payload');
-    return Future.value();
-  }
-
-  Future<void> _onToken(String token) async {
-    _log('onToken: $token');
-    AuthService().voipToken = token;
+  void _pushKitEventListener(dynamic event) {
+    final Map<dynamic, dynamic> map = event;
+    if (map['event'] == 'didUpdatePushCredentials') {
+      final token = map["token"];
+      if (token != null) {
+        _log('didUpdatePushCredentials: token $token}');
+        AuthService().voipToken = token;
+      }
+    }
+    if (map['event'] == 'didReceiveIncomingPushWithPayload') {
+      final payload = map['payload'];
+      if (payload != null) {
+        _log('didReceiveIncomingPushWithPayload: payload $payload}');
+        Map<String, dynamic> pushPayload = Map<String, dynamic>.from(payload);
+        AuthService().pushNotificationReceived(pushPayload);
+      }
+    }
   }
 
   void _log<T>(T message) {

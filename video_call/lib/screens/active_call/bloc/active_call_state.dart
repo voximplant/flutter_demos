@@ -7,29 +7,29 @@ import 'package:meta/meta.dart';
 class ActiveCallState implements Equatable {
   final String callStatus;
   final String endpointName;
-  final String localVideoStreamID;
-  final String remoteVideoStreamID;
+  final String? localVideoStreamID;
+  final String? remoteVideoStreamID;
   final VICameraType cameraType;
   final bool isOnHold;
   final bool isMuted;
 
   ActiveCallState(
-      {@required this.callStatus,
-      @required this.endpointName,
-      @required this.localVideoStreamID,
-      @required this.remoteVideoStreamID,
-      @required this.cameraType,
-      @required this.isOnHold,
-      @required this.isMuted});
+      {required this.callStatus,
+      required this.endpointName,
+      required this.localVideoStreamID,
+      required this.remoteVideoStreamID,
+      required this.cameraType,
+      required this.isOnHold,
+      required this.isMuted});
 
   ActiveCallState copyWith({
-    String endpointName,
-    String callStatus,
-    String localVideoStreamID,
-    String remoteVideoStreamID,
-    VICameraType cameraType,
-    bool isOnHold,
-    bool isMuted,
+    String? endpointName,
+    String? callStatus,
+    String? localVideoStreamID,
+    String? remoteVideoStreamID,
+    VICameraType? cameraType,
+    bool? isOnHold,
+    bool? isMuted,
   }) =>
       ActiveCallState(
         endpointName: endpointName ?? this.endpointName,
@@ -41,7 +41,7 @@ class ActiveCallState implements Equatable {
         isMuted: isMuted ?? this.isMuted,
       );
 
-  ActiveCallState copyWithLocalStream(String localVideoStreamID) =>
+  ActiveCallState copyWithLocalStream(String? localVideoStreamID) =>
       ActiveCallState(
         callStatus: this.callStatus,
         endpointName: this.endpointName,
@@ -52,7 +52,7 @@ class ActiveCallState implements Equatable {
         isMuted: this.isMuted,
       );
 
-  ActiveCallState copyWithRemoteStream(String remoteVideoStreamID) =>
+  ActiveCallState copyWithRemoteStream(String? remoteVideoStreamID) =>
       ActiveCallState(
         callStatus: this.callStatus,
         endpointName: this.endpointName,
@@ -64,8 +64,13 @@ class ActiveCallState implements Equatable {
       );
 
   @override
-  List<Object> get props =>
-      [callStatus, localVideoStreamID, remoteVideoStreamID, isOnHold, isMuted];
+  List<Object> get props => [
+        callStatus,
+        localVideoStreamID ?? "",
+        remoteVideoStreamID ?? "",
+        isOnHold,
+        isMuted
+      ];
 
   @override
   bool get stringify => true;
@@ -90,10 +95,10 @@ class CallEndedActiveCallState extends ActiveCallState {
   final String reason;
 
   CallEndedActiveCallState(
-      {@required this.reason,
-      @required this.failed,
-      @required endpointName,
-      @required VICameraType cameraType})
+      {required this.reason,
+      required this.failed,
+      required endpointName,
+      required VICameraType cameraType})
       : super(
           callStatus: failed ? 'Failed' : 'Disconnected',
           localVideoStreamID: null,

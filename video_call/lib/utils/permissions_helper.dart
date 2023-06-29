@@ -6,7 +6,7 @@ Future<bool> checkPermissions() async {
   if (Platform.isAndroid) {
     PermissionStatus recordAudio = await Permission.microphone.status;
     PermissionStatus camera = await Permission.camera.status;
-    List<Permission> requestPermissions = List();
+    List<Permission> requestPermissions = [];
     if (recordAudio != PermissionStatus.granted) {
       requestPermissions.add(Permission.microphone);
     }
@@ -17,7 +17,7 @@ Future<bool> checkPermissions() async {
       return true;
     } else {
       Map<Permission, PermissionStatus> result =
-          await requestPermissions.request();
+      await requestPermissions.request();
       if (result[Permission.microphone] != PermissionStatus.granted ||
           result[Permission.camera] != PermissionStatus.granted) {
         return false;

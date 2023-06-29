@@ -15,7 +15,7 @@ class IncomingCallPage extends StatefulWidget {
 
   final String _endpoint;
 
-  IncomingCallPage({@required IncomingCallPageArguments arguments})
+  IncomingCallPage({required IncomingCallPageArguments arguments})
       : _endpoint = arguments.endpoint;
 
   @override
@@ -25,7 +25,7 @@ class IncomingCallPage extends StatefulWidget {
 class _IncomingCallPageState extends State<IncomingCallPage> {
   final String _endpoint;
 
-  IncomingCallBloc _bloc;
+  late IncomingCallBloc _bloc;
 
   @override
   void initState() {
@@ -37,9 +37,9 @@ class _IncomingCallPageState extends State<IncomingCallPage> {
 
   @override
   Widget build(BuildContext context) {
-    void _answerCall() => _bloc.add(IncomingCallEvent.checkPermissions);
+    void answerCall() => _bloc.add(CheckPermissions());
 
-    void _declineCall() => _bloc.add(IncomingCallEvent.declineCall);
+    void declineCall() => _bloc.add(DeclineCall());
 
     return BlocListener<IncomingCallBloc, IncomingCallState>(
       listener: (context, state) {
@@ -79,12 +79,12 @@ class _IncomingCallPageState extends State<IncomingCallPage> {
                             icon: Icons.call,
                             color: VoximplantColors.button,
                             tooltip: 'Answer',
-                            onPressed: _answerCall),
+                            onPressed: answerCall),
                         Widgets.iconButton(
                             icon: Icons.call_end,
                             color: VoximplantColors.red,
                             tooltip: 'Decline',
-                            onPressed: _declineCall)
+                            onPressed: declineCall)
                       ],
                     ),
                   ),

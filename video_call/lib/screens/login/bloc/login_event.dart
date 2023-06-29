@@ -9,13 +9,13 @@ abstract class LoginEvent extends Equatable {
   List<Object> get props => [];
 }
 
-class LoadLastUser extends LoginEvent { }
+class LoadLastUser extends LoginEvent {}
 
 class LoginWithPassword extends LoginEvent {
   final String username;
   final String password;
 
-  LoginWithPassword({@required this.username, @required this.password});
+  const LoginWithPassword({required this.username, required this.password});
 
   @override
   List<Object> get props => [username, password];
@@ -25,4 +25,4 @@ class LoginWithPassword extends LoginEvent {
       'username: $username, password: *****';
 }
 
-class Dispose extends LoginEvent { }
+class Dispose extends LoginEvent {}

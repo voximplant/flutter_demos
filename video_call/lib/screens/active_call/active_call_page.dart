@@ -18,7 +18,7 @@ class ActiveCallPage extends StatefulWidget {
 }
 
 class _ActiveCallPageState extends State<ActiveCallPage> {
-  ActiveCallBloc _bloc;
+  late ActiveCallBloc _bloc;
 
   VIVideoViewController _localVideoViewController = VIVideoViewController();
   VIVideoViewController _remoteVideoViewController = VIVideoViewController();
@@ -26,12 +26,11 @@ class _ActiveCallPageState extends State<ActiveCallPage> {
   double _localVideoAspectRatio = 1.0;
   double _remoteVideoAspectRatio = 1.0;
 
-  _ActiveCallPageState();
-
   @override
   void initState() {
     super.initState();
     _bloc = BlocProvider.of<ActiveCallBloc>(context);
+    context.read<ActiveCallBloc>().add(ReadyToStartCallEvent());
     _localVideoViewController.addListener(_localVideoHasChanged);
     _remoteVideoViewController.addListener(_remoteVideoHasChanged);
   }

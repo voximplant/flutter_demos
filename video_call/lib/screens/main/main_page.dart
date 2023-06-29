@@ -20,7 +20,7 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
-  MainBloc _bloc;
+  late MainBloc _bloc;
 
   final _callToController = TextEditingController();
 
@@ -157,8 +157,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver {
                     child: Padding(
                       padding: EdgeInsets.only(bottom: 20),
                       child: Text(
-                        state.myDisplayName != null &&
-                                state.myDisplayName.isNotEmpty
+                        state.myDisplayName.isNotEmpty
                             ? 'Logged in as ${state.myDisplayName}'
                             : '',
                       ),

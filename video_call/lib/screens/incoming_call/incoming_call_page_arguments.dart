@@ -3,5 +3,5 @@
 class IncomingCallPageArguments {
   String endpoint;
 
-  IncomingCallPageArguments({this.endpoint});
+  IncomingCallPageArguments({required this.endpoint});
 }

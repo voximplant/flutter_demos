@@ -9,21 +9,21 @@ import 'package:video_call/screens/main/main_page.dart';
 
 class NavigationHelper {
   static final GlobalKey<NavigatorState> navigatorKey =
-      GlobalKey<NavigatorState>();
+  GlobalKey<NavigatorState>();
 
   static Future<void> pushToIncomingCall({
-    @required String caller,
+    String? caller,
   }) =>
-      navigatorKey.currentState.pushReplacementNamed(
+      navigatorKey.currentState!.pushReplacementNamed(
         AppRoutes.incomingCall,
-        arguments: IncomingCallPageArguments(endpoint: caller),
+        arguments: IncomingCallPageArguments(endpoint: caller ?? "User"),
       );
 
   static Future<void> pushToActiveCall({
-    @required bool isIncoming,
-    @required String callTo,
+    required bool isIncoming,
+    required String callTo,
   }) =>
-      navigatorKey.currentState.pushReplacementNamed(
+      navigatorKey.currentState!.pushReplacementNamed(
         AppRoutes.activeCall,
         arguments: ActiveCallPageArguments(
           isIncoming: isIncoming,
@@ -31,7 +31,7 @@ class NavigationHelper {
         ),
       );
 
-  static Future<void> pop() => navigatorKey.currentState.maybePop();
+  static Future<void> pop() => navigatorKey.currentState!.maybePop();
 }
 
 class AppRoutes {

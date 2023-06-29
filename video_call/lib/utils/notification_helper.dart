@@ -13,42 +13,45 @@ class NotificationHelper {
   int _notificationId = 100;
   final FlutterLocalNotificationsPlugin _plugin;
 
-  factory NotificationHelper() => _cached ?? NotificationHelper._();
-  static NotificationHelper _cached;
+  static final NotificationHelper _instance = NotificationHelper._();
+
+  factory NotificationHelper() {
+    return _instance;
+  }
+
   NotificationHelper._() : _plugin = FlutterLocalNotificationsPlugin() {
     _configure();
-    _cached = this;
   }
 
   Future<void> _configure() async {
     print('NotificationHelper: _configure');
     await _plugin.initialize(
-      InitializationSettings(
+      const InitializationSettings(
         android: AndroidInitializationSettings('ic_notification'),
       ),
-      onSelectNotification: (payload) async {
-        print('NotificationHelper onSelect $payload');
-        await NavigationHelper.pushToIncomingCall(caller: payload);
+      onDidReceiveNotificationResponse: (notificationResponse) async {
+        _log('NotificationHelper onSelect $notificationResponse');
+        await NavigationHelper.pushToIncomingCall(caller: notificationResponse.payload);
         return Future.value();
       },
     );
   }
 
   Future<void> displayNotification({
-    @required String title,
-    @required String description,
-    String payload,
+    required String title,
+    required String description,
+    required String payload,
   }) async {
     _log('displayNotification title: $title, description: $description');
     await _plugin.show(
       _notificationId,
       title,
       description,
-      NotificationDetails(
+      const NotificationDetails(
         android: AndroidNotificationDetails(
           'VoximplantChannelIncomingCalls',
           'CallChannel',
-          'Incoming calls notifications',
+          channelDescription: 'Incoming calls notifications',
           importance: Importance.max,
           priority: Priority.max,
           ticker: 'incoming call',
@@ -56,7 +59,7 @@ class NotificationHelper {
       ),
       payload: payload,
     );
-    Timer(Duration(seconds: 15), () {
+    Timer(const Duration(seconds: 15), () {
       cancelNotification();
     });
   }
@@ -65,13 +68,14 @@ class NotificationHelper {
     await _plugin.cancelAll();
   }
 
-  Future<bool> didNotificationLaunchApp() async {
+  Future<bool?> didNotificationLaunchApp() async {
     var details = await _plugin.getNotificationAppLaunchDetails();
-    _log('didNotificationLaunchApp: ${details.didNotificationLaunchApp}');
-    return details.didNotificationLaunchApp;
+    _log('didNotificationLaunchApp: ${details?.didNotificationLaunchApp}');
+    return details?.didNotificationLaunchApp;
   }
 
   void _log<T>(T message) {
     log('NotificationHelper($hashCode): ${message.toString()}');
   }
 }
+

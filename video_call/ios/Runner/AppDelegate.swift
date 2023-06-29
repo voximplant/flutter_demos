@@ -1,53 +1,43 @@
+import UIKit
 import Flutter
 import PushKit
-import CallKit
 import flutter_callkit_voximplant
-import flutter_voip_push_notification
-import shared_preferences
 import flutter_voximplant
-import permission_handler
 
 @UIApplicationMain
-final class AppDelegate: FlutterAppDelegate, PKPushRegistryDelegate {
+@objc class AppDelegate: FlutterAppDelegate, PKPushRegistryDelegate {
+    private let voipRegistry: PKPushRegistry = PKPushRegistry(queue: .main)
 
     override func application(
         _ application: UIApplication,
-        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
-        // Registering plugins manually, because on iOS FLTFirebaseMessagingPlugin and FlutterLocalNotificationsPlugin
-        // are not used and should not be registered
-        FlutterCallkitPlugin.register(with: registrar(forPlugin: "FlutterCallkitPlugin")!)
-        FlutterVoipPushNotificationPlugin.register(with: registrar(forPlugin: "FlutterVoipPushNotificationPlugin")!)
-        VoximplantPlugin.register(with: registrar(forPlugin: "VoximplantPlugin")!)
-        PermissionHandlerPlugin.register(with: registrar(forPlugin: "PermissionHandlerPlugin")!)
-        FLTSharedPreferencesPlugin.register(with: registrar(forPlugin: "FLTSharedPreferencesPlugin")!)
+        GeneratedPluginRegistrant.register(with: self)
+        PushKitPlugin.register(with: self.registrar(forPlugin: "PushKitPlugin")!)
+
+        PushKitPlugin.shared.setPKPushRegistry(voipRegistry)
+        voipRegistry.delegate = self
+        voipRegistry.desiredPushTypes = [.voIP]
+
         return super.application(application, didFinishLaunchingWithOptions: launchOptions)
     }
-    
-    // MARK: - PKPushRegistryDelegate -
+
+
     func pushRegistry(_ registry: PKPushRegistry, didUpdate pushCredentials: PKPushCredentials, for type: PKPushType) {
-        FlutterVoipPushNotificationPlugin.didUpdate(pushCredentials, forType: type.rawValue)
+        PushKitPlugin.shared.updatePushCredentials(pushCredentials, for: type)
     }
-    
-    func pushRegistry(_ registry: PKPushRegistry,
-                      didReceiveIncomingPushWith payload: PKPushPayload,
-                      for type: PKPushType
-    ) {
-        processPush(with: payload, type: type, and: nil)
-    }
-    
+
     func pushRegistry(_ registry: PKPushRegistry,
                       didReceiveIncomingPushWith payload: PKPushPayload,
                       for type: PKPushType,
-                      completion: @escaping () -> Void
-    ) {
+                      completion: @escaping () -> Void) {
         processPush(with: payload, type: type, and: completion)
     }
-    
+
     private func processPush(with payload: PKPushPayload, type: PKPushType, and completion: (() -> Void)?) {
         print("Push received: \(payload)")
-        
-        FlutterVoipPushNotificationPlugin.didReceiveIncomingPush(with: payload, forType: type.rawValue)
+
+        PushKitPlugin.shared.reportIncomingPushWith(payload: payload, for: type)
 
         let callKitPlugin = FlutterCallkitPlugin.sharedInstance
 
@@ -60,21 +50,19 @@ final class AppDelegate: FlutterAppDelegate, PKPushRegistryDelegate {
             completion?()
             return
         }
-        
+
         let callUpdate = CXCallUpdate()
         callUpdate.localizedCallerName = content.displayName
-        callUpdate.remoteHandle = CXHandle(type: .generic, value: content.fullUsername)
         callUpdate.supportsHolding = true
         callUpdate.supportsGrouping = false
         callUpdate.supportsUngrouping = false
         callUpdate.supportsDTMF = false
-        callUpdate.hasVideo = content.isVideoCall
-        
+        callUpdate.hasVideo = false
+
         let configuration = CXProviderConfiguration(localizedName: "VideoCall")
         if #available(iOS 11.0, *) {
             configuration.includesCallsInRecents = true
         }
-        configuration.supportsVideo = content.isVideoCall
         callKitPlugin.reportNewIncomingCall(
             with: callUUID,
             callUpdate: callUpdate,
@@ -94,12 +82,91 @@ fileprivate extension Dictionary where Key == String {
     var displayName: String {
         self["display_name"] as! String
     }
-    
+
     var fullUsername: String {
         self["userid"] as! String
     }
-    
+
     var isVideoCall: Bool {
         self["video"] as! Bool
+    }
+}
+
+class PushKitPlugin: NSObject, FlutterPlugin, FlutterStreamHandler {
+    static let shared = PushKitPlugin()
+    private var pushKitEventChannel: FlutterEventChannel?
+    private var eventSink: FlutterEventSink?
+    private var voipRegistry: PKPushRegistry?
+
+    public static func register(with registrar: FlutterPluginRegistrar) {
+        print("YULIA: register")
+        let channel = FlutterMethodChannel(name: "plugins.voximplant.com/pushkit", binaryMessenger: registrar.messenger())
+        let instance = PushKitPlugin.shared
+        instance.setup(with: registrar)
+        registrar.addMethodCallDelegate(instance, channel: channel)
+    }
+
+    private override init() {
+        super.init()
+    }
+
+    private func setup(with registrar: FlutterPluginRegistrar) {
+        pushKitEventChannel = FlutterEventChannel(name: "plugins.voximplant.com/pushkitevents", binaryMessenger: registrar.messenger())
+        pushKitEventChannel?.setStreamHandler(self)
+    }
+
+    public func setPKPushRegistry(_ registry: PKPushRegistry) {
+        self.voipRegistry = registry
+    }
+
+    public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        if (call.method == "voipToken") {
+            guard let voipToken = voipRegistry?.pushToken(for: .voIP) else {
+                result(nil)
+                return
+            }
+            let token = convertTokenToString(data: voipToken)
+            result(token)
+        }
+    }
+
+    public func updatePushCredentials(_ pushCredentials: PKPushCredentials, for type: PKPushType) {
+        guard let eventSink = self.eventSink else {
+            print("[PushKitPlugin]: updatePushCredentials: eventSink is not initialized")
+            return
+        }
+        let token = self.convertTokenToString(data: pushCredentials.token)
+        eventSink(["event": "didUpdatePushCredentials", "token": token])
+    }
+
+    public func reportIncomingPushWith(payload: PKPushPayload, for type: PKPushType) {
+        guard let eventSink = self.eventSink else {
+            print("[PushKitPlugin]: reportIncomingPushWith: eventSink is not initialized")
+            return
+        }
+        eventSink(["event": "didReceiveIncomingPushWithPayload",
+                   "payload": payload.dictionaryPayload] as [String : Any])
+    }
+
+    public func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
+        if let type = arguments as? String {
+            if (type == "pushkit") {
+                self.eventSink = events
+            }
+        }
+        return nil
+    }
+
+    public func onCancel(withArguments arguments: Any?) -> FlutterError? {
+        if let type = arguments as? String {
+            if (type == "pushkit") {
+                self.eventSink = nil
+            }
+        }
+        return nil
+    }
+
+    private func convertTokenToString(data: Data) -> String {
+        return data.map { String(format: "%02.2hhx", $0) }.joined()
     }
 }
