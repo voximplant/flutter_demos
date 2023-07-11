@@ -67,7 +67,7 @@ class _LoginPageState extends State<LoginPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Widgets.textWithPadding(
-                  text: 'Audio call',
+                  text: 'Video call',
                   fontSize: 30,
                   textColor: VoximplantColors.white,
                   verticalPadding: 30,
