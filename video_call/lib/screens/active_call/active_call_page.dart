@@ -98,13 +98,14 @@ class _ActiveCallPageState extends State<ActiveCallPage> {
                             ),
                           ),
                           Align(
-                              alignment: Alignment.topRight,
-                              child: Padding(
-                                padding: EdgeInsets.all(10),
-                                child: Container(
-                                  width: MediaQuery.of(context).size.width / 4,
-                                  height:
-                                      MediaQuery.of(context).size.height / 4,
+                            alignment: Alignment.topRight,
+                            child: Padding(
+                              padding: EdgeInsets.all(10),
+                              child: Container(
+                                width: MediaQuery.of(context).size.width / 4,
+                                height: MediaQuery.of(context).size.height / 4,
+                                child: Transform.flip(
+                                  flipX: true,
                                   child: Align(
                                     child: AspectRatio(
                                       aspectRatio: _localVideoAspectRatio,
@@ -113,7 +114,9 @@ class _ActiveCallPageState extends State<ActiveCallPage> {
                                     ),
                                   ),
                                 ),
-                              )),
+                              ),
+                            ),
+                          ),
                           Align(
                             alignment: Alignment.topLeft,
                             child: Padding(
