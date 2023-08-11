@@ -99,7 +99,6 @@ class PushKitPlugin: NSObject, FlutterPlugin, FlutterStreamHandler {
     private var voipRegistry: PKPushRegistry?
 
     public static func register(with registrar: FlutterPluginRegistrar) {
-        print("YULIA: register")
         let channel = FlutterMethodChannel(name: "plugins.voximplant.com/pushkit", binaryMessenger: registrar.messenger())
         let instance = PushKitPlugin.shared
         instance.setup(with: registrar)

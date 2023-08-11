@@ -57,7 +57,7 @@ class CallService {
     VICallSettings callSettings = VICallSettings();
     callSettings.videoFlags = VIVideoFlags(receiveVideo: true, sendVideo: true);
     callSettings.preferredVideoCodec = VIVideoCodec.VP8;
-    _activeCall = await _client.call(callTo, settings: callSettings);
+    _activeCall = await _client.conference(callTo, settings: callSettings);
     _callState = CallState.connecting;
     _listenToActiveCallEvents();
   }
@@ -146,11 +146,9 @@ class CallService {
     _activeCall?.onEndpointAdded = _onEndpointAdded;
   }
 
-  void _listenToEndpointEvents() {
-    _activeCall?.endpoints.first.onRemoteVideoStreamAdded =
-        _onRemoteVideoStreamAdded;
-    _activeCall?.endpoints.first.onRemoteVideoStreamRemoved =
-        _onRemoteVideoStreamRemoved;
+  void _listenToEndpointEvents(VIEndpoint endpoint) {
+    endpoint.onRemoteVideoStreamAdded = _onRemoteVideoStreamAdded;
+    endpoint.onRemoteVideoStreamRemoved = _onRemoteVideoStreamRemoved;
   }
 
   void _pushDidExpire(VIClient client, String callKitUUID) {
@@ -215,10 +213,11 @@ class CallService {
   }
 
   void _onEndpointAdded(VICall call, VIEndpoint endpoint) {
-    if (call.callId == _activeCall?.callId) {
+    if (call.callId == _activeCall?.callId &&
+        call.callId != endpoint.endpointId) {
       _activeCall = call;
       _log('CallService: onEndpointAdded($endpoint)');
-      _listenToEndpointEvents();
+      _listenToEndpointEvents(endpoint);
     }
   }
 
