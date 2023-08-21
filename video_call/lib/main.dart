@@ -67,7 +67,6 @@ class App extends StatelessWidget {
       theme: ThemeData(
         primaryColor: VoximplantColors.primary,
         primaryColorDark: VoximplantColors.primaryDark,
-        accentColor: VoximplantColors.accent,
       ),
       navigatorKey: NavigationHelper.navigatorKey,
       initialRoute: AppRoutes.login,
@@ -87,7 +86,8 @@ class App extends StatelessWidget {
             ),
           );
         } else if (routeSettings.name == AppRoutes.activeCall) {
-          final routingArguments = routeSettings.arguments as ActiveCallPageArguments;
+          final routingArguments =
+              routeSettings.arguments as ActiveCallPageArguments;
           ActiveCallPageArguments arguments = routingArguments;
           return PageRouteBuilder(
             pageBuilder: (_, a1, a2) => BlocProvider<ActiveCallBloc>(
