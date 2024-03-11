@@ -85,7 +85,7 @@ DEPENDENCIES:
   - flutter_local_notifications (from `.symlinks/plugins/flutter_local_notifications/ios`)
   - flutter_voximplant (from `.symlinks/plugins/flutter_voximplant/ios`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
-  - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/ios`)
+  - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
 
 SPEC REPOS:
   trunk:
@@ -117,7 +117,7 @@ EXTERNAL SOURCES:
   permission_handler_apple:
     :path: ".symlinks/plugins/permission_handler_apple/ios"
   shared_preferences_foundation:
-    :path: ".symlinks/plugins/shared_preferences_foundation/ios"
+    :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
 
 SPEC CHECKSUMS:
   Firebase: f13680471b021937f2230ea8503c7809d8c29806
@@ -127,7 +127,7 @@ SPEC CHECKSUMS:
   FirebaseCoreInternal: fa2899eb1f340054858d289e5a0fb935a0a74e52
   FirebaseInstallations: b2a05a3fe707df764345d68685534d07d0664af3
   FirebaseMessaging: fd93783258c53ae5cdb9b41bf0c51606a677f2d5
-  Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
+  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   flutter_callkit_voximplant: 9e1128135757ea8a21ae7bbc06ff4a37e906ccc5
   flutter_local_notifications: 0c0b1ae97e741e1521e4c1629a459d04b9aec743
   flutter_voximplant: 40c3110cc9943047f36fb9847f8803350237480a
@@ -140,6 +140,6 @@ SPEC CHECKSUMS:
   VoxImplantSDK: 577259786bc3da6ed3cf3d4ee1a8e08245c19ce6
   VoxImplantWebRTC: 8ddd8a63d0c20afa604fec22a2552c32b0371974
 
-PODFILE CHECKSUM: ef19549a9bc3046e7bb7d2fab4d021637c0c58a3
+PODFILE CHECKSUM: c4c93c5f6502fe2754f48404d3594bf779584011
 
-COCOAPODS: 1.12.0
+COCOAPODS: 1.15.0

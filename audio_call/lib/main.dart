@@ -39,7 +39,8 @@ class SimpleBlocDelegate extends BlocObserver {
   }
 }
 
-VIClientConfig get defaultConfig => VIClientConfig(bundleId: 'com.voximplant.flutter.audioCall');
+VIClientConfig get defaultConfig =>
+    VIClientConfig(bundleId: 'com.voximplant.flutter.audioCall');
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -63,11 +64,13 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = ThemeData();
     return MaterialApp(
-      theme: ThemeData(
-        primaryColor: VoximplantColors.primary,
-        primaryColorDark: VoximplantColors.primaryDark,
-        accentColor: VoximplantColors.accent,
+      theme: theme.copyWith(
+        colorScheme: theme.colorScheme.copyWith(
+          primary: VoximplantColors.primary,
+          secondary: VoximplantColors.accent,
+        ),
       ),
       navigatorKey: NavigationHelper.navigatorKey,
       initialRoute: AppRoutes.login,
@@ -87,16 +90,15 @@ class App extends StatelessWidget {
             ),
           );
         } else if (routeSettings.name == AppRoutes.activeCall) {
-          final routingArguments = routeSettings.arguments as ActiveCallPageArguments;
+          final routingArguments =
+              routeSettings.arguments as ActiveCallPageArguments;
           ActiveCallPageArguments arguments = routingArguments;
           return PageRouteBuilder(
-            pageBuilder: (_, a1, a2) =>
-                BlocProvider<ActiveCallBloc>(
-                  create: (_) =>
-                      ActiveCallBloc(
-                          arguments.isIncoming, arguments.endpoint),
-                  child: ActiveCallPage(),
-                ),
+            pageBuilder: (_, a1, a2) => BlocProvider<ActiveCallBloc>(
+              create: (_) =>
+                  ActiveCallBloc(arguments.isIncoming, arguments.endpoint),
+              child: ActiveCallPage(),
+            ),
           );
         } else if (routeSettings.name == AppRoutes.incomingCall) {
           return PageRouteBuilder(

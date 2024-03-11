@@ -63,10 +63,13 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = ThemeData();
     return MaterialApp(
-      theme: ThemeData(
-        primaryColor: VoximplantColors.primary,
-        primaryColorDark: VoximplantColors.primaryDark,
+      theme: theme.copyWith(
+        colorScheme: theme.colorScheme.copyWith(
+          primary: VoximplantColors.primary,
+          secondary: VoximplantColors.accent,
+        ),
       ),
       navigatorKey: NavigationHelper.navigatorKey,
       initialRoute: AppRoutes.login,

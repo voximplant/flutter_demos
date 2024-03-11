@@ -127,7 +127,7 @@ SPEC CHECKSUMS:
   FirebaseCoreInternal: b342e37cd4f5b4454ec34308f073420e7920858e
   FirebaseInstallations: b28af1b9f997f1a799efe818c94695a3728c352f
   FirebaseMessaging: fd93783258c53ae5cdb9b41bf0c51606a677f2d5
-  Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
+  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   flutter_callkit_voximplant: 9e1128135757ea8a21ae7bbc06ff4a37e906ccc5
   flutter_local_notifications: 0c0b1ae97e741e1521e4c1629a459d04b9aec743
   flutter_voximplant: 3a9f36552a8fdd6a6708e4027629bf49a807b7ee
@@ -140,6 +140,6 @@ SPEC CHECKSUMS:
   VoxImplantSDK: 577259786bc3da6ed3cf3d4ee1a8e08245c19ce6
   VoxImplantWebRTC: 8ddd8a63d0c20afa604fec22a2552c32b0371974
 
-PODFILE CHECKSUM: 7368163408c647b7eb699d0d788ba6718e18fb8d
+PODFILE CHECKSUM: 4e8f8b2be68aeea4c0d5beb6ff1e79fface1d048
 
-COCOAPODS: 1.12.0
+COCOAPODS: 1.15.0
