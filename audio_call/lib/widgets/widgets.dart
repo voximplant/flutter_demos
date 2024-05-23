@@ -72,7 +72,8 @@ class Widgets {
         width: double.infinity,
         height: 50,
         child: ElevatedButton(
-          style: ElevatedButton.styleFrom(textStyle: const TextStyle(color: VoximplantColors.white)),
+          style: ElevatedButton.styleFrom(
+              textStyle: const TextStyle(color: VoximplantColors.white)),
           onPressed: onPressed,
           child: Text(text),
         ),
@@ -122,6 +123,52 @@ class Widgets {
         ),
         tooltip: tooltip,
       ),
+    );
+  }
+
+  static Widget dropdown(
+      {required List<String> items,
+      required ValueChanged<String?> onChange,
+      String? value}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        vertical: 10,
+        horizontal: 20,
+      ),
+      child: Container(
+          decoration: const ShapeDecoration(
+            shape: RoundedRectangleBorder(
+              side: BorderSide(
+                  width: 1.0,
+                  style: BorderStyle.solid,
+                  color: VoximplantColors.white),
+              borderRadius: BorderRadius.all(Radius.circular(5.0)),
+            ),
+            // color: VoximplantColors.white,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 10,
+            ),
+            child: DropdownButton<String>(
+              value: value,
+              style: const TextStyle(color: VoximplantColors.white),
+              hint: const Text(
+                'Connection node',
+                style: TextStyle(color: VoximplantColors.white),
+              ),
+              isExpanded: true,
+              dropdownColor: VoximplantColors.primary,
+              borderRadius: const BorderRadius.all(Radius.circular(4)),
+              alignment: AlignmentDirectional.center,
+              onChanged: (String? node) {
+                onChange(node);
+              },
+              items: items.map<DropdownMenuItem<String>>((String item) {
+                return DropdownMenuItem<String>(value: item, child: Text(item));
+              }).toList(),
+            ),
+          )),
     );
   }
 }

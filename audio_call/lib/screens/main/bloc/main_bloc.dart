@@ -18,9 +18,13 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   final CallKitService? _callKitService =
       Platform.isIOS ? CallKitService() : null;
 
+  bool _logoutRequested = false;
+
   late StreamSubscription _callStateSubscription;
 
-  MainBloc() : super(MainInitial(myDisplayName: AuthService().displayName ?? 'Unknown user')) {
+  MainBloc()
+      : super(MainInitial(
+            myDisplayName: AuthService().displayName ?? 'Unknown user')) {
     _authService.onDisconnected = () => add(ConnectionClosed());
     _callStateSubscription =
         _callService.subscribeToCallEvents().listen(onCallEvent);
@@ -38,41 +42,39 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   }
 
   Future<void> _checkPermissions(
-      CheckPermissionsForCall event,
-      Emitter<MainState> emit) async {
-    bool permissionsGranted =  await checkPermissions();
+      CheckPermissionsForCall event, Emitter<MainState> emit) async {
+    bool permissionsGranted = await checkPermissions();
     if (permissionsGranted) {
-      emit(PermissionCheckSuccess(myDisplayName: _authService.displayName ?? 'Unknown user'));
+      emit(PermissionCheckSuccess(
+          myDisplayName: _authService.displayName ?? 'Unknown user'));
     } else {
-      emit(PermissionCheckFail(myDisplayName: _authService.displayName ?? 'Unknown user'));
+      emit(PermissionCheckFail(
+          myDisplayName: _authService.displayName ?? 'Unknown user'));
     }
   }
 
-  Future<void> _logout(
-      LogOut event,
-      Emitter<MainState> emit) async {
+  Future<void> _logout(LogOut event, Emitter<MainState> emit) async {
+    _logoutRequested = true;
     await _authService.logout();
     emit(const LoggedOut(networkIssues: false));
   }
 
   Future<void> _connectionClosed(
-      ConnectionClosed event,
-      Emitter<MainState> emit) async {
-    emit(const LoggedOut(networkIssues: true));
+      ConnectionClosed event, Emitter<MainState> emit) async {
+    if (!_logoutRequested) {
+      emit(const LoggedOut(networkIssues: true));
+    }
   }
 
   void _receivedIncomingCall(
-      ReceivedIncomingCall event,
-      Emitter<MainState> emit) {
+      ReceivedIncomingCall event, Emitter<MainState> emit) {
     emit(IncomingCall(
       caller: event.displayName,
       myDisplayName: _authService.displayName ?? 'Unknown user',
     ));
   }
 
-  Future<void> _reconnect(
-      Reconnect event,
-      Emitter<MainState> emit) async {
+  Future<void> _reconnect(Reconnect event, Emitter<MainState> emit) async {
     try {
       final displayName = await _authService.loginWithAccessToken();
       if (displayName == null) {

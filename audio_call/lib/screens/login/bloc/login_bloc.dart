@@ -16,8 +16,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   }
 
   Future<void> _loadLastUser(
-      LoadLastUser event,
-      Emitter<LoginState> emit) async {
+      LoadLastUser event, Emitter<LoginState> emit) async {
     // TODO(yulia)
     // if (Platform.isAndroid &&
     //     await NotificationHelper().didNotificationLaunchApp()) {
@@ -35,23 +34,26 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         await _authService.loginWithAccessToken();
         emit(LoginSuccess());
       } on VIException catch (e) {
-        emit(LoginFailure(errorCode: e.code, errorDescription: e.message ?? 'Unknown error'));
+        emit(LoginFailure(
+            errorCode: e.code, errorDescription: e.message ?? 'Unknown error'));
       }
     }
   }
 
   Future<void> _loginWithPassword(
-      LoginWithPassword event,
-      Emitter<LoginState> emit) async {
+      LoginWithPassword event, Emitter<LoginState> emit) async {
     emit(LoginInProgress());
+    VINode node = VINode.values.byName(event.node);
     try {
       await _authService.loginWithPassword(
+        node,
         '${event.username}.voximplant.com',
         event.password,
       );
       emit(LoginSuccess());
     } on VIException catch (e) {
-      emit(LoginFailure(errorCode: e.code, errorDescription: e.message ?? 'Unknown error'));
+      emit(LoginFailure(
+          errorCode: e.code, errorDescription: e.message ?? 'Unknown error'));
     }
   }
 }
