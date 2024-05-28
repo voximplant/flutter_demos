@@ -50,19 +50,18 @@ class ActiveCallBloc extends Bloc<ActiveCallEvent, ActiveCallState> {
   }
 
   Future<void> _readyToStartCall(
-      ReadyToStartCallEvent event,
-      Emitter<ActiveCallState> emit) async {
+      ReadyToStartCallEvent event, Emitter<ActiveCallState> emit) async {
     _callStateSubscription = _callService.subscribeToCallEvents().listen(
-          (event) {
+      (event) {
         add(CallChangedEvent(event));
       },
     );
     _audioDeviceSubscription =
         _callService.subscribeToAudioDeviceEvents().listen(
-              (event) {
-            add(AudioDevicesChanged(event));
-          },
-        );
+      (event) {
+        add(AudioDevicesChanged(event));
+      },
+    );
     try {
       if (_isIncoming) {
         if (Platform.isAndroid) {
@@ -96,8 +95,7 @@ class ActiveCallBloc extends Bloc<ActiveCallEvent, ActiveCallState> {
   }
 
   Future<void> _handleCallChanged(
-      CallChangedEvent event,
-      Emitter<ActiveCallState> emit) async {
+      CallChangedEvent event, Emitter<ActiveCallState> emit) async {
     CallEvent callEvent = event.event;
 
     if (callEvent is OnFailedCallEvent) {
@@ -145,38 +143,33 @@ class ActiveCallBloc extends Bloc<ActiveCallEvent, ActiveCallState> {
   }
 
   Future<void> _holdCall(
-      HoldPressedEvent event,
-      Emitter<ActiveCallState> emit) async {
-      Platform.isIOS
+      HoldPressedEvent event, Emitter<ActiveCallState> emit) async {
+    Platform.isIOS
         ? await _callKitService?.holdCall(event.hold)
         : await _callService.holdCall(hold: event.hold);
   }
 
   Future<void> _muteAudio(
-      MutePressedEvent event,
-      Emitter<ActiveCallState> emit) async {
-      Platform.isIOS
+      MutePressedEvent event, Emitter<ActiveCallState> emit) async {
+    Platform.isIOS
         ? await _callKitService?.muteCall(event.mute)
         : await _callService.muteCall(mute: event.mute);
   }
 
   Future<void> _hangupCall(
-      HangupPressedEvent event,
-      Emitter<ActiveCallState> emit) async {
-      Platform.isIOS
+      HangupPressedEvent event, Emitter<ActiveCallState> emit) async {
+    Platform.isIOS
         ? await _callKitService?.endCall()
         : await _callService.hangup();
   }
 
-  Future<void> _selectAudioDevice(
-      SelectAudioDevicePressedEvent event,
+  Future<void> _selectAudioDevice(SelectAudioDevicePressedEvent event,
       Emitter<ActiveCallState> emit) async {
     await _callService.selectAudioDevice(device: event.device);
   }
 
   Future<void> _handleAudioDevicesChanged(
-      AudioDevicesChanged event,
-      Emitter<ActiveCallState> emit) async {
+      AudioDevicesChanged event, Emitter<ActiveCallState> emit) async {
     AudioDeviceEvent audioEvent = event.event;
     if (audioEvent is OnActiveAudioDeviceChanged) {
       emit(state.copyWith(activeAudioDevice: audioEvent.device));

@@ -25,8 +25,10 @@ class CallService {
 
   Function? onIncomingCall;
 
-  StreamController<CallEvent> _callStreamController = StreamController.broadcast();
-  StreamController<AudioDeviceEvent> _audioDeviceStreamController = StreamController.broadcast();
+  StreamController<CallEvent> _callStreamController =
+      StreamController.broadcast();
+  StreamController<AudioDeviceEvent> _audioDeviceStreamController =
+      StreamController.broadcast();
 
   CallState get callState => _callState;
   CallState _callState = CallState.none;
@@ -174,11 +176,11 @@ class CallService {
       await _audioDeviceManager.selectAudioDevice(device);
 
   Future<void> _onIncomingCall(
-      VIClient client,
-      VICall call,
-      bool video,
-      Map<String, String>? headers,
-      ) async {
+    VIClient client,
+    VICall call,
+    bool video,
+    Map<String, String>? headers,
+  ) async {
     _log('_onIncomingCall');
     if (hasActiveCall && _activeCall?.callId != call.callId) {
       await call.reject();
@@ -215,10 +217,10 @@ class CallService {
   }
 
   void _onCallDisconnected(
-      VICall call,
-      Map<String, String>? headers,
-      bool answeredElsewhere,
-      ) async {
+    VICall call,
+    Map<String, String>? headers,
+    bool answeredElsewhere,
+  ) async {
     _log('onCallDisconnected');
     if (call.callId == _activeCall?.callId) {
       _activeCall = null;
@@ -239,11 +241,11 @@ class CallService {
   }
 
   void _onCallFailed(
-      VICall call,
-      int code,
-      String description,
-      Map<String, String>? headers,
-      ) async {
+    VICall call,
+    int code,
+    String description,
+    Map<String, String>? headers,
+  ) async {
     _log('onCallFailed($code, $description)');
     if (call.callId == _activeCall?.callId) {
       _activeCall = null;
