@@ -6,6 +6,19 @@ import 'package:video_call/theme/voximplant_theme.dart';
 import 'package:video_call/utils/navigation_helper.dart';
 import 'package:video_call/widgets/widgets.dart';
 
+const List<String> nodes = <String>[
+  'Node1',
+  'Node2',
+  'Node3',
+  'Node4',
+  'Node5',
+  'Node6',
+  'Node7',
+  'Node8',
+  'Node9',
+  'Node10'
+];
+
 class LoginPage extends StatefulWidget {
   static const routeName = '/login';
 
@@ -22,6 +35,8 @@ class _LoginPageState extends State<LoginPage> {
 
   bool _isUsernameValid = true;
   bool _isPasswordValid = true;
+  bool _isNodeSelected = false;
+  String? _node;
 
   @override
   void initState() {
@@ -38,9 +53,18 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    void _login() => _bloc.add(LoginWithPassword(
-        username: _usernameController.text,
-        password: _passwordController.text));
+    void _login() {
+      final node = _node;
+      if (node != null) {
+        _bloc.add(
+          LoginWithPassword(
+            username: _usernameController.text,
+            password: _passwordController.text,
+            node: node,
+          ),
+        );
+      }
+    }
 
     void _handleLoginFailed(String errorCode, String errorDescription) {
       if (errorCode == 'ERROR_INVALID_USERNAME') {
@@ -89,6 +113,25 @@ class _LoginPageState extends State<LoginPage> {
                   validator: (_) =>
                       _isPasswordValid ? null : 'Invalid password',
                 ),
+                _isNodeSelected
+                    ? Container()
+                    : const Padding(
+                        padding: EdgeInsets.only(top: 5, left: 20),
+                        child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              "Connection Node is required",
+                              style: TextStyle(color: VoximplantColors.red),
+                            ))),
+                Widgets.dropdown(
+                    items: nodes,
+                    onChange: (String? node) {
+                      setState(() {
+                        _isNodeSelected = true;
+                        _node = node;
+                      });
+                    },
+                    value: _node),
                 Widgets.maxWidthRaisedButton(
                   text: 'Log in',
                   onPressed: _login,

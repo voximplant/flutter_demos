@@ -42,7 +42,8 @@ class AuthService {
     });
   }
 
-  Future<String> loginWithPassword(String username, String password) async {
+  Future<String> loginWithPassword(
+      VINode node, String username, String password) async {
     _log('loginWithPassword');
     VIClientState clientState = await _client.getClientState();
     if (clientState == VIClientState.LoggedIn) {
@@ -52,7 +53,7 @@ class AuthService {
       }
     }
     if (clientState == VIClientState.Disconnected) {
-      await _client.connect();
+      await _client.connect(node: node);
     }
     VIAuthResult authResult = await _client.login(username, password);
     if (_voipToken != null) {
@@ -61,28 +62,34 @@ class AuthService {
         await _client.registerForPushNotifications(voipToken);
       }
     }
-    await _saveAuthDetails(username, authResult.loginTokens);
+    await _saveAuthDetails(username, authResult.loginTokens, node);
     _displayName = authResult.displayName;
     return _displayName ?? "Unknown user";
   }
 
   Future<String?> loginWithAccessToken() async {
     VIClientState clientState = await _client.getClientState();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     if (clientState == VIClientState.LoggedIn) {
       return _displayName;
     } else if (clientState == VIClientState.Connecting ||
         clientState == VIClientState.LoggingIn) {
       return null;
     } else if (clientState == VIClientState.Disconnected) {
-      await _client.connect();
+      final node = _getNode(prefs);
+      if (node != null) {
+        await _client.connect(node: node);
+      } else {
+        throw Exception("Node is unknown");
+      }
     }
     _log('loginWithAccessToken');
-    SharedPreferences prefs = await SharedPreferences.getInstance();
     final loginTokens = _getAuthDetails(prefs);
     String? user = prefs.getString('username');
     if (user != null && loginTokens != null) {
-      VIAuthResult authResult = await _client.loginWithAccessToken(user, loginTokens.accessToken);
-      await _saveAuthDetails(user, authResult.loginTokens);
+      VIAuthResult authResult =
+          await _client.loginWithAccessToken(user, loginTokens.accessToken);
+      await _saveAuthDetails(user, authResult.loginTokens, null);
       _displayName = authResult.displayName;
     }
     final voipToken = _voipToken;
@@ -96,6 +103,7 @@ class AuthService {
     _log('logout');
     await _client.disconnect();
     final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.remove("node");
     prefs.remove('username');
     prefs.remove('accessToken');
     prefs.remove('refreshToken');
@@ -114,11 +122,14 @@ class AuthService {
   }
 
   Future<void> _saveAuthDetails(
-      String username, VILoginTokens? loginTokens) async {
+      String username, VILoginTokens? loginTokens, VINode? node) async {
     if (loginTokens == null) {
       return;
     }
     final SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (node != null) {
+      prefs.setString('node', node.name);
+    }
     prefs.setString('username', username);
     prefs.setString('accessToken', loginTokens.accessToken);
     prefs.setString('refreshToken', loginTokens.refreshToken);
@@ -126,18 +137,28 @@ class AuthService {
     prefs.setInt('refreshExpire', loginTokens.refreshExpire);
   }
 
+  VINode? _getNode(SharedPreferences prefs) {
+    final node = prefs.getString('node');
+    if (node != null) {
+      return VINode.values.byName(node);
+    }
+    return null;
+  }
+
   VILoginTokens? _getAuthDetails(SharedPreferences prefs) {
     final accessToken = prefs.getString('accessToken');
     final refreshToken = prefs.getString('refreshToken');
     final refreshExpire = prefs.getInt('refreshExpire');
     final accessExpire = prefs.getInt('accessExpire');
-    if (accessToken != null && refreshToken != null && refreshExpire != null && accessExpire != null) {
+    if (accessToken != null &&
+        refreshToken != null &&
+        refreshExpire != null &&
+        accessExpire != null) {
       VILoginTokens loginTokens = VILoginTokens(
           accessToken: accessToken,
           refreshToken: refreshToken,
           accessExpire: accessExpire,
-          refreshExpire: refreshExpire
-      );
+          refreshExpire: refreshExpire);
       return loginTokens;
     }
     return null;
@@ -152,4 +173,3 @@ class AuthService {
     log('AuthService($hashCode): ${message.toString()}');
   }
 }
-

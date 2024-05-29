@@ -14,11 +14,13 @@ class LoadLastUser extends LoginEvent {}
 class LoginWithPassword extends LoginEvent {
   final String username;
   final String password;
+  final String node;
 
-  const LoginWithPassword({required this.username, required this.password});
+  const LoginWithPassword(
+      {required this.username, required this.password, required this.node});
 
   @override
-  List<Object> get props => [username, password];
+  List<Object> get props => [username, password, node];
 
   @override
   String toString() => 'LoginWithPassword: '

@@ -108,12 +108,13 @@ class CallKitService {
     _provider.executeTransaction = (transaction) {
       _log('Should execute or delay transaction...');
 
-      if ((_authService.clientState == VIClientState.LoggedIn || _authService.clientState == VIClientState.Reconnecting)
-          && (_callService.hasActiveCall || _callStarting)
-      ) {
+      if ((_authService.clientState == VIClientState.LoggedIn ||
+              _authService.clientState == VIClientState.Reconnecting) &&
+          (_callService.hasActiveCall || _callStarting)) {
         _log('Executing transaction now');
         return false;
-      } else if (_authService.clientState == VIClientState.Disconnected || _authService.clientState == VIClientState.Connected) {
+      } else if (_authService.clientState == VIClientState.Disconnected ||
+          _authService.clientState == VIClientState.Connected) {
         _log('Need to connect or login...');
         Future<void> loginAndCommitTransactions() async {
           try {
@@ -128,6 +129,7 @@ class CallKitService {
             }
           }
         }
+
         loginAndCommitTransactions();
       }
       _log('Delaying transaction');
@@ -266,7 +268,7 @@ class CallKitService {
 
   Future<void> _commitTransactions() async {
     List<FCXTransaction> transactions =
-    await _provider.getPendingTransactions();
+        await _provider.getPendingTransactions();
     for (final transaction in transactions) {
       List<FCXAction> actions = await transaction.getActions();
       for (final action in actions) {
@@ -393,11 +395,11 @@ class CallKitService {
       throw 'Active call is null, holdCall failed';
     }
     final call = _activeCall?.call;
-    if (call == null || call.hasConnected) {
+    if (call == null || !call.hasConnected) {
       return;
     }
-    await _callController.requestTransactionWithAction(
-        FCXSetHeldCallAction(call.uuid, hold));
+    await _callController
+        .requestTransactionWithAction(FCXSetHeldCallAction(call.uuid, hold));
   }
 
   Future<void> muteCall(bool mute) async {
@@ -405,11 +407,11 @@ class CallKitService {
       throw 'Active call is null, muteCall failed';
     }
     final call = _activeCall?.call;
-    if (call == null || call.hasConnected) {
+    if (call == null) {
       return;
     }
-    await _callController.requestTransactionWithAction(
-        FCXSetMutedCallAction(call.uuid, mute));
+    await _callController
+        .requestTransactionWithAction(FCXSetMutedCallAction(call.uuid, mute));
   }
 
   Future<void> endCall() async {

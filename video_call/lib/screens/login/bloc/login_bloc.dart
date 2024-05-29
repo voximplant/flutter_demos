@@ -1,5 +1,4 @@
 /// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
-import 'dart:io';
 
 import 'package:video_call/screens/login/login.dart';
 import 'package:video_call/services/auth_service.dart';
@@ -42,8 +41,10 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   Future<void> _loginWithPassword(
       LoginWithPassword event, Emitter<LoginState> emit) async {
     emit(LoginInProgress());
+    VINode node = VINode.values.byName(event.node);
     try {
       await _authService.loginWithPassword(
+        node,
         '${event.username}.voximplant.com',
         event.password,
       );

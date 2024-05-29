@@ -18,6 +18,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   final CallKitService? _callKitService =
       Platform.isIOS ? CallKitService() : null;
 
+  bool _logoutRequested = false;
   late StreamSubscription _callStateSubscription;
 
   MainBloc()
@@ -52,13 +53,16 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   }
 
   Future<void> _logout(LogOut event, Emitter<MainState> emit) async {
+    _logoutRequested = true;
     await _authService.logout();
     emit(const LoggedOut(networkIssues: false));
   }
 
   Future<void> _connectionClosed(
       ConnectionClosed event, Emitter<MainState> emit) async {
-    emit(const LoggedOut(networkIssues: true));
+    if (!_logoutRequested) {
+      emit(const LoggedOut(networkIssues: true));
+    }
   }
 
   void _receivedIncomingCall(

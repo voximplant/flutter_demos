@@ -17,7 +17,7 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^2.0.0
   flutter_bloc: 8.1.2
-  flutter_voximplant: 3.8.0
+  flutter_voximplant: 3.12.0
   flutter_callkit_voximplant: 2.1.0
   uuid: 3.0.7
   flutter_local_notifications: 13.0.0

@@ -223,10 +223,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_voximplant
-      sha256: "6d57d456b176189c79dd2e6adcf294bdb3cd2bdeee101ba94cc8ac2e9cabe86f"
+      sha256: f83ba01d70ce779427ae50d99744f5376d55ffadcb1f4cca2fcba342b280d169
       url: "https://pub.dev"
     source: hosted
-    version: "3.8.1"
+    version: "3.12.0"
   flutter_web_plugins:
     dependency: transitive
     description: flutter
