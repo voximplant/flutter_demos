@@ -119,7 +119,8 @@ class AuthService {
 
   Future<bool> canUseAccessToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('accessToken') != null;
+    return prefs.getString('accessToken') != null &&
+        prefs.getString("node") != null;
   }
 
   Future<void> _saveAuthDetails(
