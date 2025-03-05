@@ -19,17 +19,17 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_lints: ^2.0.0
-  flutter_bloc: 8.1.2
-  flutter_voximplant: 3.12.0
+  flutter_lints: ^5.0.0
+  flutter_bloc: 9.0.0
+  flutter_voximplant: 3.13.0
   flutter_callkit_voximplant: 2.1.0
-  uuid: 3.0.7
-  flutter_local_notifications: 13.0.0
-  permission_handler: 10.2.0
-  shared_preferences: 2.0.18
-  equatable: 2.0.5
-  firebase_core: 2.8.0
-  firebase_messaging: 14.3.0
+  uuid: 4.5.1
+  flutter_local_notifications: 18.0.1
+  permission_handler: 11.4.0
+  shared_preferences: 2.5.2
+  equatable: 2.0.7
+  firebase_core: 3.12.0
+  firebase_messaging: 15.2.3
 
 dev_dependencies:
   flutter_test:
