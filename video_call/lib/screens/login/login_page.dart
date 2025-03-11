@@ -16,7 +16,8 @@ const List<String> nodes = <String>[
   'Node7',
   'Node8',
   'Node9',
-  'Node10'
+  'Node10',
+  'Node11'
 ];
 
 class LoginPage extends StatefulWidget {
