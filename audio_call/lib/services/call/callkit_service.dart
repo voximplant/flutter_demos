@@ -348,10 +348,37 @@ class CallKitService {
     if (_hasActiveCall) {
       throw 'Already have an active call, throwing from startOutgoingCall';
     }
+    
+    // DEBUG: Invalidate provider to reproduce bug
+    print('DEBUG: Invalidating provider to test error handling');
+    await _provider.invalidate();
+    
     FCXHandle handle = FCXHandle(FCXHandleType.Generic, contactName);
     FCXStartCallAction action = FCXStartCallAction(_uuid.v4(), handle);
     _callStarting = true;
-    await _callController.requestTransactionWithAction(action);
+    
+    try {
+      await _callController.requestTransactionWithAction(action);
+    } on FCXException catch (e) {
+      _log('FCXException: ${e.code} - ${e.message}');
+      
+      if (e.code == 'ERROR_UNKNOWN_CALL_PROVIDER' || e.code == 'ERROR_PROVIDER_MISSING') {
+        _log('Provider error detected, reconfiguring...');
+        await _provider.configure(FCXProviderConfiguration(
+          'AudioCall',
+          iconTemplateImageName: 'CallKitLogo',
+          includesCallsInRecents: true,
+          supportsVideo: true,
+          maximumCallsPerCallGroup: 1,
+          supportedHandleTypes: <FCXHandleType>{FCXHandleType.Generic},
+        ));
+        _log('Provider reconfigured, retrying transaction...');
+        // Retry the transaction
+        await _callController.requestTransactionWithAction(action);
+      } else {
+        rethrow;
+      }
+    }
   }
 
   Future<void> reportConnected(String username, String displayName) async {
