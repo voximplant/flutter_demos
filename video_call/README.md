@@ -62,6 +62,14 @@ VoxEngine.easyProcess(e.call, newCall, ()=>{}, true);
 1. Clone this repo
 2. Run `flutter pub get`
 
+### Android push notifications (Firebase)
+
+The repository includes a placeholder `android/app/google-services.json` so the project builds out of the box. To enable Android push notifications, replace it with your own configuration file from the [Firebase Console](https://console.firebase.google.com/):
+
+1. Create a Firebase project (or use an existing one).
+2. Add an Android app with package name `com.voximplant.flutter.videocall`.
+3. Download `google-services.json` and place it at `android/app/google-services.json`.
+
 ## Usage
 
 ### User login

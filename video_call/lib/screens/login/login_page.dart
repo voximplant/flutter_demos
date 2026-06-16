@@ -1,4 +1,4 @@
-/// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
+// Copyright (c) 2011 - 2026, Voximplant, Inc. All rights reserved.
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:video_call/screens/login/login.dart';
@@ -17,7 +17,9 @@ const List<String> nodes = <String>[
   'Node8',
   'Node9',
   'Node10',
-  'Node11'
+  'Node11',
+  'Node12',
+  'Node13',
 ];
 
 class LoginPage extends StatefulWidget {

@@ -4,7 +4,7 @@ import PushKit
 import flutter_callkit_voximplant
 import flutter_voximplant
 
-@UIApplicationMain
+@main
 @objc class AppDelegate: FlutterAppDelegate, PKPushRegistryDelegate {
     private let voipRegistry: PKPushRegistry = PKPushRegistry(queue: .main)
 

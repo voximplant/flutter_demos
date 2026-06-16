@@ -1,0 +1,29 @@
+{
+    "project_info": {
+        "project_number": "ProjectNumber",
+        "project_id": "ProjectId",
+        "storage_bucket": "StorageBucket"
+    },
+    "client": [
+        {
+            "client_info": {
+                "mobilesdk_app_id": "Your:App:Id",
+                "android_client_info": {
+                    "package_name": "com.voximplant.flutter.audiocall"
+                }
+            },
+            "oauth_client": [],
+            "api_key": [
+                {
+                    "current_key": "APlaceholderAPIKeyWith-ThirtyNineCharsX"
+                }
+            ],
+            "services": {
+                "appinvite_service": {
+                    "other_platform_oauth_client": []
+                }
+            }
+        }
+    ],
+    "configuration_version": "1"
+}

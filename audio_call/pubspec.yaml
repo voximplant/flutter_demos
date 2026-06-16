@@ -5,32 +5,25 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.6.2
+  sdk: ^3.5.0
 
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.8
+  flutter_bloc: 9.1.1
+  flutter_voximplant: 3.17.0
+  flutter_callkit_voximplant: 2.1.0
+  uuid: 4.5.3
+  flutter_local_notifications: 19.5.0
+  permission_handler: 12.0.3
+  shared_preferences: 2.5.3
+  equatable: 2.0.8
+  firebase_core: 3.15.2
+  firebase_messaging: 15.2.10
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
   flutter_lints: ^5.0.0
-  flutter_bloc: 9.0.0
-  flutter_voximplant: 3.14.0
-  flutter_callkit_voximplant: 2.1.0
-  uuid: 4.5.1
-  flutter_local_notifications: 18.0.1
-  permission_handler: 11.4.0
-  shared_preferences: 2.5.2
-  equatable: 2.0.7
-  firebase_core: 3.12.0
-  firebase_messaging: 15.2.3
-
-dependency_overrides:
-  win32: ^5.5.4
 
 # The following section is specific to Flutter packages.
 flutter:
   uses-material-design: true
-
