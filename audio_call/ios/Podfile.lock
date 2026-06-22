@@ -1,26 +1,20 @@
 PODS:
   - Flutter (1.0.0)
-  - flutter_callkit_voximplant (2.1.0):
-    - Flutter
   - permission_handler_apple (9.3.0):
     - Flutter
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
-  - flutter_callkit_voximplant (from `.symlinks/plugins/flutter_callkit_voximplant/ios`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
 
 EXTERNAL SOURCES:
   Flutter:
     :path: Flutter
-  flutter_callkit_voximplant:
-    :path: ".symlinks/plugins/flutter_callkit_voximplant/ios"
   permission_handler_apple:
     :path: ".symlinks/plugins/permission_handler_apple/ios"
 
 SPEC CHECKSUMS:
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
-  flutter_callkit_voximplant: b0e80da17183f6033b3eb73544b96afc787c0fc1
   permission_handler_apple: 4ed2196e43d0651e8ff7ca3483a069d469701f2d
 
 PODFILE CHECKSUM: f3734cf2c64ab93db34ebd0461528389a119c1e8
