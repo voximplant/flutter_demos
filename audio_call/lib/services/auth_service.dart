@@ -1,4 +1,5 @@
-/// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
+// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
+
 import 'package:audio_call/main.dart';
 import 'package:audio_call/utils/log.dart';
 import 'package:flutter_voximplant/flutter_voximplant.dart';

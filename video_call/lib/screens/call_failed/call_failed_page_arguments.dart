@@ -1,5 +1,4 @@
-/// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
-import 'package:meta/meta.dart';
+// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
 
 class CallFailedPageArguments {
   final String failureReason;

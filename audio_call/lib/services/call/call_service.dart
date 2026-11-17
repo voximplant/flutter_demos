@@ -1,4 +1,5 @@
-/// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
+// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
+
 import 'dart:async';
 import 'dart:io';
 
@@ -8,7 +9,6 @@ import 'package:audio_call/services/call/call_event.dart';
 import 'package:audio_call/utils/log.dart';
 import 'package:audio_call/utils/notification_helper.dart';
 import 'package:flutter_voximplant/flutter_voximplant.dart';
-import 'package:meta/meta.dart';
 
 enum CallState { none, connecting, ringing, connected, ended }
 

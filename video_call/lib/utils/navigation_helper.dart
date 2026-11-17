@@ -1,9 +1,9 @@
-/// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
-import 'package:flutter/material.dart';
+// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
+
+import 'package:material_ui/material_ui.dart';
 import 'package:video_call/screens/active_call/active_call.dart';
 import 'package:video_call/screens/call_failed/call_failed_page.dart';
 import 'package:video_call/screens/incoming_call/incoming_call.dart';
-import 'package:video_call/screens/incoming_call/incoming_call_page.dart';
 import 'package:video_call/screens/login/login.dart';
 import 'package:video_call/screens/main/main_page.dart';
 

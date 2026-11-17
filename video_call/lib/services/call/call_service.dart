@@ -1,9 +1,9 @@
-/// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
+// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
+
 import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_voximplant/flutter_voximplant.dart';
-import 'package:meta/meta.dart';
 import 'package:video_call/main.dart';
 import 'package:video_call/services/call/call_event.dart';
 import 'package:video_call/utils/log.dart';
