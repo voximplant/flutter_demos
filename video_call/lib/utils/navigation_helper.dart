@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
+// Copyright (c) 2011 - 2026, Voximplant, Inc. All rights reserved.
 
 import 'package:material_ui/material_ui.dart';
 import 'package:video_call/screens/active_call/active_call.dart';
