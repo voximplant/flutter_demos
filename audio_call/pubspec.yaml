@@ -24,3 +24,6 @@ dependencies:
   material_ui: ^1.2.0
 dev_dependencies:
   flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
