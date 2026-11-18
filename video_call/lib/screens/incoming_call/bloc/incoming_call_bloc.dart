@@ -1,7 +1,8 @@
-/// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
+// Copyright (c) 2011 - 2026, Voximplant, Inc. All rights reserved.
+
 import 'dart:async';
 
-import 'package:bloc/bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:video_call/services/call/call_event.dart';
 import 'package:video_call/services/call/call_service.dart';
 import 'package:video_call/utils/permissions_helper.dart';

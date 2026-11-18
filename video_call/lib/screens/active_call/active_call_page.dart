@@ -1,10 +1,9 @@
-/// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
-import 'package:flutter/material.dart';
+// Copyright (c) 2011 - 2026, Voximplant, Inc. All rights reserved.
+
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_voximplant/flutter_voximplant.dart';
 import 'package:video_call/screens/active_call/active_call.dart';
-import 'package:video_call/screens/active_call/bloc/active_call_event.dart';
-import 'package:video_call/screens/active_call/bloc/active_call_state.dart';
 import 'package:video_call/screens/call_failed/call_failed.dart';
 import 'package:video_call/theme/voximplant_theme.dart';
 import 'package:video_call/utils/navigation_helper.dart';

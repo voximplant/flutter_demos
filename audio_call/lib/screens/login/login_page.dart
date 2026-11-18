@@ -4,7 +4,7 @@ import 'package:audio_call/screens/login/login.dart';
 import 'package:audio_call/theme/voximplant_theme.dart';
 import 'package:audio_call/utils/navigation_helper.dart';
 import 'package:audio_call/widgets/widgets.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 const List<String> nodes = <String>[

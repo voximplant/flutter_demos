@@ -1,11 +1,12 @@
-/// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
+// Copyright (c) 2011 - 2026, Voximplant, Inc. All rights reserved.
+
 import 'dart:io';
 
 import 'package:audio_call/screens/active_call/active_call.dart';
 import 'package:audio_call/screens/incoming_call/incoming_call_page_arguments.dart';
 import 'package:audio_call/utils/navigation_helper.dart';
 import 'package:audio_call/widgets/widgets.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'bloc/main_bloc.dart';

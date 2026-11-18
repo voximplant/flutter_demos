@@ -1,8 +1,7 @@
-/// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
+// Copyright (c) 2011 - 2026, Voximplant, Inc. All rights reserved.
 
 import 'package:audio_call/services/call/audio_device_event.dart';
 import 'package:audio_call/services/call/call_event.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_voximplant/flutter_voximplant.dart';
 
 abstract class ActiveCallEvent { }

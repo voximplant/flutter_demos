@@ -1,3 +1,5 @@
+// Copyright (c) 2011 - 2026, Voximplant, Inc. All rights reserved.
+
 import 'dart:io';
 
 import 'package:permission_handler/permission_handler.dart';

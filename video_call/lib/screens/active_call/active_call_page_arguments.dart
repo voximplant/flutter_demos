@@ -1,5 +1,4 @@
-/// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
-import 'package:flutter/cupertino.dart';
+// Copyright (c) 2011 - 2026, Voximplant, Inc. All rights reserved.
 
 class ActiveCallPageArguments {
   String endpoint;

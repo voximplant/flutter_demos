@@ -1,12 +1,11 @@
-/// Copyright (c) 2011-2020, Zingaya, Inc. All rights reserved.
+// Copyright (c) 2011 - 2026, Voximplant, Inc. All rights reserved.
 
 import 'package:audio_call/screens/active_call/active_call.dart';
 import 'package:audio_call/screens/call_failed/call_failed_page.dart';
 import 'package:audio_call/screens/incoming_call/incoming_call.dart';
-import 'package:audio_call/screens/incoming_call/incoming_call_page.dart';
 import 'package:audio_call/screens/login/login.dart';
 import 'package:audio_call/screens/main/main_page.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class NavigationHelper {
   static final GlobalKey<NavigatorState> navigatorKey =
