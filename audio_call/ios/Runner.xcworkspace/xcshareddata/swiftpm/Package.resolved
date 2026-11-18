@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/google/app-check.git",
       "state" : {
-        "revision" : "bb4002485ff867768dec13bf904a2ddb050bd1b1",
-        "version" : "11.3.0"
+        "revision" : "97f7d74dd0e8f3d0fe5fc75cc8957aa73bdc948a",
+        "version" : "11.3.2"
       }
     },
     {
@@ -59,8 +59,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/google/GoogleDataTransport.git",
       "state" : {
-        "revision" : "617af071af9aa1d6a091d59a202910ac482128f9",
-        "version" : "10.1.0"
+        "revision" : "ba3358d3c3dbae8ef230b58a46b97ad65e84e974",
+        "version" : "10.1.1"
       }
     },
     {
@@ -68,8 +68,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/google/GoogleUtilities.git",
       "state" : {
-        "revision" : "c46e5f8b7c23265f17c24ca7f9fa1b13ded7a822",
-        "version" : "8.1.1"
+        "revision" : "5459ee5603def3db0fe14ca522185f42c48d978e",
+        "version" : "8.1.5"
       }
     },
     {
@@ -140,8 +140,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-protobuf.git",
       "state" : {
-        "revision" : "f6506eaa86ed2e01cb0ae14a75035b7fdbf0918f",
-        "version" : "1.38.0"
+        "revision" : "fed2f76413026cb0ae90999a8c9116949dfe6aa6",
+        "version" : "1.41.0"
       }
     }
   ],

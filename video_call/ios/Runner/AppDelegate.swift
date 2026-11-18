@@ -5,21 +5,23 @@ import flutter_callkit_voximplant
 import flutter_voximplant
 
 @main
-@objc class AppDelegate: FlutterAppDelegate, PKPushRegistryDelegate {
+@objc class AppDelegate: FlutterAppDelegate, PKPushRegistryDelegate, FlutterImplicitEngineDelegate {
     private let voipRegistry: PKPushRegistry = PKPushRegistry(queue: .main)
 
     override func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
-        GeneratedPluginRegistrant.register(with: self)
-        PushKitPlugin.register(with: self.registrar(forPlugin: "PushKitPlugin")!)
-
         PushKitPlugin.shared.setPKPushRegistry(voipRegistry)
         voipRegistry.delegate = self
         voipRegistry.desiredPushTypes = [.voIP]
 
         return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+    }
+
+    func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
+        GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
+        PushKitPlugin.register(with: engineBridge.pluginRegistry.registrar(forPlugin: "PushKitPlugin")!)
     }
 
 
