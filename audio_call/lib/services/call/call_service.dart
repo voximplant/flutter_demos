@@ -48,7 +48,7 @@ class CallService {
     );
   }
 
-  get availableAudioDevices => __availableAudioDevices;
+  List<VIAudioDevice> get availableAudioDevices => __availableAudioDevices;
   late List<VIAudioDevice> __availableAudioDevices;
   set _availableAudioDevices(List<VIAudioDevice> devices) {
     _log('onAudioDeviceListChanged');

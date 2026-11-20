@@ -16,7 +16,7 @@ const String backgroundMessageIsolateName = 'fcm_background_msg_isolate';
 
 @pragma('vm:entry-point')
 Future<void> onBackgroundMessage(RemoteMessage message) async {
-  print('PushServiceAndroid: _onBackgroundMessage data: ${message.data}');
+  log('PushServiceAndroid: _onBackgroundMessage data: ${message.data}');
   await Firebase.initializeApp();
 
   final port = IsolateNameServer.lookupPortByName(backgroundMessageIsolateName);
@@ -51,9 +51,8 @@ class PushServiceAndroid {
     _firebaseMessaging = FirebaseMessaging.instance;
     FirebaseMessaging.onMessage.listen(_onMessage);
     FirebaseMessaging.onBackgroundMessage(onBackgroundMessage);
-    _firebaseMessaging.onTokenRefresh.listen(_onToken);
-    String? token = await _firebaseMessaging.getToken();
-    _onToken(token);
+    _firebaseMessaging.onRegistered.listen(_onToken);
+    await _firebaseMessaging.register();
 
     IsolateNameServer.registerPortWithName(
       backgroundMessagePort.sendPort,
@@ -63,7 +62,7 @@ class PushServiceAndroid {
     backgroundMessagePort.listen(backgroundMessagePortHandler);
   }
 
-  void backgroundMessagePortHandler(message) async {
+  void backgroundMessagePortHandler(dynamic message) async {
     _log('firebase message received on main isolate $message');
     await AuthService().pushNotificationReceived(message);
     Map<String, dynamic> callDetails = jsonDecode(message['voximplant']);
@@ -87,7 +86,7 @@ class PushServiceAndroid {
     );
   }
 
-  Future<void> _onToken(String? token) async {
+  Future<void> _onToken(String token) async {
     _log("onToken: $token");
     AuthService().voipToken = token;
   }

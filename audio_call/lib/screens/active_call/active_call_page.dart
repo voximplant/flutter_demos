@@ -11,6 +11,8 @@ import 'package:flutter_voximplant/flutter_voximplant.dart';
 class ActiveCallPage extends StatefulWidget {
   static const routeName = '/activeCall';
 
+  const ActiveCallPage({super.key});
+
   @override
   State<StatefulWidget> createState() => _ActiveCallPageState();
 }
@@ -29,9 +31,9 @@ class _ActiveCallPageState extends State<ActiveCallPage> {
   Widget build(BuildContext context) {
     void hangup() => _bloc.add(HangupPressedEvent());
 
-    void _hold(bool hold) => _bloc.add(HoldPressedEvent(hold));
+    void hold(bool hold) => _bloc.add(HoldPressedEvent(hold));
 
-    void _mute(bool mute) => _bloc.add(MutePressedEvent(mute));
+    void mute(bool mute) => _bloc.add(MutePressedEvent(mute));
 
     void selectAudioDevice(VIAudioDevice device) => _bloc.add(
           SelectAudioDevicePressedEvent(device),
@@ -67,7 +69,7 @@ class _ActiveCallPageState extends State<ActiveCallPage> {
           return AlertDialog(
             title: const Text('Select audio device'),
             content: SingleChildScrollView(
-              child: Container(
+              child: SizedBox(
                 width: 100,
                 height: 100,
                 child: ListView.builder(
@@ -161,7 +163,7 @@ class _ActiveCallPageState extends State<ActiveCallPage> {
                                 ),
                                 child: IconButton(
                                   onPressed: () {
-                                    _mute(!state.isMuted);
+                                    mute(!state.isMuted);
                                   },
                                   iconSize: 40,
                                   icon: Icon(
@@ -191,7 +193,7 @@ class _ActiveCallPageState extends State<ActiveCallPage> {
                                 ),
                                 child: IconButton(
                                   onPressed: () {
-                                    _hold(!state.isOnHold);
+                                    hold(!state.isOnHold);
                                   },
                                   iconSize: 40,
                                   icon: Icon(

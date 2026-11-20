@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace = "com.voximplant.flutter.audiocall"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 37
 
     compileOptions {
         isCoreLibraryDesugaringEnabled = true

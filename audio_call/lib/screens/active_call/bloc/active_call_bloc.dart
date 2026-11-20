@@ -22,8 +22,8 @@ class ActiveCallBloc extends Bloc<ActiveCallEvent, ActiveCallState> {
   StreamSubscription? _callStateSubscription;
   StreamSubscription? _audioDeviceSubscription;
 
-  bool _isIncoming;
-  String _endpoint;
+  final bool _isIncoming;
+  final String _endpoint;
 
   ActiveCallBloc(this._isIncoming, this._endpoint)
       : super(const ActiveCallState(
@@ -85,8 +85,7 @@ class ActiveCallBloc extends Bloc<ActiveCallEvent, ActiveCallState> {
         callStatus: _makeStringFromCallState(_callService.callState),
         endpointName: _callService.endpoint?.displayName ??
             _callService.endpoint?.userName ??
-            _endpoint ??
-            '',
+            _endpoint,
         availableAudioDevices: _callService.availableAudioDevices,
         activeAudioDevice: _callService.activeAudioDevice,
       ));
@@ -131,7 +130,7 @@ class ActiveCallBloc extends Bloc<ActiveCallEvent, ActiveCallState> {
       emit(state.copyWith(isMuted: callEvent.muted));
     } else if (callEvent is OnConnectedCallEvent) {
       _log('onConnected event');
-      String name = callEvent.displayName ?? callEvent.username ?? '';
+      String name = callEvent.displayName;
       emit(state.copyWith(callStatus: 'Connected', endpointName: name));
       await _callKitService?.reportConnected(
         callEvent.username,

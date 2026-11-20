@@ -26,6 +26,8 @@ const List<String> nodes = <String>[
 class LoginPage extends StatefulWidget {
   static const routeName = '/login';
 
+  const LoginPage({super.key});
+
   @override
   State<StatefulWidget> createState() => _LoginPageState();
 }

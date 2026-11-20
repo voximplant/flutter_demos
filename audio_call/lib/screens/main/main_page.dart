@@ -16,6 +16,8 @@ import 'bloc/main_state.dart';
 class MainPage extends StatefulWidget {
   static const routeName = '/main';
 
+  const MainPage({super.key});
+
   @override
   State<StatefulWidget> createState() => _MainPageState();
 }

@@ -15,7 +15,7 @@ class AuthService {
   Disconnected? onDisconnected;
 
   String? _voipToken;
-  set voipToken(token) {
+  set voipToken(String? token) {
     if (token == null || token == '') {
       _log('voip token cleared');
       final voipToken = _voipToken;
