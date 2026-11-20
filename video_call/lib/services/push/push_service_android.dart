@@ -51,9 +51,8 @@ class PushServiceAndroid {
     _firebaseMessaging = FirebaseMessaging.instance;
     FirebaseMessaging.onMessage.listen(_onMessage);
     FirebaseMessaging.onBackgroundMessage(onBackgroundMessage);
-    _firebaseMessaging.onTokenRefresh.listen(_onToken);
-    String? token = await _firebaseMessaging.getToken();
-    _onToken(token);
+    _firebaseMessaging.onRegistered.listen(_onToken);
+    await _firebaseMessaging.register();
 
     IsolateNameServer.registerPortWithName(
       backgroundMessagePort.sendPort,
@@ -87,7 +86,7 @@ class PushServiceAndroid {
     );
   }
 
-  Future<void> _onToken(String? token) async {
+  Future<void> _onToken(String token) async {
     _log("onToken: $token");
     AuthService().voipToken = token;
   }

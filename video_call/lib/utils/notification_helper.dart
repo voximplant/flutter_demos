@@ -26,7 +26,7 @@ class NotificationHelper {
   Future<void> _configure() async {
     print('NotificationHelper: _configure');
     await _plugin.initialize(
-      const InitializationSettings(
+      settings: const InitializationSettings(
         android: AndroidInitializationSettings('ic_notification'),
       ),
       onDidReceiveNotificationResponse: (notificationResponse) async {
@@ -44,10 +44,10 @@ class NotificationHelper {
   }) async {
     _log('displayNotification title: $title, description: $description');
     await _plugin.show(
-      _notificationId,
-      title,
-      description,
-      const NotificationDetails(
+      id: _notificationId,
+      title: title,
+      body: description,
+      notificationDetails: const NotificationDetails(
         android: AndroidNotificationDetails(
           'VoximplantChannelIncomingCalls',
           'CallChannel',
