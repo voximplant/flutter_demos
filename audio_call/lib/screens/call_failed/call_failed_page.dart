@@ -12,7 +12,7 @@ class CallFailedPage extends StatelessWidget {
   final String _failureReason;
   final String _endpoint;
 
-  CallFailedPage(CallFailedPageArguments arguments)
+  CallFailedPage(CallFailedPageArguments arguments, {super.key})
       : _failureReason = arguments.failureReason,
         _endpoint = arguments.endpoint;
 

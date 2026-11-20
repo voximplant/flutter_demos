@@ -13,16 +13,16 @@ class IncomingCallPage extends StatefulWidget {
 
   final String _endpoint;
 
-  IncomingCallPage({required IncomingCallPageArguments arguments})
-      : _endpoint = arguments.endpoint;
+  IncomingCallPage({
+    required IncomingCallPageArguments arguments,
+    super.key,
+  }) : _endpoint = arguments.endpoint;
 
   @override
-  State<StatefulWidget> createState() => _IncomingCallPageState(_endpoint);
+  State<StatefulWidget> createState() => _IncomingCallPageState();
 }
 
 class _IncomingCallPageState extends State<IncomingCallPage> {
-  final String _endpoint;
-
   late IncomingCallBloc _bloc;
 
   @override
@@ -30,7 +30,6 @@ class _IncomingCallPageState extends State<IncomingCallPage> {
     super.initState();
     _bloc = BlocProvider.of<IncomingCallBloc>(context);
   }
-  _IncomingCallPageState(this._endpoint);
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +46,7 @@ class _IncomingCallPageState extends State<IncomingCallPage> {
             AppRoutes.activeCall,
             arguments: ActiveCallPageArguments(
               isIncoming: true,
-              endpoint: _endpoint,
+              endpoint: widget._endpoint,
             ),
           );
         }
@@ -66,7 +65,7 @@ class _IncomingCallPageState extends State<IncomingCallPage> {
                     verticalPadding: 20,
                   ),
                   Widgets.textWithPadding(
-                    text: _endpoint,
+                    text: widget._endpoint,
                     textColor: VoximplantColors.white,
                     fontSize: 25,
                   ),

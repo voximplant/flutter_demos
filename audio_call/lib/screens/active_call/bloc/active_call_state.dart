@@ -62,12 +62,10 @@ class CallEndedActiveCallState extends ActiveCallState {
   CallEndedActiveCallState({
     required this.reason,
     required this.failed,
-    required endpointName,
-    required activeAudioDevice,
+    required super.endpointName,
+    required super.activeAudioDevice,
   }) : super(
-          endpointName: endpointName,
           callStatus: failed ? 'Failed' : 'Disconnected',
-          activeAudioDevice: activeAudioDevice,
           availableAudioDevices: List.empty(),
           isOnHold: false,
           isMuted: false,

@@ -10,7 +10,7 @@ import 'navigation_helper.dart';
 // Used in Android only
 // On iOS CallKit is used to notify user about calls
 class NotificationHelper {
-  int _notificationId = 100;
+  final int _notificationId = 100;
   final FlutterLocalNotificationsPlugin _plugin;
 
   static final NotificationHelper _instance = NotificationHelper._();
@@ -24,9 +24,9 @@ class NotificationHelper {
   }
 
   Future<void> _configure() async {
-    print('NotificationHelper: _configure');
+    _log('_configure');
     await _plugin.initialize(
-      const InitializationSettings(
+      settings: const InitializationSettings(
         android: AndroidInitializationSettings('ic_notification'),
       ),
       onDidReceiveNotificationResponse: (notificationResponse) async {
@@ -44,10 +44,10 @@ class NotificationHelper {
   }) async {
     _log('displayNotification title: $title, description: $description');
     await _plugin.show(
-      _notificationId,
-      title,
-      description,
-      const NotificationDetails(
+      id: _notificationId,
+      title: title,
+      body: description,
+      notificationDetails: const NotificationDetails(
         android: AndroidNotificationDetails(
           'VoximplantChannelIncomingCalls',
           'CallChannel',
